@@ -1,122 +1,156 @@
-# template-is-all-you-need
+# Creativity Generation Unit (CGU)
 
-> 🏗️ AI-Assisted Development Project Template with Claude Skills, Memory Bank & Constitution-Bylaw Architecture
+> 🎨 **MCP-based Agent-to-Agent Creative Idea Generator**
+> 
+> 基於快思慢想 (Thinking, Fast and Slow) 的創意發想服務
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 
 🌐 [繁體中文](README.zh-TW.md)
 
-## ✨ Features
+## 💡 Core Insight
 
-- 🏛️ **Constitution-Bylaw Architecture** - Hierarchical rule system inspired by speckit
-- 🤖 **Claude Skills** - 12+ modular AI skills for development automation
-- 📝 **Memory Bank** - Cross-conversation project memory system
-- 🏗️ **DDD Architecture** - Domain-Driven Design with independent DAL
-- 🔄 **Git Automation** - Auto-update documentation before commits
-- 🐍 **Python Environment** - uv-first package management
+> **"All models are wrong, but some are useful!"** — George Box
+
+**Key Discovery: Creativity can emerge from partial information!**
+
+- Humans don't need complete world knowledge to generate creative ideas
+- Creativity requires **connection ability**, not information volume
+- Even the simplest models can provide unique creative perspectives
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              Creativity Generation Unit (CGU)            │
+│                      MCP Server                          │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│   ┌──────────────┐    A2A    ┌──────────────────┐      │
+│   │   Requester  │ ◄───────► │    CGU Agent     │      │
+│   │    Agent     │           │ (Qwen 4B + vLLM) │      │
+│   └──────────────┘           └──────────────────┘      │
+│                                                          │
+│   ┌────────────────────────────────────────────────┐   │
+│   │              LangGraph Orchestration            │   │
+│   │  ┌────────┐  ┌────────┐  ┌────────┐           │   │
+│   │  │  Fast  │  │  Fast  │  │  Slow  │           │   │
+│   │  │ Step 1 │→ │ Step 2 │→ │ Think  │→ ...     │   │
+│   │  └────────┘  └────────┘  └────────┘           │   │
+│   └────────────────────────────────────────────────┘   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 🧠 Thinking, Fast and Slow
+
+Based on Daniel Kahneman's theory:
+
+| System | Speed | Characteristics | CGU Implementation |
+|--------|-------|-----------------|-------------------|
+| **System 1** | Fast ⚡ | Intuitive, automatic | `REACT`, `ASSOCIATE`, `PATTERN_MATCH` |
+| **System 2** | Slow 🐢 | Deliberate, analytical | `ANALYZE`, `SYNTHESIZE`, `EVALUATE` |
+| **Creative** | Mixed 🎨 | Breaking boundaries | `DIVERGE`, `CONVERGE`, `TRANSFORM` |
+
+**Core Strategy**: Multiple fast steps + occasional slow steps = Efficient creativity
+
+## 🎯 Creativity Levels
+
+```
+Level 1: Combinational (0.7-1.0 association)
+└─ New combinations of known elements
+
+Level 2: Exploratory (0.3-0.7 association)
+└─ Exploring boundaries within existing rules
+
+Level 3: Transformational (0.0-0.3 association)
+└─ Breaking rules, creating new paradigms
+```
+
+## 📚 15 Human Creativity Methods
+
+CGU implements structured creativity methods:
+
+| Category | Methods |
+|----------|---------|
+| **Divergent** | Mind Map, Brainstorm, SCAMPER, Random Input |
+| **Structural** | 9-Grid Mandala, Morphological Analysis, 5W2H, Fishbone |
+| **Perspective** | Six Thinking Hats, Reverse Thinking, Analogy |
+| **Process** | Double Diamond, Design Sprint, KJ Method, World Café |
+| **Systematic** | TRIZ 40 Principles |
+
+## 🛠️ Tech Stack
+
+- **MCP SDK**: FastMCP for tool serving
+- **Agent Orchestration**: LangGraph
+- **Local Inference**: vLLM + Qwen 4B
+- **Structured Output**: Pydantic + Instructor
+- **Web Search**: DuckDuckGo Search
+
+## 🚀 Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/creativity-generation-unit.git
+cd creativity-generation-unit
+
+# Setup environment (uv recommended)
+uv venv
+uv sync --all-extras
+
+# Run MCP server
+cgu-server
+
+# Or use CLI
+cgu generate "How to improve remote work productivity?"
+```
 
 ## 📁 Project Structure
 
 ```
-template-is-all-you-need/
-├── CONSTITUTION.md          # 📜 Project Constitution (Highest Principles)
-├── .github/
-│   ├── bylaws/              # 📋 Bylaws
-│   │   ├── ddd-architecture.md
-│   │   ├── git-workflow.md
-│   │   ├── memory-bank.md
-│   │   └── python-environment.md
-│   ├── workflows/           # ⚙️ CI/CD
-│   ├── ISSUE_TEMPLATE/      # 📝 Issue Templates
-│   └── copilot-instructions.md
-├── .claude/skills/          # 🤖 Claude Skills
-│   ├── git-precommit/       # Git commit orchestrator
-│   ├── ddd-architect/       # DDD architecture assistant
-│   ├── code-refactor/       # Code refactoring
-│   ├── memory-updater/      # Memory Bank sync
-│   ├── memory-checkpoint/   # Pre-summarization checkpoint
-│   ├── readme-updater/      # README updates
-│   ├── readme-i18n/         # README internationalization
-│   ├── changelog-updater/   # CHANGELOG updates
-│   ├── roadmap-updater/     # ROADMAP updates
-│   ├── code-reviewer/       # Code review
-│   ├── test-generator/      # Test generation
-│   └── project-init/        # Project initialization
-├── memory-bank/             # 🧠 Project Memory
-├── README.md                # This file (English)
-├── README.zh-TW.md          # Chinese version
-├── CHANGELOG.md
-├── ROADMAP.md
-├── ARCHITECTURE.md
-├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-├── SECURITY.md
-└── LICENSE
+creativity-generation-unit/
+├── src/cgu/
+│   ├── core/           # Core concepts
+│   │   ├── thinking.py # Fast/Slow thinking
+│   │   └── creativity.py # Methods & levels
+│   ├── methods/        # Method implementations
+│   ├── agents/         # LangGraph agents
+│   └── graph/          # Graph definitions
+├── docs/               # Documentation
+├── tests/              # Test suite
+├── memory-bank/        # Project memory
+└── pyproject.toml      # Dependencies
 ```
 
-## 🚀 Quick Start
+## 🔧 MCP Tools
 
-### Use as Template
-
-```bash
-# Option 1: GitHub CLI
-gh repo create my-project --template u9401066/template-is-all-you-need
-
-# Option 2: Manual clone
-git clone https://github.com/u9401066/template-is-all-you-need.git my-project
-cd my-project
-rm -rf .git && git init
+```typescript
+// Available MCP Tools
+generateIdeas(topic, creativityLevel, count)
+sparkCollision(conceptA, conceptB)
+associativeExpansion(seed, direction, depth)
+applyMethod(method, input)
 ```
 
-### VS Code Setup
+## 🌟 Design Principles
 
-Ensure GitHub Copilot is installed. The project auto-enables:
-- Claude Skills support
-- Custom instructions
-- Agent mode
-
-## 🤖 Skills Usage
-
-| Command | Function |
-|---------|----------|
-| "prepare commit" | Execute full Git commit workflow |
-| "quick commit" | Sync Memory Bank only |
-| "create feature X" | Generate DDD structure |
-| "review code" | Code review |
-| "generate tests" | Auto-generate tests |
-| "checkpoint" | Save memory before context loss |
-
-## 🏛️ Architecture Principles
-
-This project follows:
-
-1. **DDD (Domain-Driven Design)** - Domain-driven architecture
-2. **Independent DAL** - Separated Data Access Layer
-3. **Documentation First** - Code is compiled documentation
-4. **Memory Bank Binding** - Operations sync with memory in real-time
-
-See [CONSTITUTION.md](CONSTITUTION.md) for details.
+1. **Model Democracy** - Even simple models have unique perspectives
+2. **Partial is Enough** - No need for complete world model
+3. **Connection > Knowledge** - Creativity is about linking
+4. **Errors are Useful** - Wrong connections may be innovations
 
 ## 📋 Documentation
 
-- [Constitution](CONSTITUTION.md) - Highest principles
-- [Architecture](ARCHITECTURE.md) - System architecture
+- [CGU Concept](docs/creativity-generation-unit.md) - Core concepts & methods
+- [Constitution](CONSTITUTION.md) - Project principles
+- [Architecture](ARCHITECTURE.md) - System design
 - [Changelog](CHANGELOG.md) - Version history
-- [Roadmap](ROADMAP.md) - Feature planning
-- [Contributing](CONTRIBUTING.md) - How to contribute
-- [CLAUDE.md](CLAUDE.md) - Claude Code guidelines
-- [AGENTS.md](AGENTS.md) - VS Code Copilot Agent guidelines
-
-## 🧪 Testing Support
-
-The template includes comprehensive testing configuration:
-
-- **Static Analysis**: ruff, mypy, bandit
-- **Unit Tests**: pytest with 80% coverage requirement
-- **Integration Tests**: pytest-asyncio
-- **E2E Tests**: Playwright
-- **CI/CD**: GitHub Actions with 6 jobs
 
 ## 📄 License
 
 [Apache License 2.0](LICENSE)
+
+---
+
+*"Creativity is just connecting things."* — Steve Jobs

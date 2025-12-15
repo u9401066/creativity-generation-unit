@@ -1,122 +1,151 @@
-# template-is-all-you-need
+# CGU - Creativity Generation Unit
 
-> 🏗️ AI 輔助開發專案模板 - 整合 Claude Skills、Memory Bank 與憲法-子法架構
+> 🧠 MCP-based Agent-to-Agent 創意發想服務，採用「快思慢想」架構
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-🌐 [English](README.md)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
+[![MCP](https://img.shields.io/badge/MCP-FastMCP-green.svg)](https://github.com/modelcontextprotocol)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## ✨ 特色
 
-- 🏛️ **憲法-子法架構** - 類似 speckit 的層級規則系統
-- 🤖 **Claude Skills** - 12+ 個模組化 AI 技能，自動化開發流程
-- 📝 **Memory Bank** - 跨對話專案記憶系統
-- 🏗️ **DDD 架構** - 領域驅動設計 + DAL 獨立
-- 🔄 **Git 自動化** - 提交前自動更新文檔
-- 🐍 **Python 環境** - uv 優先的套件管理
+- 🚀 **快思慢想架構** - 多個快速小步驟 + 慢速大步驟組合
+- 🎨 **15 種創意方法** - SCAMPER、六頂思考帽、心智圖、九宮格等
+- 🔌 **MCP 協議** - 標準化的 Agent-to-Agent 通訊
+- 🤖 **LangGraph 編排** - 靈活的思考流程控制
+- 🏠 **本地推理** - Ollama + Qwen 支援，隱私優先
 
-## 📁 專案結構
+## 🏗️ 架構
 
 ```
-template-is-all-you-need/
-├── CONSTITUTION.md          # 📜 專案憲法（最高原則）
-├── .github/
-│   ├── bylaws/              # 📋 子法
-│   │   ├── ddd-architecture.md
-│   │   ├── git-workflow.md
-│   │   ├── memory-bank.md
-│   │   └── python-environment.md
-│   ├── workflows/           # ⚙️ CI/CD
-│   ├── ISSUE_TEMPLATE/      # 📝 Issue 模板
-│   └── copilot-instructions.md
-├── .claude/skills/          # 🤖 Claude Skills
-│   ├── git-precommit/       # Git 提交編排器
-│   ├── ddd-architect/       # DDD 架構輔助
-│   ├── code-refactor/       # 程式碼重構
-│   ├── memory-updater/      # Memory Bank 同步
-│   ├── memory-checkpoint/   # 預摘要記憶檢查點
-│   ├── readme-updater/      # README 更新
-│   ├── readme-i18n/         # README 國際化
-│   ├── changelog-updater/   # CHANGELOG 更新
-│   ├── roadmap-updater/     # ROADMAP 更新
-│   ├── code-reviewer/       # 程式碼審查
-│   ├── test-generator/      # 測試生成
-│   └── project-init/        # 專案初始化
-├── memory-bank/             # 🧠 專案記憶
-├── README.md                # 主 README（英文）
-├── README.zh-TW.md          # 本檔案（中文）
-├── CHANGELOG.md
-├── ROADMAP.md
-├── ARCHITECTURE.md
-├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-├── SECURITY.md
-└── LICENSE
+┌─────────────────────────────────────────────────────────┐
+│                    CGU Architecture                      │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐             │
+│  │  MCP    │───▶│ LangGraph│───▶│  Ollama │             │
+│  │ Server  │    │  Agent   │    │   LLM   │             │
+│  └─────────┘    └─────────┘    └─────────┘             │
+│       │              │                                   │
+│       ▼              ▼                                   │
+│  ┌─────────────────────────────────────┐               │
+│  │         Creativity Methods          │               │
+│  │  SCAMPER │ 六頂帽 │ 九宮格 │ ...    │               │
+│  └─────────────────────────────────────┘               │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 📦 安裝
+
+```bash
+# 使用 uv（推薦）
+uv sync
+
+# 或使用 pip
+pip install -e .
 ```
 
 ## 🚀 快速開始
 
-### 作為模板使用
+### CLI 使用
 
 ```bash
-# 方式 1：GitHub CLI
-gh repo create my-project --template u9401066/template-is-all-you-need
+# 生成創意點子
+cgu generate "如何提升團隊創造力"
 
-# 方式 2：手動 clone
-git clone https://github.com/u9401066/template-is-all-you-need.git my-project
-cd my-project
-rm -rf .git && git init
+# 概念碰撞
+cgu spark "人工智慧" "傳統手工藝"
+
+# 使用特定方法
+cgu apply scamper "智慧手錶"
+
+# 查看可用方法
+cgu methods
 ```
 
-### VS Code 設定
+### MCP Server
 
-確保已安裝 GitHub Copilot，專案會自動啟用：
-- Claude Skills 支援
-- 自定義指令
-- Agent 模式
+```bash
+# 啟動 MCP Server
+cgu-server
+```
 
-## 🤖 Skills 使用
+### 程式碼使用
 
-| 指令 | 功能 |
-|------|------|
-| 「準備 commit」 | 執行完整 Git 提交流程 |
-| 「快速 commit」 | 只同步 Memory Bank |
-| 「建立功能 X」 | 生成 DDD 結構 |
-| 「review 程式碼」 | 程式碼審查 |
-| 「生成測試」 | 自動生成測試 |
-| 「checkpoint」 | 在上下文丟失前保存記憶 |
+```python
+from cgu.graph import run_cgu
+from cgu.core import CreativityLevel
 
-## 🏛️ 架構原則
+# 運行創意生成
+result = await run_cgu(
+    topic="未來的教育方式",
+    creativity_level=CreativityLevel.L2_EXPLORATORY,
+    target_count=5,
+)
 
-本專案遵循：
+for idea in result["final_ideas"]:
+    print(f"💡 {idea.content}")
+```
 
-1. **DDD (Domain-Driven Design)** - 領域驅動設計
-2. **DAL 獨立** - 資料存取層分離
-3. **文檔優先** - 程式碼是文檔的編譯產物
-4. **Memory Bank 綁定** - 操作即時同步記憶
+## 🎯 創意層級
 
-詳見 [CONSTITUTION.md](CONSTITUTION.md)
+| 層級 | 名稱 | 關聯性 | 說明 |
+|------|------|--------|------|
+| L1 | 組合創意 | 0.7-1.0 | 已知元素的新組合 |
+| L2 | 探索創意 | 0.3-0.7 | 在既有規則內探索邊界 |
+| L3 | 變革創意 | 0.0-0.3 | 打破規則，創造新範式 |
 
-## 📋 文檔
+## 🧰 創意方法
 
-- [憲法](CONSTITUTION.md) - 最高原則
-- [架構說明](ARCHITECTURE.md) - 系統架構
-- [變更日誌](CHANGELOG.md) - 版本歷史
-- [路線圖](ROADMAP.md) - 功能規劃
-- [貢獻指南](CONTRIBUTING.md) - 如何貢獻
-- [CLAUDE.md](CLAUDE.md) - Claude Code 專用指引
-- [AGENTS.md](AGENTS.md) - VS Code Copilot Agent 指引
+### 發散類
+- 🧠 心智圖 (Mind Map)
+- 💡 腦力激盪 (Brainstorm)
+- 🔄 SCAMPER 檢核表
+- 🎲 隨機輸入法
 
-## 🧪 測試支援
+### 結構類
+- 📊 曼陀羅九宮格
+- 🔬 形態分析法
+- ❓ 5W2H
+- 🐟 魚骨圖
 
-模板包含完整的測試配置：
+### 觀點類
+- 🎩 六頂思考帽
+- 👥 角色扮演法
+- 🔄 逆向思考法
 
-- **靜態分析**：ruff、mypy、bandit
-- **單元測試**：pytest，80% 覆蓋率要求
-- **整合測試**：pytest-asyncio
-- **E2E 測試**：Playwright
-- **CI/CD**：GitHub Actions，6 個 jobs
+## ⚙️ 配置
+
+```bash
+# .env 配置
+CGU_USE_LLM=true                          # 啟用 LLM
+OLLAMA_BASE_URL=http://localhost:11434/v1  # Ollama 地址
+OLLAMA_MODEL=qwen2.5:3b                    # 模型名稱
+```
+
+## 🔧 開發
+
+```bash
+# 安裝開發依賴
+uv sync --all-extras
+
+# 運行測試
+pytest
+
+# 程式碼檢查
+ruff check src/
+```
+
+## 📚 文檔
+
+- [創意生成單元概念](docs/creativity-generation-unit.md)
+- [API 參考](docs/api.md)
+- [MCP 工具說明](docs/mcp-tools.md)
 
 ## 📄 授權
 
-[Apache License 2.0](LICENSE)
+MIT License - 詳見 [LICENSE](LICENSE)
+
+---
+
+<p align="center">
+  Made with 💡 by CGU Team
+</p>

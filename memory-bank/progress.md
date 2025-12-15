@@ -2,17 +2,21 @@
 
 ## Done
 
-- 建立完整專案模板 (48 檔案)
-- 發布到 GitHub: u9401066/template-is-all-you-need
-- 啟用 Template Repository 功能
-- 新增 8 個主題標籤
+- pyproject.toml 專案配置
+- src/cgu/core/thinking.py - 快思慢想核心
+- src/cgu/core/creativity.py - 15種創意方法
+- src/cgu/server.py - FastMCP Server
+- src/cgu/cli.py - CLI 介面
+- src/cgu/graph/ - LangGraph Agent
+- src/cgu/llm/ - Ollama 整合
+- 依賴安裝 (uv sync)
 
 ## Doing
 
-
+- Git 提交 CGU 專案
 
 ## Next
 
-- 測試從模板建立新專案
-- 新增更多語言專屬 Skills
-- 考慮建立文件網站
+- 測試模擬模式
+- 單元測試
+- Ollama 整合測試
