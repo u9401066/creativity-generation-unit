@@ -53,12 +53,35 @@
 - **git-precommit** - Git 提交前編排器
 - **ddd-architect** - DDD 架構輔助與檢查
 - **memory-updater** - Memory Bank 同步
+- **memory-checkpoint** - 記憶檢查點（Summarize 前外部化）
 - **readme-updater** - README 智能更新
 - **changelog-updater** - CHANGELOG 自動更新
 - **roadmap-updater** - ROADMAP 狀態追蹤
 - **code-reviewer** - 程式碼審查
-- **test-generator** - 測試生成
+- **test-generator** - 測試生成（Unit/Integration/E2E）
 - **project-init** - 專案初始化
+
+---
+
+## 💸 Memory Checkpoint 規則
+
+為避免對話被 Summarize 壓縮時遺失重要上下文：
+
+### 主動觸發時機
+1. 對話超過 **10 輪**
+2. 累積修改超過 **5 個檔案**
+3. 完成一個 **重要功能/修復**
+4. 使用者說要 **離開/等等**
+
+### 執行指令
+- 「記憶檢查點」「checkpoint」「存檔」
+- 「保存記憶」「sync memory」
+
+### 必須記錄
+- 當前工作焦點
+- 變更的檔案列表（完整路徑）
+- 待解決事項
+- 下一步計畫
 
 ---
 

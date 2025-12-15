@@ -307,7 +307,174 @@ async def async_client():
         yield client
 ```
 
-### 4️⃣ 覆蓋率 (Coverage)
+### 5️⃣ E2E 測試 (End-to-End Tests)
+
+#### E2E 測試工具選擇
+
+| 工具 | 適用場景 | 特點 |
+|------|----------|------|
+| **Playwright** | Web UI 測試 | 跨瀏覽器、自動等待、截圖/錄影 |
+| **Selenium** | 傳統 Web 測試 | 廣泛支援、成熟穩定 |
+| **pytest + httpx** | API E2E | 輕量、快速 |
+| **Locust** | 負載/效能測試 | 分散式、Python 原生 |
+
+#### Playwright 配置 (推薦)
+```toml
+# pyproject.toml
+[tool.pytest.ini_options]
+markers = [
+    "e2e: End-to-end tests (require running application)",
+]
+```
+
+```python
+# tests/e2e/conftest.py
+import pytest
+from playwright.async_api import async_playwright, Browser, Page
+
+
+@pytest.fixture(scope="session")
+def browser_type():
+    """可透過環境變數切換瀏覽器"""
+    import os
+    return os.getenv("BROWSER", "chromium")  # chromium, firefox, webkit
+
+
+@pytest.fixture(scope="session")
+async def browser(browser_type: str):
+    """建立瀏覽器實例 (session 級別)"""
+    async with async_playwright() as p:
+        browser = await getattr(p, browser_type).launch(
+            headless=True,
+            slow_mo=100,  # 放慢操作以便觀察
+        )
+        yield browser
+        await browser.close()
+
+
+@pytest.fixture
+async def page(browser: Browser):
+    """建立新頁面 (每個測試獨立)"""
+    context = await browser.new_context(
+        viewport={"width": 1280, "height": 720},
+        record_video_dir="test-results/videos",  # 錄製影片
+    )
+    page = await context.new_page()
+    yield page
+    await context.close()
+
+
+@pytest.fixture
+def base_url():
+    """應用程式 base URL"""
+    import os
+    return os.getenv("APP_URL", "http://localhost:8000")
+```
+
+#### E2E 測試範例
+```python
+# tests/e2e/test_user_journey.py
+import pytest
+from playwright.async_api import Page, expect
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+class TestUserJourney:
+    """使用者旅程 E2E 測試"""
+
+    async def test_user_registration_flow(self, page: Page, base_url: str):
+        """測試完整註冊流程"""
+        # 1. 前往註冊頁面
+        await page.goto(f"{base_url}/register")
+        await expect(page).to_have_title("Register")
+
+        # 2. 填寫表單
+        await page.fill("input[name='username']", "testuser")
+        await page.fill("input[name='email']", "test@example.com")
+        await page.fill("input[name='password']", "SecureP@ss123")
+        await page.fill("input[name='confirm_password']", "SecureP@ss123")
+
+        # 3. 提交表單
+        await page.click("button[type='submit']")
+
+        # 4. 驗證結果
+        await expect(page).to_have_url(f"{base_url}/dashboard")
+        await expect(page.locator(".welcome-message")).to_contain_text("Welcome, testuser")
+
+    async def test_login_logout_flow(self, page: Page, base_url: str):
+        """測試登入登出流程"""
+        # 登入
+        await page.goto(f"{base_url}/login")
+        await page.fill("input[name='email']", "test@example.com")
+        await page.fill("input[name='password']", "SecureP@ss123")
+        await page.click("button[type='submit']")
+        
+        await expect(page.locator(".user-menu")).to_be_visible()
+
+        # 登出
+        await page.click(".logout-button")
+        await expect(page).to_have_url(f"{base_url}/")
+
+    async def test_create_item_flow(self, page: Page, base_url: str, authenticated_page):
+        """測試建立項目流程 (需登入)"""
+        await authenticated_page.goto(f"{base_url}/items/new")
+        
+        await authenticated_page.fill("input[name='title']", "Test Item")
+        await authenticated_page.fill("textarea[name='description']", "Description")
+        await authenticated_page.click("button[type='submit']")
+        
+        await expect(authenticated_page.locator(".success-toast")).to_be_visible()
+```
+
+#### API E2E 測試 (無 UI)
+```python
+# tests/e2e/test_api_e2e.py
+import pytest
+import httpx
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+class TestAPIEndToEnd:
+    """API E2E 測試 - 測試完整 API 流程"""
+
+    @pytest.fixture
+    async def client(self, base_url: str):
+        async with httpx.AsyncClient(base_url=base_url) as client:
+            yield client
+
+    async def test_complete_crud_flow(self, client: httpx.AsyncClient):
+        """測試完整 CRUD 流程"""
+        # Create
+        response = await client.post("/api/v1/items", json={"name": "Test"})
+        assert response.status_code == 201
+        item_id = response.json()["id"]
+
+        # Read
+        response = await client.get(f"/api/v1/items/{item_id}")
+        assert response.status_code == 200
+        assert response.json()["name"] == "Test"
+
+        # Update
+        response = await client.put(
+            f"/api/v1/items/{item_id}",
+            json={"name": "Updated"}
+        )
+        assert response.status_code == 200
+
+        # Delete
+        response = await client.delete(f"/api/v1/items/{item_id}")
+        assert response.status_code == 204
+
+        # Verify deletion
+        response = await client.get(f"/api/v1/items/{item_id}")
+        assert response.status_code == 404
+```
+
+---
+
+### 6️⃣ 覆蓋率 (Coverage)
 
 #### pytest-cov 配置
 ```toml
@@ -390,7 +557,7 @@ pytest --cov=src --cov-report=term-missing --cov-report=html --cov-report=xml
 # pyproject.toml [project.optional-dependencies] 或 requirements-dev.txt
 [project.optional-dependencies]
 dev = [
-    # Testing
+    # Testing - Core
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.21.0",
@@ -400,6 +567,11 @@ dev = [
     "httpx>=0.24.0",            # Async HTTP client for API tests
     "factory-boy>=3.3.0",       # Test data factories
     "faker>=19.0.0",            # Fake data generation
+    
+    # E2E Testing
+    "playwright>=1.40.0",       # Browser automation
+    "pytest-playwright>=0.4.0", # Playwright pytest plugin
+    "locust>=2.20.0",           # Load testing (optional)
     
     # Static Analysis
     "mypy>=1.5.0",
@@ -439,6 +611,11 @@ dev = [
 - ✅ API 端點測試
 - ✅ 資料庫操作測試
 - ✅ 外部服務測試 (mocked)
+
+#### E2E 測試 (`tests/e2e/`)
+- ✅ 使用者旅程測試
+- ✅ 關鍵流程驗證
+- ✅ 跨瀏覽器測試 (Playwright)
 
 ### 📊 覆蓋率目標
 - 單元測試：≥ 90%

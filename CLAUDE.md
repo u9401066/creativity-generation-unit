@@ -54,12 +54,32 @@ CONSTITUTION.md          ← 最高原則（不可違反）
 | `git-precommit` | Git 提交前編排器 |
 | `ddd-architect` | DDD 架構輔助 |
 | `memory-updater` | Memory Bank 同步 |
+| `memory-checkpoint` | 記憶檢查點（Summarize 前外部化） |
 | `readme-updater` | README 智能更新 |
 | `changelog-updater` | CHANGELOG 自動更新 |
 | `roadmap-updater` | ROADMAP 狀態追蹤 |
 | `code-reviewer` | 程式碼審查 |
-| `test-generator` | 測試生成 |
+| `test-generator` | 測試生成（Unit/Integration/E2E） |
 | `project-init` | 專案初始化 |
+
+## 💸 Memory Checkpoint 規則
+
+### 主動觸發時機
+- 對話超過 **10 輪** 時，主動建議 checkpoint
+- 完成 **重大功能** 後，主動執行 checkpoint
+- 使用者說要 **離開/等等繼續** 時，主動執行 checkpoint
+
+### Checkpoint 內容必須包含
+- 具體檔案路徑
+- 變更摘要
+- 下一步計畫
+- 重要決策（如有）
+
+### 觸發指令
+```
+「記憶檢查點」 / 「checkpoint」 / 「存檔」
+「保存記憶」 / 「sync memory」
+```
 
 ## 常用指令
 
