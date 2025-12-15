@@ -4,35 +4,28 @@
 
 ## Current Goals
 
-- ## 當前焦點：MCP Server 建立完成
-- ### 已完成
-- 1. **MCP Server LLM 整合** - 所有 6 個工具已整合真實 LLM：
-- - `generate_ideas` - IdeasOutput schema
-- - `spark_collision` - SparkOutput schema
-- - `associative_expansion` - AssociationList schema
-- - `apply_method` - SCAMPER/六頂帽/九宮格整合
-- - `select_method` / `list_methods` - 輔助工具
-- 2. **VS Code MCP 配置** - `.vscode/mcp.json` 已建立
-- - 使用 stdio 類型
-- - 支援 `${workspaceFolder}` 變數
-- - 可載入 `.env` 環境變數
-- ### 配置格式（VS Code 官方）
-- ```json
-- {
-- "servers": {
-- "cgu": {
-- "type": "stdio",
-- "command": "uv",
-- "args": ["--directory", "${workspaceFolder}", "run", "cgu-server"],
-- "env": { "CGU_USE_LLM": "true" },
-- "envFile": "${workspaceFolder}/.env"
-- }
-- }
-- }
-- ```
-- ### 下一步
-- - 在 VS Code Chat 中測試 MCP 工具
-- - 使用 `MCP: List Servers` 命令確認 CGU 已載入
+- ## 當前焦點：v0.3.0 ThinkingEngine 發布
+- ### 完成的工作
+- 1. **ThinkingEngine** - 統一思考引擎
+- - 4 種模式：Simple / Deep / Spark / Hybrid
+- - 支援 Copilot 框架模式和 Ollama 本地模式
+- 2. **Multi-Agent 系統**
+- - Explorer Agent（探索者）- 廣度優先
+- - Critic Agent（批判者）- 深度分析
+- - Wildcard Agent（狂想者）- 跨界創新
+- - AgentOrchestrator - 並發協調
+- 3. **Spark Engine** - 概念碰撞火花引擎
+- - 跨人格碰撞策略
+- - 驚喜度、潛力、連貫性評分
+- 4. **新 MCP 工具**
+- - `deep_think` - 統一思考入口
+- - `multi_agent_brainstorm` - Multi-Agent 並發
+- - `spark_collision_deep` - 深度概念碰撞
+- ### 技術亮點
+- - Python 3.12 PEP 695 Type Alias 語法
+- - LangGraph 1.0 Functional API (@entrypoint/@task)
+- - Pydantic v2 model_config
+- - 環境變數：CGU_THINKING_DEPTH (shallow/medium/deep)
 
 ## 🎯 當前焦點
 

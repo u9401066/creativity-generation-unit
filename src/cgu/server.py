@@ -3,6 +3,11 @@ CGU MCP Server
 
 使用 FastMCP 提供創意生成工具
 整合 Ollama LLM 進行真實創意生成
+
+支援三種思考模式：
+- simple: Ollama/Copilot 快速單次發想（預設）
+- deep: Multi-Agent 並發深度思考
+- spark: 概念碰撞產生靈感火花
 """
 
 import os
@@ -27,6 +32,8 @@ logger = logging.getLogger(__name__)
 USE_LLM = os.getenv("CGU_USE_LLM", "false").lower() == "true"
 # 思考引擎：ollama (本地推理) | copilot (僅提供框架，讓 Copilot 填充)
 LLM_PROVIDER = os.getenv("CGU_LLM_PROVIDER", "ollama").lower()
+# 思考深度：shallow (快) | medium (中) | deep (深)
+THINKING_DEPTH = os.getenv("CGU_THINKING_DEPTH", "medium").lower()
 
 # 初始化 FastMCP Server
 mcp = FastMCP(
@@ -55,6 +62,29 @@ def _get_llm_client():
 def _is_copilot_mode() -> bool:
     """檢查是否為 Copilot 模式"""
     return LLM_PROVIDER == "copilot"
+
+
+def _get_thinking_engine():
+    """取得統一思考引擎"""
+    try:
+        from cgu.thinking import ThinkingEngine, ThinkingConfig, ThinkingDepth
+        
+        depth_map = {
+            "shallow": ThinkingDepth.SHALLOW,
+            "medium": ThinkingDepth.MEDIUM,
+            "deep": ThinkingDepth.DEEP,
+        }
+        
+        config = ThinkingConfig(depth=depth_map.get(THINKING_DEPTH, ThinkingDepth.MEDIUM))
+        engine = ThinkingEngine(config=config)
+        
+        if _is_copilot_mode():
+            engine.set_copilot_mode(True)
+        
+        return engine
+    except Exception as e:
+        logger.warning(f"ThinkingEngine 初始化失敗: {e}")
+        return None
 
 
 # === MCP Tools ===
@@ -461,6 +491,178 @@ async def select_method(
             "purpose": purpose,
         },
     }
+
+
+# === 新增：深度思考工具 ===
+
+
+@mcp.tool()
+async def deep_think(
+    topic: str,
+    depth: str = "medium",
+    mode: str | None = None,
+) -> dict:
+    """
+    統一思考介面 - 智能選擇思考深度
+    
+    Args:
+        topic: 思考主題
+        depth: 思考深度 - "shallow"（快速）/ "medium"（適中）/ "deep"（深入）
+        mode: 強制模式 - "simple"（單次）/ "deep"（多Agent）/ "spark"（碰撞）/ None（自動）
+    
+    Returns:
+        包含點子、火花、推理過程的完整結果
+    """
+    engine = _get_thinking_engine()
+    
+    if engine is None:
+        # Fallback 到傳統模式
+        return await generate_ideas(topic=topic, count=5)
+    
+    try:
+        from cgu.thinking import ThinkingMode as TMode, ThinkingDepth
+        
+        # 解析深度
+        depth_map = {
+            "shallow": ThinkingDepth.SHALLOW,
+            "medium": ThinkingDepth.MEDIUM,
+            "deep": ThinkingDepth.DEEP,
+        }
+        
+        # 解析模式
+        mode_map = {
+            "simple": TMode.SIMPLE,
+            "deep": TMode.DEEP,
+            "spark": TMode.SPARK,
+            "hybrid": TMode.HYBRID,
+        }
+        
+        result = await engine.think(
+            topic=topic,
+            mode=mode_map.get(mode) if mode else None,
+            depth=depth_map.get(depth, ThinkingDepth.MEDIUM),
+        )
+        
+        return result.to_dict()
+        
+    except Exception as e:
+        logger.error(f"深度思考失敗: {e}")
+        return {
+            "error": str(e),
+            "fallback": await generate_ideas(topic=topic, count=5),
+        }
+
+
+@mcp.tool()
+async def multi_agent_brainstorm(
+    topic: str,
+    agents: int = 3,
+    thinking_steps: int = 3,
+    collision_count: int = 5,
+) -> dict:
+    """
+    多 Agent 並發腦力激盪
+    
+    多個獨立 Agent（Explorer、Critic、Wildcard）並發思考同一主題，
+    各自維護獨立 Context 避免污染，最後碰撞產生火花。
+    
+    Args:
+        topic: 思考主題
+        agents: Agent 數量（1-5）
+        thinking_steps: 每個 Agent 的思考步數
+        collision_count: 概念碰撞次數
+    
+    Returns:
+        包含各 Agent 貢獻、火花、最佳想法的結果
+    """
+    engine = _get_thinking_engine()
+    
+    if engine is None:
+        return {
+            "error": "ThinkingEngine 未初始化",
+            "hint": "請確認 cgu.thinking 模組可用",
+        }
+    
+    try:
+        from cgu.thinking import ThinkingMode
+        
+        result = await engine.think(
+            topic=topic,
+            mode=ThinkingMode.DEEP,
+            agent_count=min(max(agents, 1), 5),  # 限制 1-5
+            thinking_steps=thinking_steps,
+            collision_count=collision_count,
+        )
+        
+        return {
+            "topic": topic,
+            "mode": "multi_agent",
+            "agent_contributions": result.agent_contributions,
+            "all_ideas": result.ideas,
+            "sparks": result.sparks,
+            "best_ideas": result.best_ideas,
+            "best_spark": result.best_spark,
+            "stats": {
+                "total_time_ms": result.total_time_ms,
+                "idea_count": len(result.ideas),
+                "spark_count": len(result.sparks),
+            },
+        }
+        
+    except Exception as e:
+        logger.error(f"Multi-Agent 腦力激盪失敗: {e}")
+        return {"error": str(e)}
+
+
+@mcp.tool()
+async def spark_collision_deep(
+    concept_a: str,
+    concept_b: str,
+    collision_count: int = 5,
+) -> dict:
+    """
+    深度概念碰撞 - 使用 Multi-Agent 產生意外火花
+    
+    不同於簡單的 spark_collision，此工具使用多個 Agent
+    從不同角度探索兩個概念的連結可能性。
+    
+    Args:
+        concept_a: 第一個概念
+        concept_b: 第二個概念
+        collision_count: 碰撞次數
+    
+    Returns:
+        包含多層次火花和驚喜度評分的結果
+    """
+    engine = _get_thinking_engine()
+    
+    if engine is None:
+        return await spark_collision(concept_a, concept_b)
+    
+    try:
+        from cgu.thinking import ThinkingMode
+        
+        topic = f"{concept_a} × {concept_b}"
+        
+        result = await engine.think(
+            topic=topic,
+            mode=ThinkingMode.SPARK,
+            collision_count=collision_count,
+        )
+        
+        return {
+            "concept_a": concept_a,
+            "concept_b": concept_b,
+            "collision_count": collision_count,
+            "sparks": result.sparks,
+            "best_spark": result.best_spark,
+            "ideas": result.ideas,
+            "reasoning": result.reasoning_chains,
+        }
+        
+    except Exception as e:
+        logger.error(f"深度碰撞失敗: {e}")
+        return await spark_collision(concept_a, concept_b)
 
 
 @mcp.tool()

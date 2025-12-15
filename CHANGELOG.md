@@ -7,6 +7,41 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-12-16
+
+### Added
+- 🧠 **ThinkingEngine - 統一思考引擎**
+  - `src/cgu/thinking/engine.py` - 核心思考引擎，支援 4 種模式
+  - `src/cgu/thinking/facade.py` - 簡化 API（`think`, `quick_think`, `deep_think`, `spark_think`）
+  - 自動模式選擇：根據主題複雜度智能選擇 Simple/Deep/Spark/Hybrid
+
+- 🤖 **Multi-Agent 系統**
+  - `src/cgu/agents/base.py` - Agent 基類與人格系統（Explorer/Critic/Wildcard）
+  - `src/cgu/agents/explorer.py` - 探索者 Agent（廣度優先）
+  - `src/cgu/agents/critic.py` - 批判者 Agent（深度分析）
+  - `src/cgu/agents/wildcard.py` - 狂想者 Agent（跨界創新）
+  - `src/cgu/agents/orchestrator.py` - Agent 協調者（並發管理）
+  - `src/cgu/agents/spark.py` - 火花引擎（概念碰撞）
+
+- ⚡ **新 MCP 工具**
+  - `deep_think` - 統一思考入口，支援 depth 參數
+  - `multi_agent_brainstorm` - Multi-Agent 並發腦力激盪
+  - `spark_collision_deep` - 深度概念碰撞
+
+- 📋 **LangGraph 1.0 Functional API**
+  - `src/cgu/graph/builder_functional.py` - 使用 `@entrypoint` 和 `@task` 裝飾器
+  - 支援 Python 3.12 PEP 695 Type Alias 語法
+
+### Changed
+- `src/cgu/server.py` - 整合 ThinkingEngine，新增 `CGU_THINKING_DEPTH` 環境變數
+- `src/cgu/llm/__init__.py` - 新增 `get_llm_client()` 便捷函數
+
+### Fixed
+- **SparkEngine**: `collect_and_collide()` 改為同步方法（解決 async/sync 錯配）
+- **AgentIdea**: Pydantic model 使用 `model_config` 替代 `class Config`
+- **Personality 處理**: 新增 `_get_personality()` 輔助函數處理 string/enum 轉換
+- **CreativeSession**: 修正 `to_dict()` 使用正確的屬性名稱
+
 ## [0.2.1] - 2025-12-16
 
 ### Added

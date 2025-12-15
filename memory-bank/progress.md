@@ -2,22 +2,19 @@
 
 ## Done
 
-- v0.1.0 專案初始化
-- v0.2.0 CGU 核心架構完成
-- 16 種創意方法實作
-- LangGraph Agent 整合
-- Ollama LLM 整合
-- MCP Server 完整實作
-- 思考引擎切換 (Ollama/Copilot)
-- ROADMAP 更新
+- v0.3.0 ThinkingEngine 完成
+- Multi-Agent 系統建立 (Explorer/Critic/Wildcard)
+- Spark Engine 概念碰撞引擎實作
+- 新 MCP 工具: deep_think, multi_agent_brainstorm, spark_collision_deep
+- LangGraph 1.0 Functional API 整合
+- 文檔更新: README, CHANGELOG, ROADMAP
 
 ## Doing
 
-- v0.3.0 穩定化 - 測試與文檔
+- 執行 Git commit + push
 
 ## Next
 
-- 遊戲化介面
-- 創意品質評估
-- 動態方法生成
-- 多 Agent 協作
+- 完整測試覆蓋率
+- 錯誤處理強化
+- 文檔完善

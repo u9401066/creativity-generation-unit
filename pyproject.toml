@@ -19,8 +19,8 @@ dependencies = [
     # MCP SDK (FastMCP)
     "mcp[cli]>=1.0.0",
     
-    # LangGraph for Agent Orchestration
-    "langgraph>=0.2.0",
+    # LangGraph 1.0+ for Agent Orchestration (Functional API)
+    "langgraph>=1.0.0",
     "langchain>=0.3.0",
     "langchain-community>=0.3.0",
     
@@ -66,7 +66,7 @@ build-backend = "hatchling.build"
 packages = ["src/cgu"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]
@@ -74,7 +74,7 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 
