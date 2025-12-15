@@ -9,10 +9,11 @@
 ## ✨ 特色
 
 - 🚀 **快思慢想架構** - 多個快速小步驟 + 慢速大步驟組合
-- 🎨 **15 種創意方法** - SCAMPER、六頂思考帽、心智圖、九宮格等
+- 🎨 **16 種創意方法** - SCAMPER、六頂思考帽、心智圖、九宮格等
 - 🔌 **MCP 協議** - 標準化的 Agent-to-Agent 通訊
 - 🤖 **LangGraph 編排** - 靈活的思考流程控制
 - 🏠 **本地推理** - Ollama + Qwen 支援，隱私優先
+- 🔄 **思考引擎切換** - Ollama 本地思考 / Copilot 框架模式
 
 ## 🏗️ 架構
 
@@ -114,12 +115,53 @@ for idea in result["final_ideas"]:
 
 ## ⚙️ 配置
 
+### 環境變數
+
 ```bash
 # .env 配置
 CGU_USE_LLM=true                          # 啟用 LLM
+CGU_LLM_PROVIDER=ollama                   # 思考引擎：ollama / copilot
 OLLAMA_BASE_URL=http://localhost:11434/v1  # Ollama 地址
 OLLAMA_MODEL=qwen2.5:3b                    # 模型名稱
 ```
+
+### 思考引擎模式
+
+| 模式 | 說明 |
+|------|------|
+| `ollama` | 使用本地 Ollama 模型思考（預設） |
+| `copilot` | 僅提供方法框架，讓 Copilot/Claude 填充內容 |
+
+### VS Code MCP 配置
+
+將 `.vscode/mcp.json` 放在專案根目錄：
+
+```json
+{
+  "servers": {
+    "cgu": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["--directory", "${workspaceFolder}", "run", "cgu-server"],
+      "env": {
+        "CGU_USE_LLM": "true",
+        "CGU_LLM_PROVIDER": "ollama"
+      }
+    },
+    "cgu-copilot": {
+      "type": "stdio", 
+      "command": "uv",
+      "args": ["--directory", "${workspaceFolder}", "run", "cgu-server"],
+      "env": {
+        "CGU_USE_LLM": "true",
+        "CGU_LLM_PROVIDER": "copilot"
+      }
+    }
+  }
+}
+```
+
+在 VS Code 中使用 `MCP: List Servers` 選擇啟動哪個模式。
 
 ## 🔧 開發
 
