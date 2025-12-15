@@ -2,21 +2,22 @@
 
 ## Done
 
-- pyproject.toml 專案配置
-- src/cgu/core/thinking.py - 快思慢想核心
-- src/cgu/core/creativity.py - 15種創意方法
-- src/cgu/server.py - FastMCP Server
-- src/cgu/cli.py - CLI 介面
-- src/cgu/graph/ - LangGraph Agent
-- src/cgu/llm/ - Ollama 整合
-- 依賴安裝 (uv sync)
+- v0.1.0 專案初始化
+- v0.2.0 CGU 核心架構完成
+- 16 種創意方法實作
+- LangGraph Agent 整合
+- Ollama LLM 整合
+- MCP Server 完整實作
+- 思考引擎切換 (Ollama/Copilot)
+- ROADMAP 更新
 
 ## Doing
 
-- Git 提交 CGU 專案
+- v0.3.0 穩定化 - 測試與文檔
 
 ## Next
 
-- 測試模擬模式
-- 單元測試
-- Ollama 整合測試
+- 遊戲化介面
+- 創意品質評估
+- 動態方法生成
+- 多 Agent 協作

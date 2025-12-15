@@ -196,7 +196,7 @@ PROMPT_EVALUATE = """評估以下創意點子：
 創意層級：{creativity_level}
 
 待評估的點子：
-{ideas_text}
+{ideas}
 
 評估標準：
 - 新穎度：點子的創新程度

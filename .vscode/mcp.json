@@ -1,0 +1,36 @@
+{
+  "servers": {
+    "cgu": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "${workspaceFolder}",
+        "run",
+        "cgu-server"
+      ],
+      "env": {
+        "CGU_USE_LLM": "true",
+        "CGU_LLM_PROVIDER": "ollama",
+        "OLLAMA_BASE_URL": "http://localhost:11434/v1",
+        "OLLAMA_MODEL": "qwen2.5:3b"
+      },
+      "envFile": "${workspaceFolder}/.env"
+    },
+    "cgu-copilot": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "${workspaceFolder}",
+        "run",
+        "cgu-server"
+      ],
+      "env": {
+        "CGU_USE_LLM": "true",
+        "CGU_LLM_PROVIDER": "copilot"
+      }
+    }
+  },
+  "inputs": []
+}

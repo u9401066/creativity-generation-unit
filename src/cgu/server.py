@@ -2,7 +2,11 @@
 CGU MCP Server
 
 使用 FastMCP 提供創意生成工具
+整合 Ollama LLM 進行真實創意生成
 """
+
+import os
+import logging
 
 from mcp.server.fastmcp import FastMCP
 
@@ -15,11 +19,42 @@ from cgu.core import (
     select_method_for_task,
 )
 
+# 設定 logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# LLM 模式
+USE_LLM = os.getenv("CGU_USE_LLM", "false").lower() == "true"
+# 思考引擎：ollama (本地推理) | copilot (僅提供框架，讓 Copilot 填充)
+LLM_PROVIDER = os.getenv("CGU_LLM_PROVIDER", "ollama").lower()
+
 # 初始化 FastMCP Server
 mcp = FastMCP(
     name="creativity-generation-unit",
-    version="0.1.0",
+    instructions="CGU - MCP-based 創意發想服務，使用快思慢想架構。支援 generate_ideas, spark_collision, apply_method 等工具。",
 )
+
+
+# === LLM 輔助函數 ===
+
+def _get_llm_client():
+    """取得 LLM 客戶端"""
+    # copilot 模式：不使用本地 LLM，返回框架讓 Copilot 思考
+    if LLM_PROVIDER == "copilot":
+        return None
+    if not USE_LLM:
+        return None
+    try:
+        from cgu.llm import get_llm_client
+        return get_llm_client()
+    except Exception as e:
+        logger.warning(f"LLM 初始化失敗: {e}")
+        return None
+
+
+def _is_copilot_mode() -> bool:
+    """檢查是否為 Copilot 模式"""
+    return LLM_PROVIDER == "copilot"
 
 
 # === MCP Tools ===
@@ -47,22 +82,58 @@ async def generate_ideas(
     level = CreativityLevel(creativity_level)
     assoc_range = level.association_range
     
-    # TODO: 實際呼叫 LLM 生成
-    # 這裡先回傳結構示意
+    ideas = []
+    method_used = "brainstorm"
+    
+    client = _get_llm_client()
+    if client is not None:
+        try:
+            from cgu.llm import IdeasOutput, SYSTEM_PROMPT_CREATIVITY
+            
+            constraints_text = "\n".join(f"- {c}" for c in (constraints or []))
+            prompt = f"""為以下主題產生 {count} 個創意點子：
+
+主題：{topic}
+創意層級：{level.name}（{level.value}=組合創意, 2=探索創意, 3=變革創意）
+{f"限制條件：{constraints_text}" if constraints else ""}
+
+請產生 {count} 個具體、可執行的創意點子。"""
+
+            result = client.generate_structured(
+                prompt=prompt,
+                response_model=IdeasOutput,
+                system_prompt=SYSTEM_PROMPT_CREATIVITY,
+            )
+            ideas = [{"id": i+1, "content": idea, "association_score": 0.7 - i*0.05} 
+                     for i, idea in enumerate(result.ideas[:count])]
+            method_used = "llm_brainstorm"
+        except Exception as e:
+            logger.warning(f"LLM 生成失敗: {e}")
+    
+    # Fallback 到模擬（或 Copilot 模式框架）
+    if not ideas:
+        if _is_copilot_mode():
+            # Copilot 模式：返回思考框架，讓 Copilot 填充
+            ideas = [
+                {"id": i + 1, "content": f"[請 Copilot 思考] {topic} 的第 {i + 1} 個點子", "association_score": 0.5}
+                for i in range(count)
+            ]
+            method_used = "copilot_framework"
+        else:
+            ideas = [
+                {"id": i + 1, "content": f"[模擬] {topic} 的點子 {i + 1}", "association_score": 0.5}
+                for i in range(count)
+            ]
+    
     return {
         "topic": topic,
         "creativity_level": level.name,
         "association_range": f"{assoc_range[0]:.1f} - {assoc_range[1]:.1f}",
         "constraints": constraints or [],
-        "ideas": [
-            {
-                "id": i + 1,
-                "content": f"[待實作] 點子 {i + 1} for '{topic}'",
-                "association_score": 0.5,
-            }
-            for i in range(count)
-        ],
-        "method_used": "brainstorm",
+        "ideas": ideas,
+        "method_used": method_used,
+        "llm_provider": LLM_PROVIDER,
+        "copilot_hint": "請根據上述框架，用你的創意填充具體點子" if _is_copilot_mode() else None,
         "thinking_steps": [
             {"mode": "REACT", "speed": "fast"},
             {"mode": "ASSOCIATE", "speed": "fast"},
@@ -88,17 +159,42 @@ async def spark_collision(
     Returns:
         碰撞產生的火花和理由
     """
-    # TODO: 實際計算概念相似度和碰撞
+    sparks = []
+    rationale = f"從 {concept_a} 的特性與 {concept_b} 的特性中找到意想不到的連結"
+    
+    client = _get_llm_client()
+    if client is not None:
+        try:
+            from cgu.llm import SparkOutput, SYSTEM_PROMPT_CREATIVITY, PROMPT_SPARK
+            
+            prompt = PROMPT_SPARK.format(
+                concept_a=concept_a,
+                concept_b=concept_b,
+                count=5,
+            )
+            result = client.generate_structured(
+                prompt=prompt,
+                response_model=SparkOutput,
+                system_prompt=SYSTEM_PROMPT_CREATIVITY,
+            )
+            sparks = result.sparks
+            rationale = result.reasoning
+        except Exception as e:
+            logger.warning(f"LLM 碰撞失敗: {e}")
+    
+    # Fallback
+    if not sparks:
+        sparks = [
+            f"[模擬] {concept_a} + {concept_b} 的創意組合 {i}"
+            for i in range(1, 4)
+        ]
+    
     return {
         "concept_a": concept_a,
         "concept_b": concept_b,
-        "sparks": [
-            f"[待實作] {concept_a} + {concept_b} 的創意組合 1",
-            f"[待實作] {concept_a} + {concept_b} 的創意組合 2",
-            f"[待實作] {concept_a} + {concept_b} 的創意組合 3",
-        ],
-        "rationale": f"從 {concept_a} 的特性與 {concept_b} 的特性中找到意想不到的連結",
-        "association_score": 0.3,  # 低關聯 = 高創意潛力
+        "sparks": sparks,
+        "rationale": rationale,
+        "association_score": 0.3,
     }
 
 
@@ -123,27 +219,47 @@ async def associative_expansion(
     if direction not in valid_directions:
         direction = "similar"
     
-    # TODO: 實際實作聯想擴展
+    associations = []
+    
+    client = _get_llm_client()
+    if client is not None:
+        try:
+            from cgu.llm import AssociationList, SYSTEM_PROMPT_CREATIVITY
+            
+            for level in range(1, depth + 1):
+                prompt = f"""從「{seed}」進行 {direction} 方向的聯想，第 {level} 層擴展。
+請列出 3-5 個聯想概念。
+
+方向說明：
+- similar: 相似概念
+- opposite: 相反或對比概念
+- random: 隨機但有趣的連結
+- cross-domain: 跨領域的概念"""
+                
+                result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=AssociationList,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                associations.append({
+                    "level": level,
+                    "concepts": result.associations[:5],
+                })
+        except Exception as e:
+            logger.warning(f"LLM 聯想失敗: {e}")
+    
+    # Fallback
+    if not associations:
+        associations = [
+            {"level": i+1, "concepts": [f"[模擬] {seed} 的 {direction} 聯想 {j}" for j in range(1, 4)]}
+            for i in range(depth)
+        ]
+    
     return {
         "seed": seed,
         "direction": direction,
         "depth": depth,
-        "associations": [
-            {
-                "level": 1,
-                "concepts": [
-                    f"[待實作] {seed} 的 {direction} 聯想 1",
-                    f"[待實作] {seed} 的 {direction} 聯想 2",
-                ],
-            },
-            {
-                "level": 2,
-                "concepts": [
-                    f"[待實作] 深層 {direction} 聯想 1",
-                    f"[待實作] 深層 {direction} 聯想 2",
-                ],
-            },
-        ],
+        "associations": associations,
         "thinking_mode": ThinkingMode.ASSOCIATE.value,
         "thinking_speed": ThinkingSpeed.FAST.value,
     }
@@ -180,7 +296,6 @@ async def apply_method(
     if not config:
         return {"error": f"Method config not found: {method}"}
     
-    # 根據方法類型回傳不同結構
     result = {
         "method": method,
         "method_description": config.description,
@@ -191,37 +306,117 @@ async def apply_method(
         "options": options or {},
     }
     
-    # 方法特定結構（示意）
+    client = _get_llm_client()
+    
+    # SCAMPER 方法
     if method == "scamper":
-        result["output"] = {
-            "S_substitute": f"[待實作] 替代 {input_concept}",
-            "C_combine": f"[待實作] 結合 {input_concept}",
-            "A_adapt": f"[待實作] 調適 {input_concept}",
-            "M_modify": f"[待實作] 修改 {input_concept}",
-            "P_put_to_other_uses": f"[待實作] 他用 {input_concept}",
-            "E_eliminate": f"[待實作] 消除 {input_concept}",
-            "R_reverse": f"[待實作] 重排 {input_concept}",
-        }
+        if client is not None:
+            try:
+                from cgu.llm import ScamperOutput, SYSTEM_PROMPT_CREATIVITY, PROMPT_SCAMPER
+                prompt = PROMPT_SCAMPER.format(topic=input_concept)
+                scamper_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=ScamperOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "S_substitute": scamper_result.substitute,
+                    "C_combine": scamper_result.combine,
+                    "A_adapt": scamper_result.adapt,
+                    "M_modify": scamper_result.modify,
+                    "P_put_to_other_uses": scamper_result.put_to_other_uses,
+                    "E_eliminate": scamper_result.eliminate,
+                    "R_reverse": scamper_result.reverse,
+                    "best_idea": scamper_result.best_idea,
+                }
+            except Exception as e:
+                logger.warning(f"SCAMPER LLM 失敗: {e}")
+                result["output"] = _simulate_scamper(input_concept)
+        else:
+            result["output"] = _simulate_scamper(input_concept)
+            
+    # 六頂思考帽
     elif method == "six_hats":
-        result["output"] = {
-            "white_facts": f"[待實作] 關於 {input_concept} 的事實",
-            "red_feelings": f"[待實作] 對 {input_concept} 的感覺",
-            "black_risks": f"[待實作] {input_concept} 的風險",
-            "yellow_benefits": f"[待實作] {input_concept} 的好處",
-            "green_ideas": f"[待實作] {input_concept} 的新點子",
-            "blue_summary": f"[待實作] {input_concept} 的總結",
-        }
+        if client is not None:
+            try:
+                from cgu.llm import SixHatsOutput, SYSTEM_PROMPT_CREATIVITY
+                prompt = f"使用六頂思考帽方法分析主題「{input_concept}」，從白、紅、黑、黃、綠、藍六個角度思考。"
+                hats_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=SixHatsOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "white_facts": hats_result.white,
+                    "red_feelings": hats_result.red,
+                    "black_risks": hats_result.black,
+                    "yellow_benefits": hats_result.yellow,
+                    "green_ideas": hats_result.green,
+                    "blue_summary": hats_result.blue,
+                }
+            except Exception as e:
+                logger.warning(f"六頂帽 LLM 失敗: {e}")
+                result["output"] = _simulate_six_hats(input_concept)
+        else:
+            result["output"] = _simulate_six_hats(input_concept)
+            
+    # 九宮格
     elif method == "mandala_9grid":
-        result["output"] = {
-            "center": input_concept,
-            "extensions": [
-                f"[待實作] {input_concept} 延伸 {i}" for i in range(1, 9)
-            ],
-        }
+        if client is not None:
+            try:
+                from cgu.llm import MandalaOutput, SYSTEM_PROMPT_CREATIVITY, PROMPT_MANDALA
+                prompt = PROMPT_MANDALA.format(concept=input_concept)
+                mandala_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=MandalaOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "center": mandala_result.center,
+                    "extensions": mandala_result.extensions,
+                }
+            except Exception as e:
+                logger.warning(f"九宮格 LLM 失敗: {e}")
+                result["output"] = _simulate_mandala(input_concept)
+        else:
+            result["output"] = _simulate_mandala(input_concept)
     else:
-        result["output"] = f"[待實作] {method} 方法應用於 {input_concept}"
+        result["output"] = f"[模擬] {method} 方法應用於 {input_concept}"
     
     return result
+
+
+def _simulate_scamper(concept: str) -> dict:
+    """模擬 SCAMPER 輸出"""
+    return {
+        "S_substitute": f"[模擬] 替代 {concept}",
+        "C_combine": f"[模擬] 結合 {concept}",
+        "A_adapt": f"[模擬] 調適 {concept}",
+        "M_modify": f"[模擬] 修改 {concept}",
+        "P_put_to_other_uses": f"[模擬] 他用 {concept}",
+        "E_eliminate": f"[模擬] 消除 {concept}",
+        "R_reverse": f"[模擬] 重排 {concept}",
+    }
+
+
+def _simulate_six_hats(concept: str) -> dict:
+    """模擬六頂帽輸出"""
+    return {
+        "white_facts": f"[模擬] 關於 {concept} 的事實",
+        "red_feelings": f"[模擬] 對 {concept} 的感覺",
+        "black_risks": f"[模擬] {concept} 的風險",
+        "yellow_benefits": f"[模擬] {concept} 的好處",
+        "green_ideas": f"[模擬] {concept} 的新點子",
+        "blue_summary": f"[模擬] {concept} 的總結",
+    }
+
+
+def _simulate_mandala(concept: str) -> dict:
+    """模擬九宮格輸出"""
+    return {
+        "center": concept,
+        "extensions": [f"[模擬] {concept} 延伸 {i}" for i in range(1, 9)],
+    }
 
 
 @mcp.tool()

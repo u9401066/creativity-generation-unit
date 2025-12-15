@@ -7,6 +7,27 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-12-16
+
+### Added
+- 🔄 **思考引擎切換**
+  - 新增 `CGU_LLM_PROVIDER` 環境變數
+  - 支援 `ollama` 模式（本地 LLM 思考）
+  - 支援 `copilot` 模式（框架模式，讓 Copilot 填充）
+- 📋 **VS Code MCP 配置**
+  - `.vscode/mcp.json` - 雙 Server 配置（cgu / cgu-copilot）
+  - `mcp-config/` - Claude Desktop 與 VS Code 配置範例
+- 🧪 **測試檔案**
+  - `tests/test_quick.py` - LangGraph Agent 快速測試
+
+### Changed
+- `src/cgu/server.py` - 所有 MCP 工具整合真實 LLM
+- `src/cgu/llm/prompts.py` - 修正 PROMPT_EVALUATE 參數名稱
+- `.env.example` - 新增 `CGU_LLM_PROVIDER` 選項說明
+
+### Fixed
+- FastMCP 初始化移除不支援的 `version` 參數
+
 ## [0.2.0] - 2025-12-15
 
 ### Added

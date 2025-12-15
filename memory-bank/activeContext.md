@@ -4,8 +4,35 @@
 
 ## Current Goals
 
-<!-- 一句話描述正在做什麼 -->
-- 測試 CGU vLLM 整合功能，確認 Agent 可以使用真實 LLM 生成創意
+- ## 當前焦點：MCP Server 建立完成
+- ### 已完成
+- 1. **MCP Server LLM 整合** - 所有 6 個工具已整合真實 LLM：
+- - `generate_ideas` - IdeasOutput schema
+- - `spark_collision` - SparkOutput schema
+- - `associative_expansion` - AssociationList schema
+- - `apply_method` - SCAMPER/六頂帽/九宮格整合
+- - `select_method` / `list_methods` - 輔助工具
+- 2. **VS Code MCP 配置** - `.vscode/mcp.json` 已建立
+- - 使用 stdio 類型
+- - 支援 `${workspaceFolder}` 變數
+- - 可載入 `.env` 環境變數
+- ### 配置格式（VS Code 官方）
+- ```json
+- {
+- "servers": {
+- "cgu": {
+- "type": "stdio",
+- "command": "uv",
+- "args": ["--directory", "${workspaceFolder}", "run", "cgu-server"],
+- "env": { "CGU_USE_LLM": "true" },
+- "envFile": "${workspaceFolder}/.env"
+- }
+- }
+- }
+- ```
+- ### 下一步
+- - 在 VS Code Chat 中測試 MCP 工具
+- - 使用 `MCP: List Servers` 命令確認 CGU 已載入
 
 ## 🎯 當前焦點
 

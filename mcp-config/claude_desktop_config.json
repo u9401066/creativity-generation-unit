@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "cgu": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\workspace251215",
+        "run",
+        "cgu-server"
+      ],
+      "env": {
+        "CGU_USE_LLM": "true",
+        "OLLAMA_BASE_URL": "http://localhost:11434/v1",
+        "OLLAMA_MODEL": "qwen2.5:3b"
+      }
+    }
+  }
+}
