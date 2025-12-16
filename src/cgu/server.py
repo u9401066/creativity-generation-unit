@@ -29,11 +29,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # LLM 模式
-USE_LLM = os.getenv("CGU_USE_LLM", "false").lower() == "true"
+# 預設 true - 啟用 Ollama LLM（確保 Ollama 服務已啟動）
+USE_LLM = os.getenv("CGU_USE_LLM", "true").lower() == "true"
 # 思考引擎：ollama (本地推理) | copilot (僅提供框架，讓 Copilot 填充)
 LLM_PROVIDER = os.getenv("CGU_LLM_PROVIDER", "ollama").lower()
 # 思考深度：shallow (快) | medium (中) | deep (深)
 THINKING_DEPTH = os.getenv("CGU_THINKING_DEPTH", "medium").lower()
+# Ollama 模型
+OLLAMA_MODEL = os.getenv("CGU_OLLAMA_MODEL", "qwen2.5:3b")
 
 # 初始化 FastMCP Server
 mcp = FastMCP(
@@ -52,10 +55,13 @@ def _get_llm_client():
     if not USE_LLM:
         return None
     try:
-        from cgu.llm import get_llm_client
-        return get_llm_client()
+        from cgu.llm import get_llm_client, LLMConfig
+        # 使用環境變數配置
+        config = LLMConfig(model=OLLAMA_MODEL)
+        return get_llm_client(config)
     except Exception as e:
         logger.warning(f"LLM 初始化失敗: {e}")
+        logger.info("提示：請確保 Ollama 服務已啟動 (ollama serve)")
         return None
 
 
@@ -410,6 +416,164 @@ async def apply_method(
                 result["output"] = _simulate_mandala(input_concept)
         else:
             result["output"] = _simulate_mandala(input_concept)
+    # 5W2H 方法
+    elif method == "5w2h":
+        if client is not None:
+            try:
+                from cgu.llm import SYSTEM_PROMPT_CREATIVITY
+                from pydantic import BaseModel
+                
+                class FiveW2HOutput(BaseModel):
+                    what: str
+                    why: str
+                    who: str
+                    when: str
+                    where: str
+                    how: str
+                    how_much: str
+                
+                prompt = f"""使用 5W2H 方法分析以下主題：
+
+主題：{input_concept}
+
+請回答：
+- What（是什麼）：這是什麼？
+- Why（為什麼）：為什麼要做這件事？
+- Who（誰）：誰來做？誰受益？
+- When（何時）：什麼時候做？
+- Where（哪裡）：在哪裡進行？
+- How（如何）：如何實現？
+- How much（多少）：需要多少資源？"""
+                
+                output = client.generate_structured(
+                    prompt=prompt,
+                    response_model=FiveW2HOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "what": output.what,
+                    "why": output.why,
+                    "who": output.who,
+                    "when": output.when,
+                    "where": output.where,
+                    "how": output.how,
+                    "how_much": output.how_much,
+                }
+            except Exception as e:
+                logger.warning(f"5W2H LLM 失敗: {e}")
+                result["output"] = _simulate_5w2h(input_concept)
+        else:
+            result["output"] = _simulate_5w2h(input_concept)
+            
+    # 逆向思考
+    elif method == "reverse":
+        if client is not None:
+            try:
+                from cgu.llm import ReverseOutput, SYSTEM_PROMPT_CREATIVITY, PROMPT_REVERSE
+                prompt = PROMPT_REVERSE.format(problem=input_concept)
+                reverse_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=ReverseOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "reverse_question": reverse_result.reverse_question,
+                    "failure_methods": reverse_result.failure_methods,
+                    "solutions": reverse_result.solutions,
+                }
+            except Exception as e:
+                logger.warning(f"Reverse LLM 失敗: {e}")
+                result["output"] = _simulate_reverse(input_concept)
+        else:
+            result["output"] = _simulate_reverse(input_concept)
+            
+    # 心智圖
+    elif method == "mind_map":
+        if client is not None:
+            try:
+                from cgu.llm import MindMapOutput, SYSTEM_PROMPT_CREATIVITY, PROMPT_MIND_MAP
+                branches = (options or {}).get("branches", 4)
+                sub_branches = (options or {}).get("sub_branches", 3)
+                prompt = PROMPT_MIND_MAP.format(topic=input_concept, branches=branches, sub_branches=sub_branches)
+                mindmap_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=MindMapOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "center": mindmap_result.center,
+                    "branches": [
+                        {"name": b.name, "sub_branches": b.sub_branches}
+                        for b in mindmap_result.branches
+                    ],
+                }
+            except Exception as e:
+                logger.warning(f"MindMap LLM 失敗: {e}")
+                result["output"] = _simulate_mind_map(input_concept)
+        else:
+            result["output"] = _simulate_mind_map(input_concept)
+            
+    # 腦力激盪
+    elif method == "brainstorm":
+        if client is not None:
+            try:
+                from cgu.llm import IdeasOutput, SYSTEM_PROMPT_CREATIVITY
+                count = (options or {}).get("count", 10)
+                prompt = f"""對以下主題進行腦力激盪，產生 {count} 個不受限制的創意點子：
+
+主題：{input_concept}
+
+規則：
+1. 不批判任何想法
+2. 越瘋狂越好
+3. 數量優先於質量
+4. 可以結合他人想法
+
+請列出 {count} 個點子："""
+                brainstorm_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=IdeasOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {"ideas": brainstorm_result.ideas}
+            except Exception as e:
+                logger.warning(f"Brainstorm LLM 失敗: {e}")
+                result["output"] = _simulate_brainstorm(input_concept)
+        else:
+            result["output"] = _simulate_brainstorm(input_concept)
+            
+    # 隨機輸入
+    elif method == "random_input":
+        import random
+        random_words = ["星空", "咖啡", "森林", "機器人", "音樂", "海洋", "夢想", "旅行", "魔法", "時間"]
+        random_word = random.choice(random_words)
+        if client is not None:
+            try:
+                from cgu.llm import SparkOutput, SYSTEM_PROMPT_CREATIVITY
+                prompt = f"""使用隨機詞強制聯想法：
+
+原始主題：{input_concept}
+隨機詞：{random_word}
+
+請思考：
+1. 這個隨機詞讓你聯想到什麼？
+2. 如何將隨機詞與原始主題連結？
+3. 產生 5 個結合兩者的創意點子"""
+                random_result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=SparkOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                result["output"] = {
+                    "random_word": random_word,
+                    "sparks": random_result.sparks,
+                    "reasoning": random_result.reasoning,
+                }
+            except Exception as e:
+                logger.warning(f"RandomInput LLM 失敗: {e}")
+                result["output"] = _simulate_random_input(input_concept, random_word)
+        else:
+            result["output"] = _simulate_random_input(input_concept, random_word)
     else:
         result["output"] = f"[模擬] {method} 方法應用於 {input_concept}"
     
@@ -446,6 +610,55 @@ def _simulate_mandala(concept: str) -> dict:
     return {
         "center": concept,
         "extensions": [f"[模擬] {concept} 延伸 {i}" for i in range(1, 9)],
+    }
+
+
+def _simulate_5w2h(concept: str) -> dict:
+    """模擬 5W2H 輸出"""
+    return {
+        "what": f"[模擬] {concept} 是什麼",
+        "why": f"[模擬] 為什麼要 {concept}",
+        "who": f"[模擬] 誰參與 {concept}",
+        "when": f"[模擬] 何時進行 {concept}",
+        "where": f"[模擬] 在哪裡進行 {concept}",
+        "how": f"[模擬] 如何實現 {concept}",
+        "how_much": f"[模擬] {concept} 需要多少資源",
+    }
+
+
+def _simulate_reverse(concept: str) -> dict:
+    """模擬逆向思考輸出"""
+    return {
+        "reverse_question": f"[模擬] 如何讓 {concept} 失敗？",
+        "failure_methods": [f"[模擬] 失敗方法 {i}" for i in range(1, 6)],
+        "solutions": [f"[模擬] 反轉解法 {i}" for i in range(1, 6)],
+    }
+
+
+def _simulate_mind_map(concept: str) -> dict:
+    """模擬心智圖輸出"""
+    return {
+        "center": concept,
+        "branches": [
+            {"name": f"分支 {i}", "sub_branches": [f"子分支 {i}.{j}" for j in range(1, 4)]}
+            for i in range(1, 5)
+        ],
+    }
+
+
+def _simulate_brainstorm(concept: str) -> dict:
+    """模擬腦力激盪輸出"""
+    return {
+        "ideas": [f"[模擬] {concept} 的瘋狂點子 {i}" for i in range(1, 11)],
+    }
+
+
+def _simulate_random_input(concept: str, random_word: str) -> dict:
+    """模擬隨機輸入輸出"""
+    return {
+        "random_word": random_word,
+        "sparks": [f"[模擬] {concept} + {random_word} 的組合 {i}" for i in range(1, 6)],
+        "reasoning": f"[模擬] 將 {random_word} 的特性與 {concept} 結合",
     }
 
 

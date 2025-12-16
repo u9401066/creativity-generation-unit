@@ -1,21 +1,19 @@
 """
 CGU LLM Client
 
-Ollama + Instructor 整合，提供 Structured Output
-Ollama 提供 OpenAI-compatible API，支援 Windows/macOS/Linux
+使用 LangChain + Ollama 整合，提供 Structured Output
+Ollama 服務持續運行（ollama serve），客戶端只需連接 API
 """
 
 import os
 from typing import TypeVar, Type
-from functools import lru_cache
 
 from pydantic import BaseModel
-from openai import OpenAI
-import instructor
+from langchain_ollama import ChatOllama
 
 # 預設配置（Ollama）
-DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
-DEFAULT_MODEL = "qwen2.5:3b"  # 或 qwen2.5:7b, llama3.2, mistral 等
+DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
+DEFAULT_MODEL = "qwen2.5:3b"
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -25,21 +23,16 @@ class LLMConfig(BaseModel):
     """LLM 配置"""
     base_url: str = DEFAULT_OLLAMA_BASE_URL
     model: str = DEFAULT_MODEL
-    api_key: str = "ollama"  # Ollama 不需要 API key，但 OpenAI client 需要非空值
     temperature: float = 0.7
-    max_tokens: int = 1024
-    timeout: float = 120.0  # Ollama 本地推理可能較慢
+    timeout: float = 120.0
 
 
-@lru_cache()
 def get_llm_config() -> LLMConfig:
     """取得 LLM 配置（從環境變數）"""
     return LLMConfig(
         base_url=os.getenv("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL),
-        model=os.getenv("OLLAMA_MODEL", DEFAULT_MODEL),
-        api_key=os.getenv("OLLAMA_API_KEY", "ollama"),
+        model=os.getenv("CGU_OLLAMA_MODEL", os.getenv("OLLAMA_MODEL", DEFAULT_MODEL)),
         temperature=float(os.getenv("OLLAMA_TEMPERATURE", "0.7")),
-        max_tokens=int(os.getenv("OLLAMA_MAX_TOKENS", "1024")),
         timeout=float(os.getenv("OLLAMA_TIMEOUT", "120.0")),
     )
 
@@ -48,39 +41,30 @@ class CGULLMClient:
     """
     CGU LLM 客戶端
     
-    整合 Ollama (OpenAI-compatible API) + Instructor (Structured Output)
-    支援 Windows/macOS/Linux，可使用 Qwen, Llama, Mistral 等模型
+    整合 LangChain + Ollama，使用 with_structured_output 產生結構化輸出
+    Ollama 服務持續運行（ollama serve），客戶端只是連接 API
     """
     
     def __init__(self, config: LLMConfig | None = None):
         self.config = config or get_llm_config()
         
-        # 建立 OpenAI 客戶端（指向 vLLM）
-        self._client = OpenAI(
+        # 建立 LangChain Ollama 客戶端
+        self._llm = ChatOllama(
             base_url=self.config.base_url,
-            api_key=self.config.api_key,
-            timeout=self.config.timeout,
+            model=self.config.model,
+            temperature=self.config.temperature,
         )
-        
-        # 包裝 Instructor 以支援 Structured Output
-        self._instructor = instructor.from_openai(self._client)
     
     @property
-    def client(self) -> OpenAI:
-        """原始 OpenAI 客戶端"""
-        return self._client
-    
-    @property
-    def instructor_client(self):
-        """Instructor 包裝的客戶端"""
-        return self._instructor
+    def llm(self) -> ChatOllama:
+        """LangChain ChatOllama 實例"""
+        return self._llm
     
     def generate(
         self,
         prompt: str,
         system_prompt: str | None = None,
         temperature: float | None = None,
-        max_tokens: int | None = None,
     ) -> str:
         """
         基本生成（非結構化）
@@ -89,24 +73,32 @@ class CGULLMClient:
             prompt: 使用者提示
             system_prompt: 系統提示
             temperature: 溫度（覆蓋預設）
-            max_tokens: 最大 token 數（覆蓋預設）
         
         Returns:
             生成的文字
         """
+        from langchain_core.messages import SystemMessage, HumanMessage
+        
         messages = []
         if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
+            messages.append(SystemMessage(content=system_prompt))
+        messages.append(HumanMessage(content=prompt))
         
-        response = self._client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            temperature=temperature or self.config.temperature,
-            max_tokens=max_tokens or self.config.max_tokens,
-        )
+        # 如果需要不同溫度，創建臨時客戶端
+        if temperature is not None and temperature != self.config.temperature:
+            llm = ChatOllama(
+                base_url=self.config.base_url,
+                model=self.config.model,
+                temperature=temperature,
+            )
+            response = llm.invoke(messages)
+        else:
+            response = self._llm.invoke(messages)
         
-        return response.choices[0].message.content or ""
+        content = response.content
+        if isinstance(content, str):
+            return content
+        return str(content) if content else ""
     
     def generate_structured(
         self,
@@ -114,96 +106,66 @@ class CGULLMClient:
         response_model: Type[T],
         system_prompt: str | None = None,
         temperature: float | None = None,
-        max_tokens: int | None = None,
-        max_retries: int = 3,
     ) -> T:
         """
-        結構化生成（使用 Instructor）
+        結構化生成（使用 LangChain with_structured_output）
         
         Args:
             prompt: 使用者提示
             response_model: Pydantic 模型類別
             system_prompt: 系統提示
             temperature: 溫度
-            max_tokens: 最大 token 數
-            max_retries: 最大重試次數
         
         Returns:
             Pydantic 模型實例
         """
+        from langchain_core.messages import SystemMessage, HumanMessage
+        
         messages = []
         if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
+            messages.append(SystemMessage(content=system_prompt))
+        messages.append(HumanMessage(content=prompt))
         
-        response = self._instructor.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            response_model=response_model,
-            temperature=temperature or self.config.temperature,
-            max_tokens=max_tokens or self.config.max_tokens,
-            max_retries=max_retries,
-        )
+        # 使用 with_structured_output 取得結構化輸出
+        if temperature is not None and temperature != self.config.temperature:
+            llm = ChatOllama(
+                base_url=self.config.base_url,
+                model=self.config.model,
+                temperature=temperature,
+            )
+            structured_llm = llm.with_structured_output(response_model)
+        else:
+            structured_llm = self._llm.with_structured_output(response_model)
         
-        return response
+        response = structured_llm.invoke(messages)
+        return response  # type: ignore[return-value]
     
-    def generate_sync(
-        self,
-        prompt: str,
-        system_prompt: str | None = None,
-        temperature: float | None = None,
-        max_tokens: int | None = None,
-    ) -> str:
-        """同步版本的基本生成"""
-        messages = []
-        if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
-        
-        response = self._client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            temperature=temperature or self.config.temperature,
-            max_tokens=max_tokens or self.config.max_tokens,
-        )
-        
-        return response.choices[0].message.content or ""
+    # 保留同步別名以保持向後相容
+    def generate_sync(self, *args, **kwargs) -> str:
+        """同步版本（別名）"""
+        return self.generate(*args, **kwargs)
     
-    def generate_structured_sync(
-        self,
-        prompt: str,
-        response_model: Type[T],
-        system_prompt: str | None = None,
-        temperature: float | None = None,
-        max_tokens: int | None = None,
-        max_retries: int = 3,
-    ) -> T:
-        """同步版本的結構化生成"""
-        messages = []
-        if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
-        
-        response = self._instructor.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            response_model=response_model,
-            temperature=temperature or self.config.temperature,
-            max_tokens=max_tokens or self.config.max_tokens,
-            max_retries=max_retries,
-        )
-        
-        return response
+    def generate_structured_sync(self, *args, **kwargs):
+        """同步版本（別名）"""
+        return self.generate_structured(*args, **kwargs)
 
 
 # 全域客戶端實例
 _llm_client: CGULLMClient | None = None
 
 
-def get_llm_client() -> CGULLMClient:
-    """取得全域 LLM 客戶端"""
+def get_llm_client(config: LLMConfig | None = None) -> CGULLMClient:
+    """
+    取得全域 LLM 客戶端
+    
+    Args:
+        config: 可選的 LLM 配置，傳入時會重新創建客戶端
+    """
     global _llm_client
-    if _llm_client is None:
+    if config is not None:
+        # 傳入新配置時，重新創建客戶端
+        _llm_client = CGULLMClient(config)
+    elif _llm_client is None:
         _llm_client = CGULLMClient()
     return _llm_client
 
