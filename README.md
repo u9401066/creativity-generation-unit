@@ -28,30 +28,47 @@
 ├──────────────────────────────────────────────────────────────┤
 │                                                               │
 │   ┌─────────────────────────────────────────────────────┐   │
-│   │              🧠 Thinking Engine (v0.3.0)              │   │
-│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌────────┐ │   │
-│   │  │ Simple  │  │  Deep   │  │  Spark  │  │ Hybrid │ │   │
-│   │  │(Copilot)│  │(Multi-  │  │(Concept │  │(Fast+  │ │   │
-│   │  │         │  │ Agent)  │  │Collision│  │ Slow)  │ │   │
-│   │  └─────────┘  └─────────┘  └─────────┘  └────────┘ │   │
-│   └──────────────────────┬──────────────────────────────┘   │
-│                          │                                   │
-│   ┌──────────────────────┴──────────────────────────────┐   │
-│   │              Multi-Agent Orchestrator                │   │
-│   │   ┌──────────┐  ┌──────────┐  ┌──────────┐         │   │
-│   │   │ Explorer │  │  Critic  │  │ Wildcard │         │   │
-│   │   │  Agent   │  │  Agent   │  │  Agent   │         │   │
-│   │   └────┬─────┘  └────┬─────┘  └────┬─────┘         │   │
-│   │        │             │             │                │   │
-│   │        └─────────────┼─────────────┘                │   │
-│   │                      ▼                              │   │
-│   │              ⚡ Spark Engine                        │   │
-│   │           (Concept Collision)                       │   │
+│   │       🧠 v0.4.0: Agent-Driven Creativity                │   │
+│   │                                                       │   │
+│   │   ┌─────────────────────────────────────────────┐   │   │
+│   │   │           Agent Creativity Toolbox              │   │   │
+│   │   │  ┌─────────┐ ┌────────┐ ┌─────────┐ ┌──────┐ │   │   │
+│   │   │  │ Concept │ │Connect-│ │ Novelty │ │ Idea │ │   │   │
+│   │   │  │Explorer│ │  ion   │ │ Checker │ │Evolver│ │   │   │
+│   │   │  │  🔍   │ │ Finder │ │   ✅    │ │  🧬  │ │   │   │
+│   │   │  └─────────┘ └────────┘ └─────────┘ └──────┘ │   │   │
+│   │   └─────────────────────────────────────────────┘   │   │
+│   │                         │                               │   │
+│   │   Agent decides:  ┌─────┴──────┐                      │   │
+│   │   - Which tool?   │   Agent   │  ← Autonomous        │   │
+│   │   - How to use?   │  Decision │    Exploration       │   │
+│   │   - When to stop? └────────────┘                      │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                                                               │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │        v0.2-v0.3: Core Engines (Foundation)           │   │
+│   │  ┌─────────┐ ┌─────────┐ ┌──────────┐ ┌─────────┐ │   │
+│   │  │ Analogy │ │  Graph  │ │Adversari-│ │Thinking │ │   │
+│   │  │ Engine  │ │Traversal│ │al Engine │ │ Engine  │ │   │
+│   │  └─────────┘ └─────────┘ └──────────┘ └─────────┘ │   │
 │   └─────────────────────────────────────────────────────┘   │
 │                                                               │
 │   Backend: Ollama (Local) / Copilot (Framework Mode)         │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+## 💡 Core Insight: Agent-Driven Creativity (v0.4.0)
+
+> **"Copilot 內部觸碰不到，無論外層做什麼最終都是 Prompt 進去"**
+
+**Key Shift**: From "Human-Agent Language Interaction" to "Agent Autonomous Tool Interaction"
+
+| Traditional | Agent-Driven |
+|-------------|---------------|
+| We design the process | Agent designs its own process |
+| Fixed methodology | Dynamic exploration strategy |
+| Output cannot be verified | Tools can verify |
+| One-shot generation | Iterative exploration |
 
 ## 🧠 Thinking, Fast and Slow
 
@@ -121,22 +138,17 @@ cgu generate "How to improve remote work productivity?"
 ```
 creativity-generation-unit/
 ├── src/cgu/
-│   ├── core/           # Core concepts
-│   │   ├── thinking.py # Fast/Slow thinking
-│   │   └── creativity.py # Methods & levels
-│   ├── methods/        # Method implementations
-│   ├── agents/         # Multi-Agent system (v0.3.0)
-│   │   ├── base.py     # Agent base classes
-│   │   ├── explorer.py # Explorer Agent
-│   │   ├── critic.py   # Critic Agent
-│   │   ├── wildcard.py # Wildcard Agent
-│   │   ├── orchestrator.py # Agent Orchestrator
-│   │   └── spark.py    # Spark Engine
-│   ├── thinking/       # Unified Thinking Engine (v0.3.0)
-│   │   ├── engine.py   # ThinkingEngine
-│   │   └── facade.py   # Simple API
+│   ├── core/           # Core engines (v2)
+│   │   ├── analogy.py  # Cross-domain analogy
+│   │   ├── graph.py    # Concept graph traversal
+│   │   ├── adversarial.py # Adversarial evolution
+│   │   └── creativity_core.py # Unified engine
+│   ├── tools/          # Agent tools (v0.4 NEW) 🆕
+│   │   └── creativity_tools.py # 5 creativity tools
+│   ├── agents/         # Multi-Agent system (v0.3)
+│   ├── thinking/       # Thinking Engine (v0.3)
 │   ├── graph/          # LangGraph definitions
-│   ├── llm/            # LLM backends (Ollama/Copilot)
+│   ├── llm/            # LLM backends
 │   └── server.py       # MCP Server
 ├── docs/               # Documentation
 ├── tests/              # Test suite
@@ -147,33 +159,53 @@ creativity-generation-unit/
 ## 🔧 MCP Tools
 
 ```typescript
-// Core Tools
+// Core Tools (v0.2)
 generateIdeas(topic, creativityLevel, count)
 sparkCollision(conceptA, conceptB)
 associativeExpansion(seed, direction, depth)
 applyMethod(method, input)
 
-// Deep Thinking Tools (v0.3.0 新增)
-deepThink(topic, depth, mode)          // 統一思考入口
-multiAgentBrainstorm(topic, agents)    // Multi-Agent 並發
-sparkCollisionDeep(conceptA, conceptB) // 深度概念碰撞
+// Deep Thinking Tools (v0.3)
+deepThink(topic, depth, mode)
+multiAgentBrainstorm(topic, agents)
+sparkCollisionDeep(conceptA, conceptB)
+
+// Agent Creativity Tools (v0.4 NEW) 🆕
+exploreConcept(concept)       // Search concept space
+findConnection(a, b)          // Discover connections
+checkNovelty(idea)            // Validate novelty
+evolveIdea(idea, mutation)    // Mutate ideas
+getProgress()                 // Track exploration
 ```
 
-## 🎮 Thinking Modes (v0.3.0)
+## 🎮 Agent-Driven Creativity (v0.4.0)
 
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| **Simple** | Single LLM call | Quick ideas, simple topics |
-| **Deep** | Multi-Agent parallel | Complex problems, multi-perspective |
-| **Spark** | Concept collision | Cross-domain innovation |
-| **Hybrid** | Fast + Slow combined | Comprehensive exploration |
+Agent autonomously uses tools to explore creativity:
 
 ```python
-# Example: Deep thinking with Multi-Agent
-from cgu.thinking import deep_think
+from cgu.tools import CreativityToolbox
 
-result = await deep_think("未來教育模式", agents=3, steps=5)
-print(result["best_spark"])  # Best inspiration spark
+toolbox = CreativityToolbox()
+
+# Agent starts exploration
+session = toolbox.start_session("remote work")
+
+# Agent decides to explore concept
+explore = toolbox.explore_concept("remote work")
+# -> related: ['collaboration', 'efficiency', 'flexibility']
+# -> unexpected: ['nomad', 'ritual', 'cafe']
+
+# Agent tries cross-domain connection
+connection = toolbox.find_connection("remote work", "nomad")
+# -> novelty_score: 0.80
+
+# Agent generates idea
+idea = "Combine remote work with nomad lifestyle"
+novelty = toolbox.check_novelty(idea)
+# -> is_novel: True, score: 1.0
+
+# If not novel, agent evolves
+evolved = toolbox.evolve_idea(idea, "combine")
 ```
 
 ## 🌟 Design Principles

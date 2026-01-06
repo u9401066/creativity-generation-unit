@@ -7,6 +7,41 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-06
+
+### Added
+- 🧠 **v2 核心引擎 - 從「模擬創意」到「實現創意機制」**
+  - `src/cgu/core/analogy.py` - AnalogyEngine 跨域類比搜尋器
+  - `src/cgu/core/graph.py` - ConceptGraph + GraphTraversalEngine
+  - `src/cgu/core/adversarial.py` - AdversarialEngine 對抗式進化
+  - `src/cgu/core/creativity_core.py` - CreativityCore 統一引擎
+  - 基於 Koestler Bisociation 理論：創意 = 結構同構的意外連結
+
+- 🛠️ **v3 Agent-Driven Creativity Tools**
+  - `src/cgu/tools/creativity_tools.py` - Agent 自主創意工具集
+  - `ConceptExplorer` - 概念搜尋器，探索概念空間
+  - `ConnectionFinder` - 連結發現器，尋找跨域連結
+  - `NoveltyChecker` - 新穎度驗證器，檢查想法是否新穎
+  - `IdeaEvolver` - 想法演化器，突變和進化想法
+  - `CreativityLogger` - 創意記錄器，追蹤探索過程
+  - `CreativityToolbox` - 統一工具箱，供 Agent 自由組合
+
+### Changed
+- 核心架構轉變：從「人與 Agent 的語言互動」到「Agent 的自主工具互動」
+- Agent 自己決定流程，而不是我們規定固定方法論
+
+### Philosophy
+> **「Copilot 內部觸碰不到，無論外層做什麼最終都是 Prompt 進去」**
+>
+> 解決方案：給 Agent 工具，讓它自己探索出創意
+
+| 傳統 | Agent 驅動 |
+|------|------------|
+| 我們設計流程 | Agent 自己設計流程 |
+| 固定的方法論 | 動態的探索策略 |
+| 輸出無法驗證 | 工具可以驗證 |
+| 一次性生成 | 迭代式探索 |
+
 ## [0.3.0] - 2025-12-16
 
 ### Added

@@ -43,3 +43,6 @@
 5. 支援 asyncio.gather 真正並發，效率更高 |
 | 2025-12-15 | 建立統一 ThinkingEngine，支援三種模式：Simple（Ollama/Copilot快思）、Deep（Multi-Agent慢想）、Spark（碰撞創意） | 1. 保持與現有 Ollama/Copilot 模式兼容 2. 透過 mode 參數讓用戶選擇深度 3. 新增 MCP Tool: deep_think, multi_agent_brainstorm, spark_collision_deep |
 | 2025-12-15 | 採用 ThinkingEngine 統一架構整合 Simple/Deep/Spark/Hybrid 四種思考模式 | 用戶需要保持 Ollama/Copilot 簡單模式的快速發想能力，同時希望能加深思考架構。ThinkingEngine 作為統一入口，根據主題複雜度自動選擇最適合的模式，同時保持向後兼容性。 |
+| 2025-12-16 | LLM Client 從 instructor + OpenAI 改為 LangChain + Ollama (with_structured_output) | 1. LangChain 的 with_structured_output 更穩定且與 Ollama 整合更好 2. Ollama 服務持續運行，無需每次初始化延遲 3. 移除 instructor 依賴，簡化架構 |
+| 2026-01-06 | CGU v2 重構：從「模擬創意」到「實現創意機制」| **問題**：v1 本質是 Prompt 模板 + 隨機碰撞 = 假創意。**解決**：採用三大核心引擎：1. AnalogyEngine（結構化類比搜尋）2. GraphTraversalEngine（概念圖譜非顯而易見路徑）3. AdversarialEngine（對抗式進化）。**原理**：基於 Koestler Bisociation 理論，創意 = 結構同構的意外連結。 |
+| 2026-01-06 | CGU v3 轉變：從「語言互動」到「Agent 工具互動」| **核心洞察**：Copilot 內部觸碰不到，無論外層做什麼最終都是 Prompt 進去。**解決**：給 Agent 工具，讓它自己探索出創意。5 個核心工具：ConceptExplorer（搜尋）、ConnectionFinder（連結）、NoveltyChecker（驗證）、IdeaEvolver（演化）、CreativityLogger（記錄）。Agent 自己決定流程，而不是我們規定。 |
