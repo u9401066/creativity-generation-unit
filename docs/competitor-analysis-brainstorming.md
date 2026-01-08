@@ -365,5 +365,258 @@ Start by understanding the current project context, then ask questions one at a 
 
 ---
 
-*最後更新：2025-01-XX*
-*分析版本：brainstorming v3.4.0 vs CGU v0.3.0*
+*最後更新：2026-01-08*
+*分析版本：brainstorming v3.4.0 vs CGU v0.4.0*
+
+---
+
+# 📚 延伸競品分析：Agent Skills Template Repos
+
+> **調研日期**: 2026-01-08
+> **目的**: 從優秀的 template repos 學習 skills 設計模式，發想 CGU 可新增的 skills
+
+---
+
+## 🔥 參考 Repos 摘要
+
+| Repo | Stars | 核心特色 | 價值 |
+|------|-------|----------|------|
+| [obra/superpowers](https://github.com/obra/superpowers) | 8,500+ | 核心技能庫（TDD、除錯、協作） | 🏆 生態系標準 |
+| [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) | - | Context Engineering 專用技能 | 理論+實踐 |
+| [claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills) | - | 100+ 科學研究技能 | 領域專精範例 |
+| [claude-code-showcase](https://github.com/ChrisWiles/claude-code-showcase) | - | 完整 .claude/ 目錄結構範例 | 配置最佳實踐 |
+| [awesome-agent-skills](https://github.com/heilcheng/awesome-agent-skills) | - | 技能彙整列表 | 發現資源 |
+| [Skill_Seekers](https://github.com/yusufkaraaslan/Skill_Seekers) | - | 自動將文檔轉成 Skills | 工具化 |
+
+---
+
+## 🏗️ obra/superpowers 技能清單
+
+> **標準生態系** - CGU 可直接整合或參考
+
+### 測試類
+- `test-driven-development` - RED-GREEN-REFACTOR 循環
+
+### 除錯類
+- `systematic-debugging` - 4 階段根因分析
+- `verification-before-completion` - 確認修復
+
+### 協作類
+- `brainstorming` - 蘇格拉底式設計
+- `writing-plans` - 詳細實作計畫
+- `executing-plans` - 批次執行 + checkpoints
+- `dispatching-parallel-agents` - 子 Agent 並行
+- `requesting-code-review` - 請求 code review
+- `receiving-code-review` - 回應 code review
+- `using-git-worktrees` - 平行開發分支
+- `finishing-a-development-branch` - 合併/PR 決策
+- `subagent-driven-development` - 兩階段審查
+
+### Meta
+- `writing-skills` - 撰寫新 skills
+- `using-superpowers` - 系統介紹
+
+---
+
+## 🧠 Agent-Skills-for-Context-Engineering 技能分類
+
+### Foundational Skills（基礎）
+- `context-fundamentals` - Context 基礎概念
+- `context-degradation` - Context 退化處理
+- `context-compression` - Context 壓縮技術
+
+### Architectural Skills（架構）
+- `multi-agent-patterns` - 多 Agent 模式
+- `memory-systems` - 記憶系統設計
+- `tool-design` - 工具設計
+- `filesystem-context` - 檔案系統 context
+
+### Operational Skills（運營）
+- `context-optimization` - Context 優化
+- `evaluation` - 評估方法
+- `advanced-evaluation` - 進階評估
+
+### Development Methodology（開發方法）
+- `project-development` - 專案開發方法論
+
+### Cognitive Architecture（認知架構）
+- `bdi-mental-states` - BDI 心智模型
+
+---
+
+## 🔬 claude-scientific-skills 技能類別
+
+> **科學研究專精** - 100+ skills 分類
+
+| 類別 | 技能數 | 重點 |
+|------|--------|------|
+| Bioinformatics & Genomics | 16+ | BioPython, Scanpy, AnnData |
+| Cheminformatics & Drug Discovery | 10+ | RDKit, DeepChem, DiffDock |
+| Clinical Research | 12+ | ClinVar, PyHealth |
+| Machine Learning & AI | 15+ | PyTorch, Transformers, SHAP |
+| Data Analysis & Visualization | 14+ | Matplotlib, Plotly, NetworkX |
+| Scientific Communication | 20+ | PubMed, bioRxiv, LaTeX |
+| Scientific Databases | 28+ | UniProt, PDB, PubChem |
+
+---
+
+## 📁 claude-code-showcase 目錄結構
+
+```
+.claude/
+├── settings.json           # Hooks, 環境, 權限
+├── settings.local.json     # 個人覆蓋 (gitignored)
+├── settings.md             # Hook 文件
+├── agents/                 # 自訂 AI agents
+│   └── code-reviewer.md
+├── commands/               # Slash commands (/command)
+│   ├── onboard.md          # 深入任務探索
+│   ├── pr-review.md        # PR 審查流程
+│   ├── pr-summary.md       # 生成 PR 描述
+│   ├── code-quality.md     # 品質檢查
+│   └── docs-sync.md        # 文件同步
+├── hooks/                  # Hook scripts
+│   ├── skill-eval.sh       # 技能匹配
+│   ├── skill-eval.js       # 匹配引擎
+│   └── skill-rules.json    # 匹配規則
+├── skills/                 # 領域知識
+│   ├── testing-patterns/
+│   ├── systematic-debugging/
+│   ├── react-ui-patterns/
+│   ├── graphql-schema/
+│   └── core-components/
+└── rules/                  # 模組化指令
+    ├── code-style.md
+    └── security.md
+```
+
+---
+
+## 💡 CGU Skill 發想
+
+### 現有 Skills (14 個)
+
+| Skill | 類別 | 狀態 |
+|-------|------|------|
+| `changelog-updater` | 文件 | ✅ |
+| `code-refactor` | 開發 | ✅ |
+| `code-reviewer` | 開發 | ✅ |
+| `creative-ideation` | 創意 | ✅ |
+| `ddd-architect` | 架構 | ✅ |
+| `git-doc-updater` | Git | ✅ |
+| `git-precommit` | Git | ✅ |
+| `memory-checkpoint` | Memory | ✅ |
+| `memory-updater` | Memory | ✅ |
+| `project-init` | 專案 | ✅ |
+| `readme-i18n` | 文件 | ✅ |
+| `readme-updater` | 文件 | ✅ |
+| `roadmap-updater` | 文件 | ✅ |
+| `test-generator` | 測試 | ✅ |
+
+---
+
+### 🆕 建議新增 Skills
+
+#### 優先級 1: 與 CGU 核心相關
+
+| Skill | 描述 | 參考來源 |
+|-------|------|----------|
+| `spark-collision` | 概念碰撞創意產生 | CGU v0.4 |
+| `multi-agent-brainstorm` | Multi-Agent 協作腦力激盪 | CGU + superpowers |
+| `idea-evolution` | 想法演化與迭代 | CGU v0.4 tools |
+| `novelty-checker` | 新穎度評估與驗證 | CGU v0.4 tools |
+
+#### 優先級 2: 整合 superpowers 生態
+
+| Skill | 描述 | 參考來源 |
+|-------|------|----------|
+| `writing-plans` | 詳細實作計畫撰寫 | superpowers |
+| `executing-plans` | 批次執行 + checkpoints | superpowers |
+| `systematic-debugging` | 4 階段根因分析 | superpowers |
+| `dispatching-parallel-agents` | 子 Agent 並行派遣 | superpowers |
+
+#### 優先級 3: Context Engineering
+
+| Skill | 描述 | 參考來源 |
+|-------|------|----------|
+| `context-compression` | 長 context 壓縮 | Agent-Skills |
+| `memory-systems` | 進階記憶系統 | Agent-Skills |
+| `multi-agent-patterns` | 多 Agent 協調模式 | Agent-Skills |
+
+#### 優先級 4: 研究相關
+
+| Skill | 描述 | 參考來源 |
+|-------|------|----------|
+| `literature-review` | 文獻回顧輔助 | claude-scientific |
+| `hypothesis-generation` | 假設生成 | claude-scientific |
+| `research-brainstorming` | 研究主題腦力激盪 | claude-scientific |
+
+---
+
+### 🗺️ Skill 架構規劃
+
+```
+.claude/skills/
+├── core/                    # 核心通用
+│   ├── memory-updater/
+│   ├── memory-checkpoint/
+│   └── project-init/
+│
+├── creativity/              # 創意發想 (CGU 專長)
+│   ├── creative-ideation/
+│   ├── spark-collision/       # NEW
+│   ├── multi-agent-brainstorm/ # NEW
+│   ├── idea-evolution/        # NEW
+│   └── novelty-checker/       # NEW
+│
+├── development/             # 開發相關
+│   ├── code-refactor/
+│   ├── code-reviewer/
+│   ├── test-generator/
+│   ├── ddd-architect/
+│   ├── systematic-debugging/  # NEW (from superpowers)
+│   └── writing-plans/         # NEW (from superpowers)
+│
+├── git/                     # Git 工作流
+│   ├── git-precommit/
+│   └── git-doc-updater/
+│
+├── documentation/           # 文件更新
+│   ├── changelog-updater/
+│   ├── readme-updater/
+│   ├── readme-i18n/
+│   └── roadmap-updater/
+│
+└── research/                # 研究相關 (NEW)
+    ├── literature-review/     # NEW
+    ├── hypothesis-generation/ # NEW
+    └── research-brainstorming/ # NEW
+```
+
+---
+
+## 🎯 行動計畫
+
+### Phase 1: 整合現有 (v0.5.0)
+- [ ] 將 creativity skills 移到 `.claude/skills/creativity/`
+- [ ] 建立 skill 目錄結構
+- [ ] 新增 `spark-collision` skill (基於 CGU v0.4 tools)
+
+### Phase 2: 擴展生態 (v0.6.0)  
+- [ ] 從 superpowers 移植 `writing-plans`
+- [ ] 從 superpowers 移植 `systematic-debugging`
+- [ ] 建立 skills README 索引
+
+### Phase 3: 研究專精 (v0.7.0)
+- [ ] 新增研究相關 skills
+- [ ] 整合 claude-scientific-skills 參考
+
+---
+
+## 📚 延伸閱讀
+
+- [obra/superpowers](https://github.com/obra/superpowers) - 標準生態系
+- [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) - Context 專精
+- [claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills) - 科學研究
+- [claude-code-showcase](https://github.com/ChrisWiles/claude-code-showcase) - 配置範例
+- [awesome-agent-skills](https://github.com/heilcheng/awesome-agent-skills) - 資源彙整
