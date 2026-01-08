@@ -907,6 +907,264 @@ async def list_methods() -> dict:
     }
 
 
+# === Spark-Soup: Context Stuffing for Creativity ===
+
+
+@mcp.tool()
+async def spark_soup_generate(
+    topic: str,
+    fragment_count: int = 20,
+    topic_repetition: int = 5,
+    auto_search: bool = False,
+    custom_fragments: list[str] | None = None,
+    trigger_categories: list[str] | None = None,
+    randomness: float = 0.5,
+) -> dict:
+    """
+    組裝「創意湯」- 用碎片化資訊填充 context，激發意外連結
+    
+    模擬人類接收新聞/書籍/體驗後產生創意的過程。
+    
+    Args:
+        topic: 主題（會在 soup 中重複多次避免遺忘）
+        fragment_count: 碎片數量（預設 20）
+        topic_repetition: 主題重複次數（預設 5，避免被 context 壓縮遺忘）
+        auto_search: 是否自動搜尋外部資訊（需要網路）
+        custom_fragments: 使用者自訂碎片列表
+        trigger_categories: 觸發詞類別 
+            可選: ["combination", "inversion", "scale", "time", "perspective", "emotion"]
+        randomness: 隨機性 0-1（越高碎片越隨機）
+    
+    Returns:
+        包含創意湯、碎片資訊、多樣性評分的結果
+    """
+    try:
+        from cgu.soup import spark_soup
+        
+        result = await spark_soup(
+            topic=topic,
+            fragment_count=fragment_count,
+            topic_repetition=topic_repetition,
+            auto_search=auto_search,
+            custom_fragments=custom_fragments,
+            trigger_categories=trigger_categories,
+            randomness=randomness,
+        )
+        
+        return {
+            "success": True,
+            "soup": result.soup,
+            "topic": result.topic,
+            "fragments_count": len(result.fragments_used),
+            "diversity_score": result.diversity_score,
+            "trigger_words_used": result.trigger_words_used,
+            "sources": list(set(f.source.value for f in result.fragments_used)),
+            "usage_hint": "請將 soup 內容傳給 LLM，讓它從碎片中尋找意外連結來產生創意想法",
+        }
+        
+    except Exception as e:
+        logger.error(f"Spark Soup 失敗: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "hint": "請確認 cgu.soup 模組可用",
+        }
+
+
+@mcp.tool()
+async def spark_soup_quick(
+    topic: str,
+    creativity_boost: float = 0.7,
+) -> dict:
+    """
+    快速創意湯 - 一鍵產生創意湯並直接生成想法
+    
+    結合 spark_soup + generate_ideas，適合快速發想。
+    
+    Args:
+        topic: 主題
+        creativity_boost: 創意增強程度 0-1（影響隨機性和碎片多樣性）
+    
+    Returns:
+        創意湯和基於湯底產生的想法
+    """
+    try:
+        from cgu.soup import spark_soup
+        
+        # 生成創意湯
+        soup_result = await spark_soup(
+            topic=topic,
+            fragment_count=15,
+            topic_repetition=3,
+            auto_search=False,
+            randomness=creativity_boost,
+            trigger_categories=["combination", "perspective"],
+        )
+        
+        # 使用 LLM 基於創意湯生成想法
+        client = _get_llm_client()
+        ideas = []
+        
+        if client is not None:
+            try:
+                from cgu.llm import IdeasOutput, SYSTEM_PROMPT_CREATIVITY
+                
+                prompt = f"""請基於以下「創意湯」產生 5 個創意想法。
+
+{soup_result.soup}
+
+請從碎片中尋找意外的連結，產生新穎的想法。"""
+                
+                result = client.generate_structured(
+                    prompt=prompt,
+                    response_model=IdeasOutput,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                )
+                ideas = [
+                    {"id": i+1, "content": idea, "source": "spark_soup"}
+                    for i, idea in enumerate(result.ideas[:5])
+                ]
+            except Exception as e:
+                logger.warning(f"LLM 生成失敗: {e}")
+        
+        # Fallback
+        if not ideas:
+            ideas = [
+                {"id": i+1, "content": f"[請基於創意湯思考] {topic} 的想法 {i+1}", "source": "framework"}
+                for i in range(5)
+            ]
+        
+        return {
+            "success": True,
+            "topic": topic,
+            "ideas": ideas,
+            "soup_preview": soup_result.soup[:500] + "..." if len(soup_result.soup) > 500 else soup_result.soup,
+            "diversity_score": soup_result.diversity_score,
+            "fragments_count": len(soup_result.fragments_used),
+        }
+        
+    except Exception as e:
+        logger.error(f"Quick Spark Soup 失敗: {e}")
+        return await generate_ideas(topic=topic, count=5)
+
+
+@mcp.tool()
+async def collect_creativity_fragments(
+    topic: str,
+    count: int = 10,
+    include_quotes: bool = True,
+    include_random_concepts: bool = True,
+    include_search: bool = False,
+    randomness: float = 0.5,
+) -> dict:
+    """
+    收集創意碎片 - 從多個來源收集碎片化資訊
+    
+    可用於自訂創意湯的組裝，或單獨使用碎片進行聯想。
+    
+    Args:
+        topic: 相關主題（用於引導搜尋）
+        count: 收集數量
+        include_quotes: 是否包含名言金句
+        include_random_concepts: 是否包含隨機概念
+        include_search: 是否進行網路搜尋（需要網路）
+        randomness: 隨機性 0-1
+    
+    Returns:
+        收集到的碎片列表
+    """
+    try:
+        from cgu.soup import collect_fragments
+        
+        sources = []
+        if include_quotes:
+            sources.append("quotes")
+        if include_random_concepts:
+            sources.append("random")
+        if include_search:
+            sources.append("duckduckgo")
+        
+        if not sources:
+            sources = ["quotes", "random"]
+        
+        fragments = await collect_fragments(
+            topic=topic,
+            sources=sources,
+            count_per_source=max(3, count // len(sources)),
+            randomness=randomness,
+        )
+        
+        return {
+            "success": True,
+            "topic": topic,
+            "fragments": [
+                {
+                    "content": f.content,
+                    "source": f.source.value,
+                    "relevance": f.relevance,
+                }
+                for f in fragments[:count]
+            ],
+            "total": len(fragments),
+        }
+        
+    except Exception as e:
+        logger.error(f"收集碎片失敗: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
+@mcp.tool()
+async def get_trigger_words(
+    categories: list[str] | None = None,
+    count: int = 10,
+) -> dict:
+    """
+    取得創意觸發詞 - 用於激發創意的提問
+    
+    Args:
+        categories: 類別列表
+            可選: ["combination", "inversion", "scale", "time", "perspective", "emotion"]
+        count: 數量
+    
+    Returns:
+        觸發詞列表
+    """
+    try:
+        from cgu.soup import TRIGGER_WORDS
+        import random
+        
+        requested_cats = categories or list(TRIGGER_WORDS.keys())
+        
+        all_triggers = []
+        triggers_by_category = {}
+        
+        for cat in requested_cats:
+            if cat in TRIGGER_WORDS:
+                triggers = TRIGGER_WORDS[cat]
+                triggers_by_category[cat] = triggers
+                all_triggers.extend(triggers)
+        
+        # 隨機選擇
+        selected = random.sample(all_triggers, min(count, len(all_triggers)))
+        
+        return {
+            "success": True,
+            "selected": selected,
+            "by_category": triggers_by_category,
+            "available_categories": list(TRIGGER_WORDS.keys()),
+        }
+        
+    except Exception as e:
+        logger.error(f"取得觸發詞失敗: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
 # === MCP Resources ===
 
 
