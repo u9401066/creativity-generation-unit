@@ -9,10 +9,9 @@ Spark-Soup: Context Stuffing for Creativity
 3. 讓 LLM 從碎片中產生意外連結
 """
 
-import random
 import logging
-from dataclasses import dataclass, field
-from typing import Optional
+import random
+from dataclasses import dataclass
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -20,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class FragmentSource(Enum):
     """碎片來源"""
+
     DUCKDUCKGO = "duckduckgo"
     WIKIPEDIA = "wikipedia"
     QUOTES = "quotes"
@@ -31,10 +31,11 @@ class FragmentSource(Enum):
 @dataclass
 class Fragment:
     """創意碎片"""
+
     content: str
     source: FragmentSource
     relevance: float = 0.5  # 0-1，與主題的相關性
-    
+
     def __str__(self) -> str:
         return f"📌 {self.content}"
 
@@ -42,12 +43,13 @@ class Fragment:
 @dataclass
 class SparkSoupResult:
     """Spark Soup 結果"""
+
     soup: str
     topic: str
     fragments_used: list[Fragment]
     diversity_score: float
     trigger_words_used: list[str]
-    
+
     def to_dict(self) -> dict:
         return {
             "soup": self.soup,
@@ -55,18 +57,19 @@ class SparkSoupResult:
             "fragments_count": len(self.fragments_used),
             "diversity_score": self.diversity_score,
             "trigger_words": self.trigger_words_used,
-            "sources": list(set(f.source.value for f in self.fragments_used)),
+            "sources": list({f.source.value for f in self.fragments_used}),
         }
 
 
 @dataclass
 class Idea:
     """生成的想法"""
+
     title: str
     description: str
     connected_fragments: list[str]
     novelty_score: float
-    
+
     def to_dict(self) -> dict:
         return {
             "title": self.title,
@@ -141,11 +144,46 @@ CREATIVITY_QUOTES = [
 ]
 
 RANDOM_CONCEPTS = [
-    "蜂巢", "星空", "咖啡", "森林", "機器人", "音樂", "海洋", "夢想", 
-    "旅行", "魔法", "時間", "彩虹", "風箏", "螢火蟲", "積木", "拼圖",
-    "迷宮", "望遠鏡", "顯微鏡", "蠟燭", "鏡子", "影子", "河流", "瀑布",
-    "火山", "冰山", "沙漠", "綠洲", "燈塔", "羅盤", "地圖", "寶藏",
-    "種子", "蝴蝶", "蜻蜓", "珊瑚", "晨露", "黃昏", "極光", "閃電",
+    "蜂巢",
+    "星空",
+    "咖啡",
+    "森林",
+    "機器人",
+    "音樂",
+    "海洋",
+    "夢想",
+    "旅行",
+    "魔法",
+    "時間",
+    "彩虹",
+    "風箏",
+    "螢火蟲",
+    "積木",
+    "拼圖",
+    "迷宮",
+    "望遠鏡",
+    "顯微鏡",
+    "蠟燭",
+    "鏡子",
+    "影子",
+    "河流",
+    "瀑布",
+    "火山",
+    "冰山",
+    "沙漠",
+    "綠洲",
+    "燈塔",
+    "羅盤",
+    "地圖",
+    "寶藏",
+    "種子",
+    "蝴蝶",
+    "蜻蜓",
+    "珊瑚",
+    "晨露",
+    "黃昏",
+    "極光",
+    "閃電",
 ]
 
 CROSS_DOMAIN_CONCEPTS = {
@@ -162,85 +200,87 @@ CROSS_DOMAIN_CONCEPTS = {
 
 class FragmentCollector:
     """碎片收集器基底類別"""
-    
+
     async def collect(self, topic: str, count: int, randomness: float = 0.5) -> list[Fragment]:
         raise NotImplementedError
 
 
 class QuotesCollector(FragmentCollector):
     """名言金句收集器"""
-    
+
     async def collect(self, topic: str, count: int, randomness: float = 0.5) -> list[Fragment]:
         selected = random.sample(CREATIVITY_QUOTES, min(count, len(CREATIVITY_QUOTES)))
-        return [
-            Fragment(content=q, source=FragmentSource.QUOTES, relevance=0.3)
-            for q in selected
-        ]
+        return [Fragment(content=q, source=FragmentSource.QUOTES, relevance=0.3) for q in selected]
 
 
 class RandomConceptCollector(FragmentCollector):
     """隨機概念收集器"""
-    
+
     async def collect(self, topic: str, count: int, randomness: float = 0.5) -> list[Fragment]:
         # 混合隨機概念和跨領域概念
         fragments = []
-        
+
         # 隨機概念
         n_random = int(count * 0.6)
         random_items = random.sample(RANDOM_CONCEPTS, min(n_random, len(RANDOM_CONCEPTS)))
-        fragments.extend([
-            Fragment(content=f"隨機概念：{c}", source=FragmentSource.RANDOM, relevance=0.2)
-            for c in random_items
-        ])
-        
+        fragments.extend(
+            [
+                Fragment(content=f"隨機概念：{c}", source=FragmentSource.RANDOM, relevance=0.2)
+                for c in random_items
+            ]
+        )
+
         # 跨領域概念
         n_cross = count - n_random
         all_cross = []
         for domain, concepts in CROSS_DOMAIN_CONCEPTS.items():
             for c in concepts:
                 all_cross.append(f"{domain}領域：{c}")
-        
+
         cross_items = random.sample(all_cross, min(n_cross, len(all_cross)))
-        fragments.extend([
-            Fragment(content=c, source=FragmentSource.RANDOM, relevance=0.3)
-            for c in cross_items
-        ])
-        
+        fragments.extend(
+            [Fragment(content=c, source=FragmentSource.RANDOM, relevance=0.3) for c in cross_items]
+        )
+
         return fragments
 
 
 class DuckDuckGoCollector(FragmentCollector):
     """DuckDuckGo 搜尋收集器"""
-    
+
     async def collect(self, topic: str, count: int, randomness: float = 0.5) -> list[Fragment]:
         try:
             from duckduckgo_search import DDGS
-            
+
             fragments = []
-            
+
             # 主題相關搜尋
             async with DDGS() as ddgs:
                 results = list(ddgs.text(f"{topic} 創新", max_results=count // 2))
                 for r in results:
-                    fragments.append(Fragment(
-                        content=f"🔍 {r.get('title', '')}: {r.get('body', '')[:100]}...",
-                        source=FragmentSource.DUCKDUCKGO,
-                        relevance=0.7,
-                    ))
-                
+                    fragments.append(
+                        Fragment(
+                            content=f"🔍 {r.get('title', '')}: {r.get('body', '')[:100]}...",
+                            source=FragmentSource.DUCKDUCKGO,
+                            relevance=0.7,
+                        )
+                    )
+
                 # 隨機延伸搜尋
                 if randomness > 0.3:
                     random_word = random.choice(RANDOM_CONCEPTS)
                     random_results = list(ddgs.text(f"{random_word} 趨勢", max_results=count // 2))
                     for r in random_results:
-                        fragments.append(Fragment(
-                            content=f"🎲 {r.get('title', '')}: {r.get('body', '')[:100]}...",
-                            source=FragmentSource.DUCKDUCKGO,
-                            relevance=0.3,
-                        ))
-            
+                        fragments.append(
+                            Fragment(
+                                content=f"🎲 {r.get('title', '')}: {r.get('body', '')[:100]}...",
+                                source=FragmentSource.DUCKDUCKGO,
+                                relevance=0.3,
+                            )
+                        )
+
             return fragments[:count]
-            
+
         except Exception as e:
             logger.warning(f"DuckDuckGo 搜尋失敗: {e}")
             return []
@@ -248,14 +288,14 @@ class DuckDuckGoCollector(FragmentCollector):
 
 class SoupAssembler:
     """創意湯組裝器"""
-    
+
     def __init__(self):
         self.collectors: dict[str, FragmentCollector] = {
             "quotes": QuotesCollector(),
             "random": RandomConceptCollector(),
             "duckduckgo": DuckDuckGoCollector(),
         }
-    
+
     async def collect_fragments(
         self,
         topic: str,
@@ -265,7 +305,7 @@ class SoupAssembler:
     ) -> list[Fragment]:
         """從多個來源收集碎片"""
         all_fragments = []
-        
+
         for source in sources:
             collector = self.collectors.get(source)
             if collector:
@@ -278,9 +318,9 @@ class SoupAssembler:
                     all_fragments.extend(fragments)
                 except Exception as e:
                     logger.warning(f"收集 {source} 失敗: {e}")
-        
+
         return all_fragments
-    
+
     def assemble_soup(
         self,
         topic: str,
@@ -289,45 +329,47 @@ class SoupAssembler:
         trigger_categories: list[str] | None = None,
     ) -> SparkSoupResult:
         """組裝創意湯"""
-        
+
         # 確保多樣性：交錯排列不同來源的碎片
         fragments = self._ensure_diversity(fragments)
-        
+
         # 選擇觸發詞
-        trigger_words = self._select_triggers(trigger_categories or ["combination", "inversion", "perspective"])
-        
+        trigger_words = self._select_triggers(
+            trigger_categories or ["combination", "inversion", "perspective"]
+        )
+
         # 組裝
         soup_parts = []
         interval = max(1, len(fragments) // (topic_repetition + 1))
         trigger_index = 0
-        
+
         # 開頭：主題宣告
         soup_parts.append(f"🎯 **主要主題**: {topic}")
         soup_parts.append("---")
         soup_parts.append("以下是多元碎片資訊，請從中尋找意外連結：\n")
-        
+
         for i, fragment in enumerate(fragments):
             # 每隔 N 個碎片插入主題錨定
             if i > 0 and i % interval == 0:
                 soup_parts.append(f"\n🎯 **提醒主題**: {topic}\n")
-                
+
                 # 每次錨定時也加入一個觸發詞
                 if trigger_index < len(trigger_words):
                     soup_parts.append(f"💡 **發想提示**: {trigger_words[trigger_index]}")
                     trigger_index += 1
-            
+
             soup_parts.append(str(fragment))
-        
+
         # 結尾：再次強調主題
         soup_parts.append("\n---")
         soup_parts.append(f"🎯 **核心主題**: {topic}")
         soup_parts.append("\n請基於以上碎片，為這個主題產生創意想法。尋找意外的連結！")
-        
+
         soup = "\n".join(soup_parts)
-        
+
         # 計算多樣性分數
         diversity_score = self._calculate_diversity(fragments)
-        
+
         return SparkSoupResult(
             soup=soup,
             topic=topic,
@@ -335,54 +377,52 @@ class SoupAssembler:
             diversity_score=diversity_score,
             trigger_words_used=trigger_words[:trigger_index],
         )
-    
+
     def _ensure_diversity(self, fragments: list[Fragment]) -> list[Fragment]:
         """確保碎片多樣性（交錯排列）"""
         from collections import defaultdict
-        
+
         by_source = defaultdict(list)
         for f in fragments:
             by_source[f.source].append(f)
-        
+
         result = []
         while any(by_source.values()):
             for source in list(by_source.keys()):
                 if by_source[source]:
                     result.append(by_source[source].pop(0))
-        
+
         return result
-    
+
     def _select_triggers(self, categories: list[str], count: int = 5) -> list[str]:
         """選擇觸發詞"""
         selected = []
         for cat in categories:
             if cat in TRIGGER_WORDS:
-                selected.extend(random.sample(
-                    TRIGGER_WORDS[cat], 
-                    min(2, len(TRIGGER_WORDS[cat]))
-                ))
+                selected.extend(random.sample(TRIGGER_WORDS[cat], min(2, len(TRIGGER_WORDS[cat]))))
         return selected[:count]
-    
+
     def _calculate_diversity(self, fragments: list[Fragment]) -> float:
         """計算多樣性分數"""
         if not fragments:
             return 0.0
-        
+
         # 來源多樣性
-        sources = set(f.source for f in fragments)
+        sources = {f.source for f in fragments}
         source_diversity = len(sources) / len(FragmentSource)
-        
+
         # 相關性分布（越分散越好）
         relevances = [f.relevance for f in fragments]
         if len(relevances) > 1:
             import statistics
+
             try:
                 relevance_spread = statistics.stdev(relevances)
             except statistics.StatisticsError:
                 relevance_spread = 0
         else:
             relevance_spread = 0
-        
+
         return min(1.0, (source_diversity * 0.6 + relevance_spread * 0.4 + 0.3))
 
 
@@ -410,7 +450,7 @@ async def spark_soup(
 ) -> SparkSoupResult:
     """
     組裝「創意湯」- 用碎片化資訊填充 context
-    
+
     Args:
         topic: 主題（會在 soup 中重複多次避免遺忘）
         fragment_count: 碎片數量（預設 20）
@@ -419,20 +459,20 @@ async def spark_soup(
         custom_fragments: 使用者自訂碎片
         trigger_categories: 觸發詞類別 ["combination", "inversion", "scale", "time", "perspective", "emotion"]
         randomness: 隨機性 0-1（越高越隨機）
-    
+
     Returns:
         SparkSoupResult
     """
     assembler = get_assembler()
-    
+
     # 決定來源
     sources = ["quotes", "random"]
     if auto_search:
         sources.append("duckduckgo")
-    
+
     # 計算各來源數量
     count_per_source = max(3, fragment_count // len(sources))
-    
+
     # 收集碎片
     fragments = await assembler.collect_fragments(
         topic=topic,
@@ -440,19 +480,21 @@ async def spark_soup(
         count_per_source=count_per_source,
         randomness=randomness,
     )
-    
+
     # 加入使用者自訂碎片
     if custom_fragments:
         for cf in custom_fragments:
-            fragments.append(Fragment(
-                content=cf,
-                source=FragmentSource.USER,
-                relevance=0.8,
-            ))
-    
+            fragments.append(
+                Fragment(
+                    content=cf,
+                    source=FragmentSource.USER,
+                    relevance=0.8,
+                )
+            )
+
     # 隨機打亂（但保持一定結構）
     random.shuffle(fragments)
-    
+
     # 組裝
     return assembler.assemble_soup(
         topic=topic,
@@ -470,13 +512,13 @@ async def collect_fragments(
 ) -> list[Fragment]:
     """
     從多個來源收集碎片化資訊
-    
+
     Args:
         topic: 相關主題
         sources: 資料來源 ["quotes", "random", "duckduckgo"]
         count_per_source: 每個來源收集數量
         randomness: 隨機性 0-1
-    
+
     Returns:
         list[Fragment]
     """

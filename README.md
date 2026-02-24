@@ -143,8 +143,10 @@ creativity-generation-unit/
 │   │   ├── graph.py    # Concept graph traversal
 │   │   ├── adversarial.py # Adversarial evolution
 │   │   └── creativity_core.py # Unified engine
-│   ├── tools/          # Agent tools (v0.4 NEW) 🆕
+│   ├── tools/          # Agent tools (v0.4)
 │   │   └── creativity_tools.py # 5 creativity tools
+│   ├── soup/           # Spark-Soup 創意湯 (v0.5 NEW) 🆕
+│   │   └── spark_soup.py # Context Stuffing for Creativity
 │   ├── agents/         # Multi-Agent system (v0.3)
 │   ├── thinking/       # Thinking Engine (v0.3)
 │   ├── graph/          # LangGraph definitions
@@ -170,12 +172,18 @@ deepThink(topic, depth, mode)
 multiAgentBrainstorm(topic, agents)
 sparkCollisionDeep(conceptA, conceptB)
 
-// Agent Creativity Tools (v0.4 NEW) 🆕
+// Agent Creativity Tools (v0.4)
 exploreConcept(concept)       // Search concept space
 findConnection(a, b)          // Discover connections
 checkNovelty(idea)            // Validate novelty
 evolveIdea(idea, mutation)    // Mutate ideas
 getProgress()                 // Track exploration
+
+// Spark-Soup Tools (v0.5 NEW) 🆕
+sparkSoupGenerate(topic)      // Assemble "creativity soup"
+sparkSoupQuick(topic)         // Quick soup + idea generation
+collectFragments(topic)       // Collect info fragments
+getTriggerWords(categories)   // Get creativity triggers
 ```
 
 ## 🎮 Agent-Driven Creativity (v0.4.0)

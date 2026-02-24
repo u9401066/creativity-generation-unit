@@ -5,7 +5,7 @@ description = "CGU - MCP-based Agent-to-Agent Creative Idea Generator with Fast/
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Your Name", email = "you@example.com" }]
+authors = [{ name = "u9401066", email = "u9401066@gap.kmu.edu.tw" }]
 keywords = ["mcp", "agent", "creativity", "langgraph", "ollama", "qwen"]
 classifiers = [
     "Development Status :: 3 - Alpha",
