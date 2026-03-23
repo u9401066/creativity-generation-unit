@@ -120,7 +120,7 @@ for idea in result["final_ideas"]:
 ```bash
 # .env 配置
 CGU_USE_LLM=true                          # 啟用 LLM
-CGU_LLM_PROVIDER=ollama                   # 思考引擎：ollama / copilot
+CGU_LLM_PROVIDER=ollama                   # 思考引擎：ollama / passthrough / copilot
 OLLAMA_BASE_URL=http://localhost:11434/v1  # Ollama 地址
 OLLAMA_MODEL=qwen2.5:3b                    # 模型名稱
 ```
@@ -130,7 +130,55 @@ OLLAMA_MODEL=qwen2.5:3b                    # 模型名稱
 | 模式 | 說明 |
 |------|------|
 | `ollama` | 使用本地 Ollama 模型思考（預設） |
-| `copilot` | 僅提供方法框架，讓 Copilot/Claude 填充內容 |
+| `passthrough` | **推薦用於 OpenClaw** — 只提供方法論框架，讓 Agent（Claude/GPT）自行思考填充 |
+| `copilot` | *(已棄用，等同 passthrough)* |
+
+### 🤖 OpenClaw 配置
+
+在 OpenClaw 裡，你的 agent 本身就是 LLM，不需要再用一個弱的 Ollama 模型。
+使用 `passthrough` 模式，CGU 會輸出完整的方法論框架（SCAMPER 7 維度、六頂帽 6 角度、逆向思考引導等），讓你的 agent 用自己的推理能力填充。
+
+```yaml
+# OpenClaw config.yaml
+mcp:
+  servers:
+    cgu:
+      url: "http://localhost:8818/mcp"
+```
+
+或 stdio 模式：
+
+```yaml
+mcp:
+  servers:
+    cgu:
+      command: "uv"
+      args: ["--directory", "/path/to/creativity-generation-unit", "run", "cgu-server"]
+      env:
+        CGU_LLM_PROVIDER: "passthrough"
+```
+
+### Agent-to-Agent 腦力激盪
+
+使用 `brainstorm_protocol` 產生結構化的雙 Agent 討論腳本：
+
+```
+Agent A（領域專家）+ Agent B（架構師）
+    │
+    ▼
+brainstorm_protocol(topic="...", method="six_hats")
+    │
+    ▼
+Phase 1: Diverge 發散 → 各自從專業角度發想
+Phase 2: Collide 碰撞 → 互相挑戰、交叉激盪
+Phase 3: Converge 收斂 → 共同篩選最佳方案
+    │
+    ▼
+evaluate_brainstorm_ideas(ideas=[...])
+    │
+    ▼
+四維度評分：可行性 / 新穎度 / 影響力 / 成本
+```
 
 ### VS Code MCP 配置
 
@@ -154,7 +202,7 @@ OLLAMA_MODEL=qwen2.5:3b                    # 模型名稱
       "args": ["--directory", "${workspaceFolder}", "run", "cgu-server"],
       "env": {
         "CGU_USE_LLM": "true",
-        "CGU_LLM_PROVIDER": "copilot"
+        "CGU_LLM_PROVIDER": "passthrough"
       }
     }
   }
