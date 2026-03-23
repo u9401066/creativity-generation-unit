@@ -23,6 +23,10 @@ from cgu.core import (
     METHOD_CONFIGS,
     select_method_for_task,
 )
+from cgu.brainstorm_protocol import (
+    generate_brainstorm_protocol,
+    evaluate_ideas as evaluate_ideas_framework,
+)
 
 # 設定 logging
 logging.basicConfig(level=logging.INFO)
@@ -1342,6 +1346,69 @@ async def get_thinking_modes() -> str:
 - refine: 2 fast + 2 slow (生成 + 精煉)
 - deep: 1 fast + 3 slow (直覺 + 深思)
 """
+
+
+# === Phase 2: Agent-to-Agent Brainstorming Protocol ===
+
+
+@mcp.tool()
+async def brainstorm_protocol(
+    topic: str,
+    method: str = "free",
+    participant_a: str = "Agent A",
+    participant_b: str = "Agent B",
+) -> dict:
+    """
+    產生結構化的雙 Agent 腦力激盪討論框架
+
+    為兩個 OpenClaw agent 產生分階段的討論 protocol（發散→碰撞→收斂），
+    每個階段有各自的 prompt。Agent 按步驟執行，在群組裡進行真正的討論。
+
+    Args:
+        topic: 要討論的主題
+        method: 方法論 (free/six_hats/scamper/reverse)
+        participant_a: Agent A 的名字（例如 "星澄"）
+        participant_b: Agent B 的名字（例如 "寧寧"）
+
+    Returns:
+        完整的 protocol（JSON phases + Markdown 摘要）
+    """
+    return generate_brainstorm_protocol(topic, method, participant_a, participant_b)
+
+
+@mcp.tool()
+async def evaluate_brainstorm_ideas(
+    ideas: list[str],
+    context: str = "",
+    feasibility_weight: float = 0.30,
+    novelty_weight: float = 0.25,
+    impact_weight: float = 0.30,
+    effort_weight: float = 0.15,
+) -> dict:
+    """
+    評估並排序腦力激盪產生的點子
+
+    提供四維度評估框架（可行性/新穎度/影響力/成本），
+    附 rubric 和評分模板，讓呼叫的 Agent 根據框架打分。
+
+    Args:
+        ideas: 要評估的點子列表
+        context: 評估脈絡（背景資訊）
+        feasibility_weight: 可行性權重 (0-1)
+        novelty_weight: 新穎度權重 (0-1)
+        impact_weight: 影響力權重 (0-1)
+        effort_weight: 成本權重 (0-1, 10=最輕鬆)
+
+    Returns:
+        評估框架（rubric + template），Agent 填入分數後排序
+    """
+    weights = {
+        "feasibility": feasibility_weight,
+        "novelty": novelty_weight,
+        "impact": impact_weight,
+        "effort": effort_weight,
+    }
+    return evaluate_ideas_framework(ideas, criteria_weights=weights, context=context)
 
 
 # === Entry Point ===
