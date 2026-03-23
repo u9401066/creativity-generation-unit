@@ -223,6 +223,77 @@ evolved = toolbox.evolve_idea(idea, "combine")
 3. **Connection > Knowledge** - Creativity is about linking
 4. **Errors are Useful** - Wrong connections may be innovations
 
+## 🤖 OpenClaw Integration
+
+CGU works natively with [OpenClaw](https://docs.openclaw.ai) as an MCP tool server.
+
+### Passthrough Mode (Recommended for OpenClaw)
+
+When running inside OpenClaw, your agents (Claude, GPT, etc.) **are** the LLM — no need for a secondary Ollama model. Use `passthrough` mode to get rich methodology frameworks that your agents fill with their own reasoning:
+
+```bash
+CGU_LLM_PROVIDER=passthrough  # Returns structured frameworks, no LLM call
+```
+
+**What passthrough returns:**
+- SCAMPER: all 7 dimensions with thinking angles and prompts
+- Six Hats: 6 perspectives with focus areas and guiding questions
+- Brainstorm: 3-round structure (wild → build → ground)
+- Every method includes `_meta` with instructions
+
+### OpenClaw Config
+
+Add to your OpenClaw `config.yaml`:
+
+```yaml
+mcp:
+  servers:
+    cgu:
+      url: "http://localhost:8818/mcp"  # or your CGU server URL
+```
+
+Or run as stdio:
+
+```yaml
+mcp:
+  servers:
+    cgu:
+      command: "uv"
+      args: ["--directory", "/path/to/creativity-generation-unit", "run", "cgu-server"]
+      env:
+        CGU_LLM_PROVIDER: "passthrough"
+```
+
+### Agent-to-Agent Brainstorming
+
+Use `brainstorm_protocol` to generate structured discussion scripts for two agents:
+
+```
+Agent A (domain expert) + Agent B (architect)
+    │
+    ▼
+brainstorm_protocol(topic="...", method="six_hats")
+    │
+    ▼
+Phase 1: Diverge → each agent explores from their angle
+Phase 2: Collide → agents challenge each other's ideas  
+Phase 3: Converge → jointly select best ideas
+    │
+    ▼
+evaluate_brainstorm_ideas(ideas=[...])
+    │
+    ▼
+Ranked results with feasibility/novelty/impact scores
+```
+
+### Provider Modes
+
+| Mode | LLM | Use Case |
+|------|-----|----------|
+| `ollama` | Local Ollama model | Standalone / offline use |
+| `passthrough` | None (framework only) | **OpenClaw / any LLM-capable agent** |
+| `copilot` | *(deprecated, alias for passthrough)* | Legacy VS Code Copilot |
+
 ## 📋 Documentation
 
 - [CGU Concept](docs/creativity-generation-unit.md) - Core concepts & methods
