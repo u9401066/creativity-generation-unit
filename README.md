@@ -21,6 +21,10 @@
 
 ## 🏗️ Architecture
 
+<p align="center">
+  <img src="docs/images/architecture-overview.jpg" alt="CGU Architecture" width="700">
+</p>
+
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │               Creativity Generation Unit (CGU)                │
