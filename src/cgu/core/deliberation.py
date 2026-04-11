@@ -442,7 +442,8 @@ class DeliberationEngine:
         """透過 LLM 執行一輪審議"""
         system = SYSTEM_PROMPT_CREATIVITY or ""
         try:
-            response = await self.llm.generate(
+            # CGULLMClient.generate() 是同步的
+            response = self.llm.generate(
                 prompt=prompt,
                 system_prompt=system,
                 temperature=0.8,

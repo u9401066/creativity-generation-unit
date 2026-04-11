@@ -67,6 +67,11 @@ from cgu.core.evaluation import (
     evaluate_idea,
     rank_ideas,
 )
+from cgu.core.session import (
+    SessionManager,
+    SessionState,
+    get_session_manager,
+)
 from cgu.core.graph import (
     ConceptGraph,
     ConceptPath,
@@ -148,4 +153,8 @@ __all__ = [
     "EvaluationReport",
     "evaluate_idea",
     "rank_ideas",
+    # Session Manager (互動式會話)
+    "SessionManager",
+    "SessionState",
+    "get_session_manager",
 ]

@@ -1699,6 +1699,140 @@ async def creativity_pipeline(
     }
 
 
+# === Interactive Session Tools（互動式會話 - Agent Harness 核心）===
+
+
+@mcp.tool()
+async def start_creative_session(
+    topic: str,
+) -> dict:
+    """
+    啟動互動式創意會話 - Agent Harness 的入口
+
+    這是 CGU 作為 Agent Harness 的核心機制。不同於一次性呼叫，
+    互動式會話讓你（Agent）在多次 MCP 呼叫間維持創意思考的上下文。
+
+    典型流程：
+    1. start_creative_session(topic) → 取得 session_id
+    2. submit_session_ideas(session_id, ideas) → 接收 CGU 的挑戰
+    3. submit_evolved_ideas(session_id, ideas) → 接收交叉授粉
+    4. finalize_creative_session(session_id) → 取得最終報告
+
+    你可以在步驟 3 後回到步驟 2 繼續迭代，直到滿意。
+
+    Args:
+        topic: 創意主題
+
+    Returns:
+        session_id 和後續步驟指引
+    """
+    from cgu.core.session import get_session_manager
+
+    manager = get_session_manager(_get_llm_client())
+    session = manager.start_session(topic)
+
+    return {
+        "session_id": session.session_id,
+        "topic": topic,
+        "status": session.status,
+        "next_step": "請呼叫 submit_session_ideas 提交你的初始想法",
+        "workflow": [
+            "1. submit_session_ideas(session_id, ideas) → 接收挑戰",
+            "2. submit_evolved_ideas(session_id, evolved) → 接收交叉授粉",
+            "3. 可選：回到步驟 1 繼續迭代",
+            "4. finalize_creative_session(session_id) → 取得報告",
+        ],
+    }
+
+
+@mcp.tool()
+async def submit_session_ideas(
+    session_id: str,
+    ideas: list[str],
+) -> dict:
+    """
+    提交想法並接收挑戰 - 互動式會話的第二步
+
+    你提交自己思考的想法，CGU 會針對每個想法生成最致命的批判。
+    你必須回應這些挑戰，讓想法進化。
+
+    Args:
+        session_id: 會話 ID（從 start_creative_session 取得）
+        ideas: 你的想法列表
+
+    Returns:
+        針對每個想法的挑戰，以及下一步指引
+    """
+    from cgu.core.session import get_session_manager
+
+    manager = get_session_manager(_get_llm_client())
+    return manager.submit_ideas(session_id, ideas)
+
+
+@mcp.tool()
+async def submit_evolved_ideas(
+    session_id: str,
+    evolved_ideas: list[str],
+) -> dict:
+    """
+    提交進化後的想法 - 互動式會話的第三步
+
+    你回應了 CGU 的挑戰後，提交進化版想法。
+    CGU 會進行交叉授粉，找出想法之間的意外連結。
+
+    之後你可以選擇：
+    - 基於交叉授粉的啟發繼續迭代（回到 submit_session_ideas）
+    - 結束會話（呼叫 finalize_creative_session）
+
+    Args:
+        session_id: 會話 ID
+        evolved_ideas: 進化後的想法列表
+
+    Returns:
+        交叉授粉結果、品質分數和下一步選項
+    """
+    from cgu.core.session import get_session_manager
+
+    manager = get_session_manager(_get_llm_client())
+    return manager.submit_evolved_ideas(session_id, evolved_ideas)
+
+
+@mcp.tool()
+async def finalize_creative_session(
+    session_id: str,
+) -> dict:
+    """
+    結束創意會話並取得最終報告
+
+    綜合整個會話的所有想法、挑戰、進化和交叉授粉，
+    產生最終的創意方案。
+
+    Args:
+        session_id: 會話 ID
+
+    Returns:
+        完整的會話報告，包含演化軌跡和最終方案
+    """
+    from cgu.core.session import get_session_manager
+
+    manager = get_session_manager(_get_llm_client())
+    return manager.finalize_session(session_id)
+
+
+@mcp.tool()
+async def list_creative_sessions() -> dict:
+    """
+    列出所有進行中的創意會話
+
+    Returns:
+        所有會話的狀態摘要
+    """
+    from cgu.core.session import get_session_manager
+
+    manager = get_session_manager()
+    return {"sessions": manager.list_sessions()}
+
+
 # === Entry Point ===
 
 

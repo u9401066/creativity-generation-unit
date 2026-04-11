@@ -157,7 +157,8 @@ class EvaluationEngine:
         prompt = _EVALUATE_PROMPT.format(topic=topic, idea=idea)
         system = SYSTEM_PROMPT_EVALUATION or "你是一位嚴謹的創意品質評估專家。"
         try:
-            response = await self.llm.generate(
+            # CGULLMClient.generate() 是同步的
+            response = self.llm.generate(
                 prompt=prompt, system_prompt=system, temperature=0.3
             )
             return self._parse_llm_score(response)
@@ -174,7 +175,8 @@ class EvaluationEngine:
         )
         system = SYSTEM_PROMPT_EVALUATION or "你是一位嚴謹的創意品質評估專家。"
         try:
-            response = await self.llm.generate(
+            # CGULLMClient.generate() 是同步的
+            response = self.llm.generate(
                 prompt=prompt, system_prompt=system, temperature=0.3
             )
             winner = "tie"
