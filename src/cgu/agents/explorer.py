@@ -46,17 +46,32 @@ class ExplorerAgent(CreativeAgent):
         # 選擇探索維度
         dim = random.choice(self.exploration_dimensions)
         
-        # 模擬思考（實際應呼叫 LLM）
+        # 使用 LLM 或模擬聯想
         if self.llm:
-            # TODO: 實際 LLM 呼叫
-            pass
-        
-        # 模擬聯想
-        new_associations = [
-            f"{ctx.topic} 在 {dim} 方面的應用",
-            f"{dim} 如何影響 {ctx.topic}",
-            f"從 {dim} 角度重新定義 {ctx.topic}",
-        ]
+            try:
+                response = self.llm.generate(
+                    prompt=f"從「{dim}」角度探索「{ctx.topic}」，列出 3 個意想不到的連結或應用。每個一行。",
+                    temperature=0.8,
+                )
+                new_associations = [
+                    line.lstrip("- •·123456789.）) ").strip()
+                    for line in response.strip().splitlines()
+                    if line.strip()
+                ][:3]
+                if not new_associations:
+                    new_associations = [response.strip()[:100]]
+            except Exception:
+                new_associations = [
+                    f"{ctx.topic} 在 {dim} 方面的應用",
+                    f"{dim} 如何影響 {ctx.topic}",
+                    f"從 {dim} 角度重新定義 {ctx.topic}",
+                ]
+        else:
+            new_associations = [
+                f"{ctx.topic} 在 {dim} 方面的應用",
+                f"{dim} 如何影響 {ctx.topic}",
+                f"從 {dim} 角度重新定義 {ctx.topic}",
+            ]
         
         ctx.associations.extend(new_associations)
         ctx.add_thought(f"探索維度: {dim} → 發現 {len(new_associations)} 個新連結")
