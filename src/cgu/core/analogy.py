@@ -38,17 +38,17 @@ class ProblemStructure:
     """
     domain: str                                    # 原始領域
     core_problem: str                              # 核心問題描述
-    
+
     # 結構維度
     patterns: list[str] = field(default_factory=list)        # 問題的模式
     dynamics: list[str] = field(default_factory=list)        # 變化的動態
     constraints: list[str] = field(default_factory=list)     # 約束條件
     stakeholders: list[str] = field(default_factory=list)    # 利害關係人
     tradeoffs: list[str] = field(default_factory=list)       # 權衡關係
-    
+
     # 抽象層級
     abstraction_level: int = 1  # 1=具體, 2=中等, 3=高度抽象
-    
+
     def to_abstract_signature(self) -> str:
         """
         產生問題的抽象簽名
@@ -69,21 +69,21 @@ class Analogy(BaseModel):
     """一個類比"""
     source_domain: str                    # 來源領域
     target_domain: str                    # 目標領域（原問題所在）
-    
+
     # 類比內容
     source_concept: str                   # 來源概念
     mapping_explanation: str              # 映射說明
     insight: str                          # 產生的洞察
-    
+
     # 結構匹配
     matched_dimensions: list[str] = Field(default_factory=list)
-    
+
     # 品質評分
     structural_match: float = 0.0         # 結構匹配度
     surface_distance: float = 0.0         # 表面差異（越大越好）
     insight_potential: float = 0.0        # 洞察潛力
     transferability: float = 0.0          # 可遷移性
-    
+
     @property
     def quality_score(self) -> float:
         """
@@ -161,11 +161,11 @@ class AnalogyEngine:
     2. 在其他領域搜尋相同結構
     3. 映射回來產生洞察
     """
-    
+
     def __init__(self, llm_client: Any = None):
         self.llm = llm_client
         self.domain_knowledge = DOMAIN_STRUCTURES.copy()
-    
+
     def extract_structure(self, problem: str, domain: str | None = None) -> ProblemStructure:
         """
         從問題描述中抽取結構
@@ -175,14 +175,14 @@ class AnalogyEngine:
         if self.llm:
             return self._extract_with_llm(problem, domain)
         return self._extract_heuristic(problem, domain)
-    
+
     def _extract_heuristic(self, problem: str, domain: str | None = None) -> ProblemStructure:
         """啟發式結構抽取"""
         structure = ProblemStructure(
             domain=domain or "unknown",
             core_problem=problem,
         )
-        
+
         # 模式識別
         pattern_keywords = {
             "累積": ["累積", "堆積", "增加", "債", "欠"],
@@ -193,7 +193,7 @@ class AnalogyEngine:
         for pattern, keywords in pattern_keywords.items():
             if any(kw in problem for kw in keywords):
                 structure.patterns.append(pattern)
-        
+
         # 動態識別
         dynamic_keywords = {
             "增長": ["增長", "擴大", "成長", "膨脹"],
@@ -203,7 +203,7 @@ class AnalogyEngine:
         for dynamic, keywords in dynamic_keywords.items():
             if any(kw in problem for kw in keywords):
                 structure.dynamics.append(dynamic)
-        
+
         # 權衡識別
         tradeoff_patterns = [
             ("短期", "長期"),
@@ -214,41 +214,66 @@ class AnalogyEngine:
         for a, b in tradeoff_patterns:
             if a in problem or b in problem:
                 structure.tradeoffs.append(f"{a}/{b}")
-        
+
         # 如果都沒識別到，給預設值
         if not structure.patterns:
             structure.patterns = ["一般問題"]
         if not structure.dynamics:
             structure.dynamics = ["靜態"]
-        
+
         return structure
-    
+
     def _extract_with_llm(self, problem: str, domain: str | None = None) -> ProblemStructure:
         """使用 LLM 抽取結構"""
         try:
             from cgu.llm import SYSTEM_PROMPT_CREATIVITY
-            
-            prompt = f"""分析以下問題的結構特徵：
+
+            prompt = f"""分析以下問題的結構特徵，用 JSON 格式回答。
 
 問題：{problem}
 領域：{domain or "未知"}
 
 請識別：
-1. 問題模式（累積？循環？突變？漸進？）
-2. 變化動態（增長？衰減？震盪？）
-3. 約束條件（資源？時間？規則？）
-4. 利害關係（誰受影響？誰有權力？）
-5. 權衡關係（短期/長期？成本/品質？）
+- patterns: 問題模式列表（累積、循環、突變、漸進等）
+- dynamics: 變化動態列表（增長、衰減、震盪等）
+- constraints: 約束條件列表
+- stakeholders: 利害關係人列表
+- tradeoffs: 權衡關係列表（格式："A/B"）
 
-請用 JSON 格式回答。"""
+JSON 格式：
+{{"patterns": [...], "dynamics": [...], "constraints": [...], "stakeholders": [...], "tradeoffs": [...]}}"""
 
-            # 簡化處理，直接返回啟發式結果
+            response = self.llm.generate(
+                prompt=prompt,
+                system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                temperature=0.3,
+            )
+
+            # 嘗試解析 JSON
+            import json
+            import re
+            json_match = re.search(r"\{[^}]+\}", response, re.DOTALL)
+            if json_match:
+                data = json.loads(json_match.group())
+                structure = ProblemStructure(
+                    domain=domain or "unknown",
+                    core_problem=problem,
+                    patterns=data.get("patterns", [])[:3],
+                    dynamics=data.get("dynamics", [])[:3],
+                    constraints=data.get("constraints", [])[:3],
+                    stakeholders=data.get("stakeholders", [])[:3],
+                    tradeoffs=data.get("tradeoffs", [])[:3],
+                )
+                if structure.patterns or structure.dynamics:
+                    return structure
+
+            # JSON 解析失敗時降級為啟發式
             return self._extract_heuristic(problem, domain)
-            
+
         except Exception as e:
             logger.warning(f"LLM extraction failed: {e}")
             return self._extract_heuristic(problem, domain)
-    
+
     def find_analogies(
         self,
         problem: str,
@@ -267,20 +292,20 @@ class AnalogyEngine:
         """
         # 1. 抽取問題結構
         structure = self.extract_structure(problem, source_domain)
-        
+
         # 2. 在其他領域搜尋
         candidates: list[Analogy] = []
         exclude = set(exclude_domains or [])
         if source_domain:
             exclude.add(source_domain)
-        
+
         for domain, domain_struct in self.domain_knowledge.items():
             if domain in exclude:
                 continue
-            
+
             # 計算結構匹配度
             match_score = self._compute_structural_match(structure, domain_struct)
-            
+
             if match_score > 0.3:  # 最低門檻
                 analogy = self._create_analogy(
                     source_structure=structure,
@@ -289,11 +314,11 @@ class AnalogyEngine:
                     match_score=match_score,
                 )
                 candidates.append(analogy)
-        
+
         # 3. 排序並返回最佳
         candidates.sort(key=lambda a: a.quality_score, reverse=True)
         return candidates[:max_analogies]
-    
+
     def _compute_structural_match(
         self,
         problem_struct: ProblemStructure,
@@ -301,30 +326,30 @@ class AnalogyEngine:
     ) -> float:
         """計算結構匹配度"""
         scores = []
-        
+
         # 模式匹配
         if problem_struct.patterns:
             pattern_match = len(
                 set(problem_struct.patterns) & set(domain_struct.get("patterns", []))
             ) / max(len(problem_struct.patterns), 1)
             scores.append(pattern_match)
-        
+
         # 動態匹配
         if problem_struct.dynamics:
             dynamic_match = len(
                 set(problem_struct.dynamics) & set(domain_struct.get("dynamics", []))
             ) / max(len(problem_struct.dynamics), 1)
             scores.append(dynamic_match)
-        
+
         # 權衡匹配
         if problem_struct.tradeoffs:
             tradeoff_match = len(
                 set(problem_struct.tradeoffs) & set(domain_struct.get("tradeoffs", []))
             ) / max(len(problem_struct.tradeoffs), 1)
             scores.append(tradeoff_match)
-        
+
         return sum(scores) / max(len(scores), 1) if scores else 0.3
-    
+
     def _create_analogy(
         self,
         source_structure: ProblemStructure,
@@ -341,17 +366,17 @@ class AnalogyEngine:
             matched.append("dynamics")
         if set(source_structure.tradeoffs) & set(target_struct.get("tradeoffs", [])):
             matched.append("tradeoffs")
-        
+
         # 生成映射說明和洞察
         mapping, insight = self._generate_insight(
             source_structure, target_domain, target_struct, matched
         )
-        
+
         # 計算表面差異（領域越不相關，差異越大）
         surface_distance = self._compute_surface_distance(
             source_structure.domain, target_domain
         )
-        
+
         return Analogy(
             source_domain=target_domain,
             target_domain=source_structure.domain,
@@ -364,7 +389,7 @@ class AnalogyEngine:
             insight_potential=min(1.0, match_score * surface_distance * 1.5),
             transferability=match_score * 0.8,
         )
-    
+
     def _generate_insight(
         self,
         source: ProblemStructure,
@@ -374,38 +399,80 @@ class AnalogyEngine:
     ) -> tuple[str, str]:
         """生成映射說明和洞察"""
         if self.llm:
-            # TODO: 使用 LLM 生成更有創意的洞察
-            pass
-        
-        # 啟發式生成
+            try:
+                from cgu.llm import SYSTEM_PROMPT_CREATIVITY
+
+                prompt = f"""你是一位跨域類比專家。請根據以下結構匹配，產生一個具體的洞察。
+
+原問題：{source.core_problem}（{source.domain} 領域）
+類比領域：{target_domain}
+匹配維度：{', '.join(matched)}
+
+共同模式：{list(set(source.patterns) & set(target_struct.get('patterns', [])))}
+共同動態：{list(set(source.dynamics) & set(target_struct.get('dynamics', [])))}
+共同權衡：{list(set(source.tradeoffs) & set(target_struct.get('tradeoffs', [])))}
+
+請輸出：
+1. 映射說明（一句話說明兩者的結構相似性）
+2. 洞察（從類比領域借鏡的具體建議）
+
+格式：
+映射：...
+洞察：..."""
+
+                response = self.llm.generate(
+                    prompt=prompt,
+                    system_prompt=SYSTEM_PROMPT_CREATIVITY,
+                    temperature=0.7,
+                )
+
+                mapping = ""
+                insight = ""
+                for line in response.strip().splitlines():
+                    line = line.strip()
+                    if line.startswith("映射") or line.startswith("Mapping"):
+                        mapping = line.split("：", 1)[-1].split(":", 1)[-1].strip()
+                    elif line.startswith("洞察") or line.startswith("Insight"):
+                        insight = line.split("：", 1)[-1].split(":", 1)[-1].strip()
+
+                if mapping and insight:
+                    return mapping, insight
+                if response.strip():
+                    # 無法解析格式時，用整段回應作為洞察
+                    return f"在結構層面與{target_domain}相似", response.strip()[:200]
+
+            except Exception as e:
+                logger.warning(f"LLM insight generation failed: {e}")
+
+        # 啟發式生成（fallback）
         mapping_parts = []
         insight_parts = []
-        
+
         if "patterns" in matched:
             common_patterns = set(source.patterns) & set(target_struct.get("patterns", []))
             if common_patterns:
                 p = list(common_patterns)[0]
                 mapping_parts.append(f"兩者都有「{p}」的問題模式")
                 insight_parts.append(f"可以借鏡{target_domain}如何處理「{p}」")
-        
+
         if "dynamics" in matched:
             common_dynamics = set(source.dynamics) & set(target_struct.get("dynamics", []))
             if common_dynamics:
                 d = list(common_dynamics)[0]
                 mapping_parts.append(f"兩者都面臨「{d}」的變化動態")
-        
+
         if "tradeoffs" in matched:
             common_tradeoffs = set(source.tradeoffs) & set(target_struct.get("tradeoffs", []))
             if common_tradeoffs:
                 t = list(common_tradeoffs)[0]
                 mapping_parts.append(f"兩者都需要權衡「{t}」")
                 insight_parts.append(f"{target_domain}在「{t}」的權衡上有成熟經驗")
-        
+
         mapping = "；".join(mapping_parts) if mapping_parts else f"在結構層面與{target_domain}相似"
         insight = "。".join(insight_parts) if insight_parts else f"可以研究{target_domain}的解決方案"
-        
+
         return mapping, insight
-    
+
     def _compute_surface_distance(self, domain_a: str, domain_b: str) -> float:
         """
         計算兩個領域的表面差異
@@ -421,7 +488,7 @@ class AnalogyEngine:
             "economy": ["金融經濟"],
             "military": ["軍事戰略"],
         }
-        
+
         group_a = None
         group_b = None
         for group, domains in domain_groups.items():
@@ -429,14 +496,14 @@ class AnalogyEngine:
                 group_a = group
             if domain_b in domains:
                 group_b = group
-        
+
         if group_a == group_b and group_a is not None:
             return 0.3  # 同群組，差異小
         elif group_a is None or group_b is None:
             return 0.7  # 未知領域，中等差異
         else:
             return 0.9  # 不同群組，差異大
-    
+
     def explain_analogy(self, analogy: Analogy) -> str:
         """產生類比的詳細解釋"""
         lines = [
@@ -466,17 +533,17 @@ def explain_problem_structure(problem: str) -> str:
     """解釋問題的結構"""
     engine = AnalogyEngine()
     structure = engine.extract_structure(problem)
-    
+
     lines = [
-        f"📋 問題結構分析",
-        f"",
+        "📋 問題結構分析",
+        "",
         f"🎯 核心問題：{structure.core_problem}",
         f"📁 領域：{structure.domain}",
-        f"",
+        "",
         f"📊 模式：{', '.join(structure.patterns) or '無'}",
         f"📈 動態：{', '.join(structure.dynamics) or '無'}",
         f"⚖️ 權衡：{', '.join(structure.tradeoffs) or '無'}",
-        f"",
+        "",
         f"🔑 抽象簽名：{structure.to_abstract_signature()}",
     ]
     return "\n".join(lines)

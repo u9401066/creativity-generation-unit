@@ -1411,6 +1411,294 @@ async def evaluate_brainstorm_ideas(
     return evaluate_ideas_framework(ideas, criteria_weights=weights, context=context)
 
 
+
+# === Agent Harness 新工具 ===
+
+
+# Session 管理（跨 MCP 呼叫的狀態）
+_active_sessions: dict[str, Any] = {}
+
+
+@mcp.tool()
+async def creative_deliberation(
+    topic: str,
+    max_rounds: int = 5,
+) -> dict:
+    """
+    多輪審議式創意生成 - Agent Harness 核心工具
+
+    透過 DIVERGE → CHALLENGE → EVOLVE → CROSS_POLLINATE → SYNTHESIZE
+    五個階段，結構化地深化創意思考。
+
+    每一輪都會產出結構化的中間結果，Agent 可以在此基礎上
+    進一步思考。這是 CGU 最核心的「創意引擎」。
+
+    Args:
+        topic: 要進行創意思考的主題
+        max_rounds: 最多進行幾輪審議（預設5輪完整流程）
+
+    Returns:
+        完整的審議結果，包含每輪的產出、品質軌跡和最終方案
+    """
+    from cgu.core.deliberation import DeliberationEngine
+
+    client = _get_llm_client()
+    engine = DeliberationEngine(
+        llm_client=client,
+        max_rounds=max_rounds,
+    )
+    result = await engine.deliberate(topic)
+
+    return {
+        "session_id": result.session.session_id,
+        "topic": topic,
+        "total_rounds": result.total_rounds,
+        "peak_quality": round(result.peak_quality, 3),
+        "rounds": [
+            {
+                "round": rnd.round_number,
+                "phase": rnd.phase,
+                "outputs": rnd.outputs,
+                "quality": round(rnd.quality.overall, 3),
+                "reasoning": rnd.reasoning,
+                "framework_prompt": rnd.framework_prompt,
+            }
+            for rnd in result.session.rounds
+        ],
+        "quality_trajectory": [round(q, 3) for q in result.session.quality_trajectory],
+        "idea_evolution": result.idea_evolution,
+        "final_output": result.final_output,
+        "report": engine.format_report(result),
+    }
+
+
+@mcp.tool()
+async def challenge_idea(
+    idea: str,
+    topic: str,
+    rounds: int = 3,
+) -> dict:
+    """
+    對抗式挑戰一個想法 - 讓想法在攻擊中進化
+
+    每一輪：
+    1. 生成針對性的攻擊（找出最致命的弱點）
+    2. 想法必須回應攻擊並進化
+    3. 攻擊強度逐輪升級
+
+    經過對抗的想法才可能是真正創新的。
+
+    Args:
+        idea: 要挑戰的想法
+        topic: 想法的主題背景
+        rounds: 對抗輪數（預設3輪）
+
+    Returns:
+        對抗進化結果，包含每輪的攻擊/防禦和最終進化版本
+    """
+    from cgu.core.adversarial import AdversarialEngine
+
+    client = _get_llm_client()
+    engine = AdversarialEngine(client)
+    result = await engine.adversarial_evolve(idea, topic, rounds)
+
+    return {
+        "original_idea": result.original_idea,
+        "final_idea": result.final_idea,
+        "total_rounds": result.total_rounds,
+        "novelty_improvement": round(result.novelty_improvement, 3),
+        "robustness_score": round(result.robustness_score, 3),
+        "rounds": result.rounds,
+        "evolution_trajectory": result.evolution_trajectory,
+        "report": engine.format_evolution_report(result),
+    }
+
+
+@mcp.tool()
+async def evaluate_creative_quality(
+    ideas: list[str],
+    topic: str,
+) -> dict:
+    """
+    評估想法的創意品質（NUS 模型）
+
+    使用 Novelty × Usefulness × Surprise 三維模型評估，
+    並按綜合品質排序。
+
+    每個想法會得到四個維度的評分：
+    - 新穎度：是否提出不常見的觀點？
+    - 實用度：是否可行且有價值？
+    - 驚喜度：是否出乎意料？
+    - 具體性：是否足夠具體可執行？
+
+    Args:
+        ideas: 要評估的想法列表
+        topic: 想法的主題背景
+
+    Returns:
+        每個想法的評分和排序結果
+    """
+    from cgu.core.evaluation import EvaluationEngine
+
+    client = _get_llm_client()
+    engine = EvaluationEngine(client)
+    report = await engine.evaluate_batch(ideas, topic)
+
+    return {
+        "topic": topic,
+        "idea_count": len(ideas),
+        "scores": [
+            {
+                "idea": ideas[i] if i < len(ideas) else "",
+                "novelty": round(s.novelty, 3),
+                "usefulness": round(s.usefulness, 3),
+                "surprise": round(s.surprise, 3),
+                "specificity": round(s.specificity, 3),
+                "overall": round(s.overall, 3),
+                "nus_score": round(s.nus_score, 3),
+                "reasoning": s.reasoning,
+            }
+            for i, s in enumerate(report.scores)
+        ],
+        "ranking": report.ranking,
+        "best_idea_index": report.best_idea_index,
+        "summary": report.summary,
+    }
+
+
+@mcp.tool()
+async def find_distant_analogy(
+    problem: str,
+    domain: str | None = None,
+    max_analogies: int = 3,
+) -> dict:
+    """
+    跨域類比搜尋 - 在結構相似但表面迥異的領域中尋找靈感
+
+    核心原理（Bisociation, Arthur Koestler）：
+    創意 = 兩個原本不相關的「思維矩陣」找到結構上的連結
+
+    最佳類比：結構匹配度高 × 表面差異大 × 洞察潛力高
+
+    Args:
+        problem: 要解決的問題描述
+        domain: 問題所在領域（可選，用於排除同領域類比）
+        max_analogies: 最多返回幾個類比
+
+    Returns:
+        跨域類比列表，包含映射說明和可遷移的洞察
+    """
+    from cgu.core.analogy import AnalogyEngine
+
+    client = _get_llm_client()
+    engine = AnalogyEngine(client)
+    analogies = engine.find_analogies(problem, domain, max_analogies=max_analogies)
+
+    return {
+        "problem": problem,
+        "source_domain": domain,
+        "analogies": [
+            {
+                "source_domain": a.source_domain,
+                "target_domain": a.target_domain,
+                "mapping": a.mapping_explanation,
+                "insight": a.insight,
+                "structural_match": round(a.structural_match, 3),
+                "surface_distance": round(a.surface_distance, 3),
+                "quality": round(a.quality_score, 3),
+            }
+            for a in analogies
+        ],
+        "best_analogy": {
+            "domain": analogies[0].source_domain,
+            "insight": analogies[0].insight,
+            "quality": round(analogies[0].quality_score, 3),
+        }
+        if analogies
+        else None,
+    }
+
+
+@mcp.tool()
+async def explore_concept_connections(
+    concept_a: str,
+    concept_b: str,
+) -> dict:
+    """
+    探索兩個概念之間的意外連結
+
+    在概念圖譜中尋找「非顯而易見但有意義」的路徑。
+    直接路徑是無聊的；間接路徑才有創意價值。
+
+    例如：
+    - 直接：咖啡 → 飲料 → 提神（無聊）
+    - 創意：咖啡 → 衣索比亞 → 貿易 → 全球化 → 遠端工作（有意思！）
+
+    Args:
+        concept_a: 第一個概念
+        concept_b: 第二個概念
+
+    Returns:
+        直接路徑和創意路徑的對比，以及路徑洞察
+    """
+    from cgu.core.graph import get_graph_engine
+
+    engine = get_graph_engine()
+    connection = engine.find_unexpected_connection(concept_a, concept_b)
+
+    return connection
+
+
+@mcp.tool()
+async def creativity_pipeline(
+    topic: str,
+    initial_idea: str | None = None,
+    mode: str = "full",
+) -> dict:
+    """
+    完整創意管線 - 整合所有核心引擎的一站式工具
+
+    模式：
+    - "full": 圖譜探索 → 類比搜尋 → 綜合 → 對抗進化（完整流程）
+    - "analogy": 僅跨域類比搜尋
+    - "exploration": 僅概念圖譜探索
+    - "adversarial": 僅對抗式進化（需要 initial_idea）
+
+    Args:
+        topic: 創意主題
+        initial_idea: 初始想法（adversarial 模式需要）
+        mode: 模式選擇（full/analogy/exploration/adversarial）
+
+    Returns:
+        完整的創意報告，包含類比、連結、進化軌跡和品質指標
+    """
+    from cgu.core.creativity_core import CreativityCore, CreativityMode, CreativityConfig
+
+    client = _get_llm_client()
+    core = CreativityCore(config=CreativityConfig(), llm_client=client)
+    mode_enum = CreativityMode(mode)
+    result = await core.generate(topic, mode_enum, initial_idea)
+
+    return {
+        "mode": result.mode,
+        "topic": result.topic,
+        "analogies": result.analogies,
+        "best_analogy": result.best_analogy,
+        "unexpected_connections": result.unexpected_connections,
+        "evolved_idea": result.evolved_idea,
+        "evolution_trajectory": result.evolution_trajectory,
+        "insights": result.insights,
+        "final_creative_output": result.final_creative_output,
+        "quality": {
+            "novelty": round(result.novelty_score, 3),
+            "usefulness": round(result.usefulness_score, 3),
+            "surprise": round(result.surprise_score, 3),
+            "overall": round(result.quality_score, 3),
+        },
+        "report": core.format_report(result),
+    }
+
+
 # === Entry Point ===
 
 

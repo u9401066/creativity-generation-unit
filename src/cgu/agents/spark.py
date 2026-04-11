@@ -12,12 +12,13 @@ Spark Engine - 火花引擎
 靈感 = 意外的連結 = 低關聯度 + 高潛在價值
 """
 
-import asyncio
+import logging
 import random
 from dataclasses import dataclass
-from itertools import combinations
 
 from cgu.agents.base import AgentIdea, AgentPersonality
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -32,16 +33,16 @@ class Spark:
     source_b: str
     personality_a: AgentPersonality
     personality_b: AgentPersonality
-    
+
     # 火花特性
     collision_type: str  # "cross-personality", "same-domain", "random"
     spark_content: str
-    
+
     # 評分
     surprise_score: float  # 驚喜度（越意外越高）
     potential_score: float  # 潛力值
     coherence_score: float  # 連貫性（能否說得通）
-    
+
     @property
     def spark_value(self) -> float:
         """
@@ -58,11 +59,11 @@ class SparkEngine:
     
     負責收集各 Agent 的輸出，進行碰撞，產生靈感火花
     """
-    
+
     def __init__(self, llm_client=None):
         self.llm = llm_client
         self.sparks: list[Spark] = []
-    
+
     def collect_and_collide(
         self,
         input_data: list[dict] | list[AgentIdea],
@@ -78,10 +79,10 @@ class SparkEngine:
             collision_count: max_collisions 的別名（向後兼容）
         """
         count = collision_count or max_collisions
-        
+
         # 收集所有點子
         all_ideas: list[AgentIdea] = []
-        
+
         for item in input_data:
             if isinstance(item, AgentIdea):
                 all_ideas.append(item)
@@ -93,7 +94,7 @@ class SparkEngine:
                     personality = AgentPersonality(personality_str)
                 except ValueError:
                     personality = AgentPersonality.EXPLORER
-                
+
                 for idea_dict in item.get("ideas", []):
                     idea = AgentIdea(
                         id=str(idea_dict.get("id", "")),
@@ -105,13 +106,13 @@ class SparkEngine:
                         reasoning=idea_dict.get("reasoning", ""),
                     )
                     all_ideas.append(idea)
-        
+
         # 產生碰撞
         sparks = self._generate_collisions_sync(all_ideas, count)
         self.sparks.extend(sparks)
-        
+
         return sparks
-    
+
     def _get_personality(self, idea: AgentIdea) -> AgentPersonality:
         """取得 idea 的 personality（處理可能是字串或 enum 的情況）"""
         if isinstance(idea.personality, AgentPersonality):
@@ -119,7 +120,7 @@ class SparkEngine:
         elif isinstance(idea.personality, str):
             return AgentPersonality(idea.personality)
         return AgentPersonality.EXPLORER
-    
+
     def _generate_collisions_sync(
         self,
         ideas: list[AgentIdea],
@@ -134,10 +135,10 @@ class SparkEngine:
         3. 強制連結
         """
         sparks = []
-        
+
         if len(ideas) < 2:
             return sparks
-        
+
         # 按人格分組
         by_personality: dict[AgentPersonality, list[AgentIdea]] = {}
         for idea in ideas:
@@ -145,18 +146,18 @@ class SparkEngine:
             if p not in by_personality:
                 by_personality[p] = []
             by_personality[p].append(idea)
-        
+
         personalities = list(by_personality.keys())
-        
+
         for i in range(count):
             spark = self._create_single_collision_sync(
                 ideas, by_personality, personalities, i
             )
             if spark:
                 sparks.append(spark)
-        
+
         return sparks
-    
+
     def _create_single_collision_sync(
         self,
         all_ideas: list[AgentIdea],
@@ -165,15 +166,15 @@ class SparkEngine:
         index: int,
     ) -> Spark | None:
         """創建單一碰撞（同步版本）"""
-        
+
         collision_type = "random"
-        
+
         # 策略選擇
         if len(personalities) >= 2 and random.random() < 0.7:
             # 70% 機率跨人格碰撞
             collision_type = "cross-personality"
             p1, p2 = random.sample(personalities, 2)
-            
+
             if by_personality[p1] and by_personality[p2]:
                 idea_a = random.choice(by_personality[p1])
                 idea_b = random.choice(by_personality[p2])
@@ -185,19 +186,19 @@ class SparkEngine:
                 idea_a, idea_b = random.sample(all_ideas, 2)
             else:
                 return None
-        
+
         # 計算碰撞
         spark_content = self._compute_collision_sync(idea_a, idea_b)
-        
+
         # 計算分數
         surprise = self._compute_surprise(idea_a, idea_b)
         potential = self._compute_potential(idea_a, idea_b)
         coherence = self._compute_coherence(idea_a, idea_b, spark_content)
-        
+
         # 取得人格（處理字串或 enum）
         personality_a = self._get_personality(idea_a)
         personality_b = self._get_personality(idea_b)
-        
+
         return Spark(
             id=f"spark_{index}_{random.randint(1000, 9999)}",
             concept_a=idea_a.content,
@@ -212,7 +213,7 @@ class SparkEngine:
             potential_score=potential,
             coherence_score=coherence,
         )
-    
+
     def _compute_collision_sync(
         self,
         idea_a: AgentIdea,
@@ -221,62 +222,86 @@ class SparkEngine:
         """
         計算碰撞結果
         
-        如果有 LLM，使用 LLM 產生連結
+        使用 LLM 產生真正有創意的連結（若可用）
         否則使用模板
         """
         if self.llm:
-            # TODO: 使用 LLM 產生更有創意的連結
-            pass
-        
+            try:
+                prompt = f"""兩個不同的想法要碰撞產生火花：
+
+想法 A：{idea_a.content}
+想法 B：{idea_b.content}
+
+請用一句話描述：如果結合這兩個想法的精華，會產生什麼意想不到的新概念？
+直接描述新概念，不要解釋過程。"""
+
+                response = self.llm.generate(
+                    prompt=prompt,
+                    temperature=0.9,
+                )
+                if response and response.strip():
+                    return response.strip()[:200]
+            except Exception as e:
+                logger.warning(f"LLM collision failed: {e}")
+
         # 取得人格名稱
         p_a = self._get_personality(idea_a).value
         p_b = self._get_personality(idea_b).value
-        
-        # 模板方式
+
+        # 模板方式（fallback）
         templates = [
             f"如果「{idea_a.content}」遇上「{idea_b.content}」",
             f"結合 {p_a} 的「{idea_a.content}」與 {p_b} 的「{idea_b.content}」",
             f"從「{idea_a.content}」到「{idea_b.content}」的意外連結",
             f"當「{idea_a.content}」被「{idea_b.content}」重新詮釋",
         ]
-        
+
         return random.choice(templates)
-    
+
     def _compute_surprise(self, a: AgentIdea, b: AgentIdea) -> float:
         """
         計算驚喜度
         
-        跨人格 + 低關聯 = 高驚喜
+        跨人格 + 低關聯 + 詞彙差異 = 高驚喜
         """
-        base = 0.5
-        
+        base = 0.4
+
         # 取得人格
         p_a = self._get_personality(a)
         p_b = self._get_personality(b)
-        
+
         # 跨人格加分
         if p_a != p_b:
             base += 0.2
-        
-        # 關聯度差異大加分（一個高一個低 = 有趣的組合）
+
+        # 關聯度差異大加分
         assoc_diff = abs(a.association_score - b.association_score)
         base += assoc_diff * 0.2
-        
+
         # Wildcard 參與加分
         if AgentPersonality.WILDCARD in (p_a, p_b):
             base += 0.1
-        
-        return min(1.0, base + random.random() * 0.1)
-    
+
+        # 詞彙差異加分（兩個想法越不同，碰撞越驚喜）
+        a_words = set(a.content.split())
+        b_words = set(b.content.split())
+        if a_words or b_words:
+            word_overlap = len(a_words & b_words) / max(len(a_words | b_words), 1)
+            base += (1 - word_overlap) * 0.1
+
+        return min(1.0, base)
+
     def _compute_potential(self, a: AgentIdea, b: AgentIdea) -> float:
         """
         計算潛力值
         
-        基於兩個點子的新穎度
+        基於兩個點子的新穎度和內容豐富度
         """
         avg_novelty = (a.novelty_score + b.novelty_score) / 2
-        return min(1.0, avg_novelty + random.random() * 0.2)
-    
+        # 內容越豐富，潛力越高
+        content_richness = min(1.0, (len(a.content) + len(b.content)) / 200)
+        return min(1.0, avg_novelty * 0.6 + content_richness * 0.4)
+
     def _compute_coherence(
         self,
         a: AgentIdea,
@@ -286,14 +311,23 @@ class SparkEngine:
         """
         計算連貫性
         
-        TODO: 使用 LLM 評估是否「說得通」
+        使用共同概念和詞彙重疊作為啟發式指標
         """
-        # 簡單啟發式：如果有共同的 parent_concepts，連貫性較高
+        # 共同 parent_concepts 加分
         common = set(a.parent_concepts) & set(b.parent_concepts)
-        base = 0.5 + len(common) * 0.1
-        
-        return min(1.0, base + random.random() * 0.2)
-    
+        base = 0.4 + len(common) * 0.1
+
+        # 火花內容同時引用兩邊概念的詞彙時加分
+        a_words = set(a.content.split())
+        b_words = set(b.content.split())
+        spark_words = set(spark_content.split())
+
+        overlap_a = len(a_words & spark_words) / max(len(a_words), 1)
+        overlap_b = len(b_words & spark_words) / max(len(b_words), 1)
+        relevance_bonus = min(0.3, (overlap_a + overlap_b) * 0.3)
+
+        return min(1.0, base + relevance_bonus)
+
     def get_best_sparks(self, top_k: int = 3) -> list[Spark]:
         """取得最佳火花"""
         sorted_sparks = sorted(
@@ -302,11 +336,11 @@ class SparkEngine:
             reverse=True,
         )
         return sorted_sparks[:top_k]
-    
+
     def format_spark_report(self) -> str:
         """產生火花報告"""
         lines = ["=" * 50, "⚡ 火花報告 ⚡", "=" * 50, ""]
-        
+
         for i, spark in enumerate(self.get_best_sparks(5), 1):
             lines.extend([
                 f"#{i} 火花值: {spark.spark_value:.2f}",
@@ -317,5 +351,5 @@ class SparkEngine:
                 f"   驚喜: {spark.surprise_score:.2f} | 潛力: {spark.potential_score:.2f} | 連貫: {spark.coherence_score:.2f}",
                 "",
             ])
-        
+
         return "\n".join(lines)

@@ -59,6 +59,14 @@ from cgu.core.deliberation import (
     deliberate,
     deliberate_sync,
 )
+from cgu.core.evaluation import (
+    ComparisonResult,
+    CreativityScore,
+    EvaluationEngine,
+    EvaluationReport,
+    evaluate_idea,
+    rank_ideas,
+)
 from cgu.core.graph import (
     ConceptGraph,
     ConceptPath,
@@ -133,4 +141,11 @@ __all__ = [
     "QualityMetrics",
     "deliberate",
     "deliberate_sync",
+    # Evaluation Engine (品質評估)
+    "EvaluationEngine",
+    "CreativityScore",
+    "ComparisonResult",
+    "EvaluationReport",
+    "evaluate_idea",
+    "rank_ideas",
 ]
