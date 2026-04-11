@@ -335,7 +335,7 @@ class DeliberationEngine:
 
         critiques = [
             f"⚔️ 針對「{idea}」：這個想法最大的盲點是什麼？"
-            f"它是否只是常識的重新包裝？有沒有根本性的邏輯漏洞？"
+            + "它是否只是常識的重新包裝？有沒有根本性的邏輯漏洞？"
             for idea in inputs
         ]
         return DeliberationRound(
@@ -361,7 +361,7 @@ class DeliberationEngine:
 
         evolved = [
             f"🔄 基於批判，將「{idea}」進化：保留核心洞察，"
-            f"但解決被指出的弱點，使其更具體、更可行。"
+            + "但解決被指出的弱點，使其更具體、更可行。"
             for idea in inputs
         ]
         return DeliberationRound(
@@ -391,7 +391,7 @@ class DeliberationEngine:
             for idea_b in inputs[i + 1 :]:
                 crosses.append(
                     f"🌱 如果將「{idea_a[:30]}…」的骨架"
-                    f"與「{idea_b[:30]}…」的靈魂嫁接，會產生什麼？"
+                    + f"與「{idea_b[:30]}…」的靈魂嫁接，會產生什麼？"
                 )
         if not crosses:
             crosses = [f"🌱 深化「{inputs[0]}」的跨域連結可能性"]
