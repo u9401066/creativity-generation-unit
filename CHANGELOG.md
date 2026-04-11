@@ -7,6 +7,22 @@
 
 ## [Unreleased]
 
+### Added
+- 🔌 **v3 Agent-Driven Creativity Tools → MCP Tools 註冊**
+  - `explore_concept` - 概念探索 MCP 工具
+  - `find_connections` - 連結發現 MCP 工具
+  - `check_novelty` - 新穎度驗證 MCP 工具
+  - `evolve_idea_tool` - 想法演化 MCP 工具（5 種突變方式）
+  - `random_concept` - 隨機概念 MCP 工具
+  - `suggest_bridges` - 橋接建議 MCP 工具
+  - `creativity_session_start` - 開始創意會話 MCP 工具
+  - `creativity_session_record` - 記錄並驗證想法 MCP 工具
+  - `creativity_session_progress` - 查看探索進度 MCP 工具
+
+- 🧪 **v3 Tools 完整測試**
+  - `tests/test_creativity_tools.py` - 52 個測試案例
+  - 涵蓋：ConceptExplorer, ConnectionFinder, NoveltyChecker, IdeaEvolver, CreativityLogger, CreativityToolbox, MCP 整合
+
 ## [0.4.0] - 2026-01-06
 
 ### Added
