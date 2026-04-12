@@ -1593,7 +1593,12 @@ async def creativity_session_record(
         dict 包含 idea, novelty_score, is_best_so_far
     """
     toolbox = _get_toolbox()
-    return toolbox.record_idea(idea)
+    try:
+        result = toolbox.record_idea(idea)
+        result["success"] = True
+        return result
+    except RuntimeError as exc:
+        return {"success": False, "error": str(exc)}
 
 
 @mcp.tool()

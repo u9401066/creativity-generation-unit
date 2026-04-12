@@ -329,6 +329,13 @@ class TestCreativityLogger:
         assert logger.current_session.best_idea == "好想法"
         assert logger.current_session.best_novelty_score == 0.9
 
+    def test_log_idea_requires_session(self):
+        """未建立會話時記錄想法應拋出錯誤"""
+        logger = CreativityLogger()
+
+        with pytest.raises(RuntimeError):
+            logger.log_idea("未啟動會話的想法", novelty_score=0.2)
+
     def test_session_summary(self):
         """應能取得會話摘要"""
         logger = CreativityLogger()
@@ -481,6 +488,13 @@ class TestCreativityToolbox:
         history = toolbox.get_history()
         assert len(history) == 4
 
+    def test_record_idea_requires_session(self):
+        """未開始會話時記錄想法應拋出錯誤"""
+        toolbox = CreativityToolbox()
+
+        with pytest.raises(RuntimeError):
+            toolbox.record_idea("孤立想法")
+
 
 # ============================================================
 # MCP Tool 整合測試（直接呼叫 async 函數）
@@ -557,6 +571,15 @@ class TestMCPToolIntegration:
         assert isinstance(result, dict)
         assert "bridges" in result
         assert isinstance(result["bridges"], list)
+
+    @pytest.mark.asyncio
+    async def test_mcp_session_record_requires_session(self):
+        """未啟動會話時的 MCP 記錄應返回錯誤"""
+        from cgu.server import creativity_session_record
+
+        result = await creativity_session_record("未啟動會話")
+        assert result["success"] is False
+        assert "error" in result
 
     @pytest.mark.asyncio
     async def test_mcp_session_workflow(self):
