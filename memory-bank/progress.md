@@ -1,4 +1,4 @@
-# Progress (Updated: 2026-04-11)
+# Progress (Updated: 2026-04-12)
 
 ## Done
 
@@ -31,9 +31,14 @@
 - creativity_session_progress - 查看進度 MCP 工具
 - 測試檔案 test_creativity_tools.py (52 tests)
 
+### v3 可靠性強化 🆕
+- record_idea/log_idea 加入會話存在驗證，避免靜默失敗
+- MCP creativity_session_record 返回結構化錯誤與 success 標記
+- 測試補齊：未啟動會話的錯誤情境與 MCP 回傳路徑
+
 ## Doing
 
-- 設計更多 action-based 工具（非 hard code）
+- 追蹤 LLM 相關測試所需的本地 Ollama 服務（tests/test_llm_basic.py、tests/test_scamper_llm.py）
 
 ## Next
 
