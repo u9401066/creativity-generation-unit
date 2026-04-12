@@ -27,6 +27,7 @@ from cgu.brainstorm_protocol import (
     generate_brainstorm_protocol,
     evaluate_ideas as evaluate_ideas_framework,
 )
+from cgu.tools import CreativityToolbox
 
 # 設定 logging
 logging.basicConfig(level=logging.INFO)
@@ -1409,6 +1410,204 @@ async def evaluate_brainstorm_ideas(
         "effort": effort_weight,
     }
     return evaluate_ideas_framework(ideas, criteria_weights=weights, context=context)
+
+
+# === Phase 3: Agent-Driven Creativity Tools (v3) ===
+# 將 CreativityToolbox 的工具註冊為 MCP Tools，
+# 讓 Agent 可以透過 MCP 協定自主調用。
+
+# 全域 toolbox 實例（session 內共用，保持 logger 狀態）
+_toolbox: CreativityToolbox | None = None
+
+
+def _get_toolbox() -> CreativityToolbox:
+    """取得全域 CreativityToolbox 實例"""
+    global _toolbox
+    if _toolbox is None:
+        _toolbox = CreativityToolbox()
+    return _toolbox
+
+
+@mcp.tool()
+async def explore_concept(
+    concept: str,
+    include_cross_domain: bool = True,
+) -> dict:
+    """
+    探索一個概念，找出相關概念、所屬領域、以及跨域的意外發現
+
+    Agent 可以用這個工具搜尋概念空間，發現相關概念和跨域靈感。
+
+    Args:
+        concept: 要探索的概念（例如 "AI"、"教育"、"咖啡"）
+        include_cross_domain: 是否包含跨領域的意外發現
+
+    Returns:
+        dict 包含 query, related（相關概念）, domains（所屬領域）, unexpected（跨域發現）
+    """
+    toolbox = _get_toolbox()
+    return toolbox.explore_concept(concept, include_cross_domain)
+
+
+@mcp.tool()
+async def find_connections(
+    concept_a: str,
+    concept_b: str,
+) -> dict:
+    """
+    尋找兩個概念之間的連結
+
+    支援直接連結、間接連結、跨域連結、未探索連結。
+    新穎度評分：直接連結(0.2) < 間接(0.5) < 跨域(0.8) < 未探索(0.95)。
+
+    Args:
+        concept_a: 第一個概念
+        concept_b: 第二個概念
+
+    Returns:
+        dict 包含 concept_a, concept_b, connection_type, path, explanation, novelty_score
+    """
+    toolbox = _get_toolbox()
+    return toolbox.find_connection(concept_a, concept_b)
+
+
+@mcp.tool()
+async def check_novelty(
+    idea: str,
+) -> dict:
+    """
+    檢查想法的新穎度
+
+    將想法與已知想法庫比對，計算新穎度分數，並提供差異化建議。
+    新穎度 > 0.6 被視為「新穎」。
+
+    Args:
+        idea: 要檢查的想法描述
+
+    Returns:
+        dict 包含 idea, is_novel, novelty_score, similar_existing（類似的已存在想法）, suggestions（差異化建議）
+    """
+    toolbox = _get_toolbox()
+    return toolbox.check_novelty(idea)
+
+
+@mcp.tool()
+async def evolve_idea_tool(
+    idea: str,
+    mutation_type: str = "",
+) -> dict:
+    """
+    對想法進行突變演化
+
+    支援 5 種突變方式：combine（與隨機概念結合）、split（拆分成子想法）、
+    reverse（反向思考）、analogize（類比到其他領域）、extreme（極端化）。
+    不指定 mutation_type 時隨機選擇。
+
+    Args:
+        idea: 要演化的想法
+        mutation_type: 突變方式（combine/split/reverse/analogize/extreme，留空隨機選擇）
+
+    Returns:
+        dict 包含 original, evolved, mutation_type, reasoning
+    """
+    toolbox = _get_toolbox()
+    mt = mutation_type if mutation_type else None
+    return toolbox.evolve_idea(idea, mt)
+
+
+@mcp.tool()
+async def random_concept() -> dict:
+    """
+    隨機取得一個概念
+
+    用於「隨機探索」，當 Agent 想要跳出舒適圈時使用。
+
+    Returns:
+        dict 包含 concept（隨機概念名稱）
+    """
+    toolbox = _get_toolbox()
+    concept = toolbox.get_random_concept()
+    return {"concept": concept}
+
+
+@mcp.tool()
+async def suggest_bridges(
+    concept_a: str,
+    concept_b: str,
+) -> dict:
+    """
+    建議可能的橋接概念，連接兩個看似不相關的概念
+
+    當兩個概念沒有直接關係時，找出可能的中間橋接點。
+
+    Args:
+        concept_a: 第一個概念
+        concept_b: 第二個概念
+
+    Returns:
+        dict 包含 concept_a, concept_b, bridges（橋接概念列表）
+    """
+    toolbox = _get_toolbox()
+    bridges = toolbox.suggest_bridges(concept_a, concept_b)
+    return {
+        "concept_a": concept_a,
+        "concept_b": concept_b,
+        "bridges": bridges,
+    }
+
+
+@mcp.tool()
+async def creativity_session_start(
+    topic: str,
+) -> dict:
+    """
+    開始一個新的創意探索會話
+
+    Agent 可以用這個工具追蹤自己的創意探索過程。
+    會話會記錄所有探索動作、想法和進度。
+
+    Args:
+        topic: 探索主題
+
+    Returns:
+        dict 包含 session_id 和 topic
+    """
+    toolbox = _get_toolbox()
+    session_id = toolbox.start_session(topic)
+    return {"session_id": session_id, "topic": topic}
+
+
+@mcp.tool()
+async def creativity_session_record(
+    idea: str,
+) -> dict:
+    """
+    記錄並驗證一個想法到當前會話
+
+    自動計算新穎度分數，並追蹤是否為目前最佳想法。
+
+    Args:
+        idea: 要記錄的想法
+
+    Returns:
+        dict 包含 idea, novelty_score, is_best_so_far
+    """
+    toolbox = _get_toolbox()
+    return toolbox.record_idea(idea)
+
+
+@mcp.tool()
+async def creativity_session_progress() -> dict:
+    """
+    查看當前創意探索會話的進度摘要
+
+    顯示探索次數、想法數量、最佳想法等。
+
+    Returns:
+        dict 包含 session_id, topic, total_explorations, total_ideas, best_idea, best_novelty_score
+    """
+    toolbox = _get_toolbox()
+    return toolbox.get_progress()
 
 
 # === Entry Point ===

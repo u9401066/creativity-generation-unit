@@ -50,7 +50,7 @@ CGU (Creativity Generation Unit) 專案發展路線圖。
 > 讓 Agent 能更自主地探索創意空間。
 
 #### Phase 1: 工具擴充
-- [ ] 🔌 **MCP Tool 註冊** - 將 v3 Tools 註冊為 MCP Tools
+- [x] 🔌 **MCP Tool 註冊** - 將 v3 Tools 註冊為 MCP Tools
 - [ ] 🌐 **外部知識源整合** - ConceptNet, Wikidata API
 - [ ] 📊 **Embedding 語義距離** - 真實的跨域相似度計算
 
