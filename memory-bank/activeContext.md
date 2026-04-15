@@ -1,76 +1,23 @@
 # Active Context
 
-> 📌 此檔案記錄當前工作焦點，每次工作階段開始時檢視，結束時更新。n
-## 🎯 當前焦點：v0.4.0 Agent-Driven Creativity
+## 當前焦點
+正式化 `ROADMAP.md`，將專案現況從舊的 v0.4 敘事更新為以 v0.5.x 結構化創意工作流為主軸的官方版本規劃。
 
-### 核心洞察
+## 相關檔案
+- `ROADMAP.md` - 正式產品路線圖與版本里程碑
+- `memory-bank/activeContext.md` - 當前任務上下文
+- `memory-bank/progress.md` - 任務進度
+- `memory-bank/decisionLog.md` - 本次文檔治理決策
+- `src/cgu/server.py` - 驗證目前已存在的 Spark-Soup 與 Session MCP 工具
+- `src/cgu/core/session.py` - 驗證互動式創意會話能力
 
-> **「Copilot 內部觸碰不到，無論在外層做什麼最終都是 Prompt 進去」**
+## 待解決問題
+- [ ] 將 v0.5.x 已交付能力與待完成項目說明清楚
+- [ ] 對齊 ROADMAP 與 Memory Bank 的版本敘事
+- [ ] 在 PR 說明中清楚標示本次屬於文檔治理變更
 
-**關鍵轉變**：從「人與 Agent 的語言互動」進展到「Agent 的自主工具互動」
+## 上下文
+目前專案實際能力已超過舊版 ROADMAP 所描述的 v0.4 狀態，倉庫內已有 Spark-Soup、互動式 Session、品質評估與演化相關工具，但路線圖仍停留在較早期的規劃語氣。這次工作重點是把 ROADMAP 升級為正式文件，讓後續版本討論、PR 審查與對外溝通有一致基準。
 
-```
-傳統思路（被動）：Human → Prompt 描述方法 → LLM 模擬執行 → 輸出
-Agent 驅動（主動）：Human → 目標 → Agent 自己決定工具 → 自己探索 → 自己驗證 → 創意
-```
-
-### 完成的工作
-
-1. **v2 核心引擎**（已完成）
-   - AnalogyEngine - 結構化類比搜尋
-   - GraphTraversalEngine - 概念圖譜遍歷
-   - AdversarialEngine - 對抗式進化
-
-2. **v3 Agent-Driven Tools**（剛完成）
-   - `ConceptExplorer` - 概念搜尋器
-   - `ConnectionFinder` - 連結發現器
-   - `NoveltyChecker` - 新穎度驗證器
-   - `IdeaEvolver` - 想法演化器
-   - `CreativityLogger` - 創意記錄器
-   - `CreativityToolbox` - 統一工具箱
-
-### 設計哲學
-
-| 傳統 | Agent 驅動 |
-|------|------------|
-| 我們設計流程 | Agent 自己設計流程 |
-| 固定的方法論 | 動態的探索策略 |
-| 輸出無法驗證 | 工具可以驗證 |
-| 一次性生成 | 迭代式探索 |
-
-## 📝 v3 新增檔案
-
-| 檔案 | 用途 |
-|------|------|
-| `src/cgu/tools/creativity_tools.py` | Agent-Driven 創意工具集 |
-| `src/cgu/tools/__init__.py` | Tools 模組匯出 |
-
-## 📁 完整架構
-
-```
-src/cgu/
-├── core/              # 核心引擎 (v2)
-│   ├── analogy.py     # 跨域類比 ✅
-│   ├── graph.py       # 概念圖譜 ✅
-│   ├── adversarial.py # 對抗進化 ✅
-│   └── creativity_core.py # 統一引擎 ✅
-├── tools/             # Agent 工具 (v3) 🆕
-│   ├── creativity_tools.py # 5 個創意工具
-│   └── __init__.py
-├── thinking/          # 思考引擎
-├── agents/            # Multi-Agent
-├── graph/             # LangGraph
-├── llm/               # LLM 客戶端
-├── server.py          # MCP Server
-└── cli.py             # CLI
-```
-
-## 🔜 下一步
-
-1. 將 v3 Tools 註冊為 MCP Tools
-2. 讓 Agent 可以自主調用這些工具
-3. 實作更多 action（不是 hard code）
-4. 整合外部知識源
-
----
-*Last updated: 2026-01-06*
+## 更新時間
+2026-04-15 01:40 UTC

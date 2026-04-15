@@ -1,103 +1,141 @@
-# Roadmap
+# Product Roadmap
 
-CGU (Creativity Generation Unit) 專案發展路線圖。
+CGU（Creativity Generation Unit）官方產品路線圖。
 
-## 已完成 ✅
+本文件用於對齊三件事：**已交付能力**、**當前版本重點**、**下一階段投資方向**。
 
-### v0.1.0 (2025-12-15)
-- [x] 專案初始化
-- [x] Memory Bank 系統建立
-- [x] Claude Skills 基礎架構
-- [x] Git 文檔自動更新 Skill
+## 規劃原則
 
-### v0.2.0 (2025-12-16)
-- [x] CGU 核心架構（快思慢想）
-- [x] 16 種創意方法實作
-- [x] LangGraph Agent 整合
-- [x] vLLM → Ollama 遷移
-- [x] MCP Server 完整實作
-- [x] 真實 LLM 整合（qwen2.5:3b）
-- [x] 思考引擎切換（Ollama/Copilot 模式）
-- [x] VS Code MCP 配置
+- **Agent-first**：優先投資「Agent 自主選擇工具並迭代」的工作流。
+- **先工作流、後擴張**：先把可重複的創意流程做穩，再擴大外部知識與平台能力。
+- **文件與測試同步**：每個版本里程碑都必須伴隨文檔、測試與 Memory Bank 更新。
+- **版本以能力為中心**：版本定義以使用者能獲得的能力為準，而非單一模組完成度。
 
-### v0.3.0 (2025-12-16) 
-- [x] 🧠 **ThinkingEngine** - 統一思考引擎（Simple/Deep/Spark/Hybrid）
-- [x] 🤖 **Multi-Agent 系統** - Explorer/Critic/Wildcard 三種人格
-- [x] ⚡ **Spark Engine** - 概念碰撞火花引擎
-- [x] 🔗 **Ollama + Copilot 整合** - 簡單/深度模式兼容
-- [x] 📋 **LangGraph 1.0 Functional API** - @entrypoint/@task 裝飾器
-- [x] 🔧 **新 MCP 工具** - deep_think, multi_agent_brainstorm, spark_collision_deep
+## 路線圖總覽
 
-### v0.4.0 (2026-01-06) ⭐ NEW - Agent-Driven Creativity
-- [x] 🧠 **v2 核心引擎** - 從「模擬創意」到「實現創意機制」
-  - AnalogyEngine - 跨域類比搜尋器
-  - GraphTraversalEngine - 概念圖譜遍歷
-  - AdversarialEngine - 對抗式進化
-  - CreativityCore - 統一創意引擎
-- [x] 🛠️ **v3 Agent-Driven Tools** - Agent 自主創意工具
-  - ConceptExplorer - 概念搜尋器
-  - ConnectionFinder - 連結發現器
-  - NoveltyChecker - 新穎度驗證器
-  - IdeaEvolver - 想法演化器
-  - CreativityToolbox - 統一工具箱
-- [x] 💡 **核心轉變** - 從「語言互動」到「Agent 工具互動」
+| 版本 | 主軸 | 狀態 | 代表成果 |
+|------|------|------|----------|
+| v0.1–v0.4 | 基礎平台建立 | ✅ 已完成 | MCP Server、Thinking Engine、Multi-Agent、Agent-Driven Creativity |
+| v0.5.x | 結構化創意工作流 | 🚧 進行中 | Spark-Soup、互動式 Session、評估與演化工具串接 |
+| v0.6 | 知識增強探索 | 📋 計劃中 | 外部知識源、語義距離、策略學習 |
+| v1.0 | 產品化發布 | 📌 長期目標 | 多模型支援、協作與發佈能力、穩定交付 |
 
-## 進行中 🚧
+## 已完成里程碑
 
-### v0.5.0 - Agent 自主探索強化 (Agent Autonomy Enhancement)
+### v0.1.0 — 專案治理與基礎結構
 
-> 💡 **設計理念**：擴充 Agent 工具，整合外部知識源，
-> 讓 Agent 能更自主地探索創意空間。
+- [x] 建立專案結構與 Python 套件配置
+- [x] 建立 Constitution / Bylaws / Skills 規則層級
+- [x] 建立 Memory Bank 長期記憶系統
+- [x] 建立基礎開發與協作流程
 
-#### Phase 1: 工具擴充
-- [ ] 🔌 **MCP Tool 註冊** - 將 v3 Tools 註冊為 MCP Tools
-- [ ] 🌐 **外部知識源整合** - ConceptNet, Wikidata API
-- [ ] 📊 **Embedding 語義距離** - 真實的跨域相似度計算
+### v0.2.0 — 核心創意生成能力
 
-#### Phase 2: Agent 智能
-- [ ] 🤖 **探索策略學習** - Agent 學習哪些工具組合有效
-- [ ] 📝 **探索歷史分析** - 從過去探索中學習
-- [ ] 🎯 **目標導向探索** - 根據目標自動調整策略
+- [x] 建立快思慢想核心模型與創意層級
+- [x] 實作結構化創意方法與 CLI 介面
+- [x] 完成 MCP Server 與 LangGraph 整合
+- [x] 完成 Ollama / Copilot 模式切換
 
-#### Phase 3: 評估與回饋
-- [ ] ✅ **品質評估系統** - NUS 模型（Novelty × Usefulness × Surprise）
-- [ ] 🔄 **自動迭代** - 根據評估結果自動演化
+### v0.3.0 — Thinking Engine 與 Multi-Agent
 
-## 計劃中 📋
+- [x] 建立統一 Thinking Engine（Simple / Deep / Spark / Hybrid）
+- [x] 建立 Explorer / Critic / Wildcard 多 Agent 協作
+- [x] 增加深度思考、腦力激盪、火花碰撞等 MCP 工具
+- [x] 升級至 LangGraph Functional API
 
-### 短期目標 (v0.5.0) - 遊戲化與評估
-- [ ] 🎮 **遊戲化介面** - 創意積分、成就系統
-- [ ] 📊 **創意品質評估** - 自動評分與改進建議
-- [ ] 🔄 **動態方法生成** - 根據主題自動組合方法
-- [ ] 💾 **創意歷史記錄** - 保存與回顧過往發想
+### v0.4.0 — Agent-Driven Creativity
 
-### 中期目標 (v0.6.0)
-- [ ] 🌐 **知識圖譜整合** - 結構化聯想路徑
-- [ ] 🎲 **隨機挑戰模式** - 強制跳出舒適圈
-- [ ] 📈 **思維成長樹** - 視覺化創意擴展路徑
-- [ ] 🔌 **多 LLM 支援** - OpenAI/Anthropic 切換
+- [x] 建立 Analogy / Graph / Adversarial 三大核心引擎
+- [x] 建立 Agent 自主創意工具箱（探索、連結、驗證、演化、記錄）
+- [x] 將重心由「提示詞模擬創意」轉為「工具驅動創意機制」
+- [x] 補齊核心測試，形成可持續演進的能力底座
 
-### 長期目標 (v1.0.0)
-- [ ] 🚀 **GPU 加速** - 本地高效能推理
-- [ ] 🛠️ **自訂方法編輯器** - 使用者自建創意方法
-- [ ] 🤝 **協作模式** - 多人即時腦力激盪
-- [ ] 📦 **發布至 MCP Registry** - 讓更多人使用
+## 當前版本：v0.5.x — 結構化創意工作流
 
-## 版本里程碑
+> 目標：把既有能力整理成一條可重複、可迭代、可評估的創意工作流。
 
-```
-v0.4.0 ──────────────────────────────► 現在位置 ⭐
-   │   Agent-Driven Creativity
-   │   - v2 核心引擎 (Analogy/Graph/Adversarial)
-   │   - v3 Agent Tools (5 個創意工具)
-   │   - 核心轉變: 語言 → 工具互動
-   │
-   ├── v0.5.0 Agent 自主探索強化 (2026-Q1)
-   │       ├── MCP Tool 註冊
-   │       ├── 外部知識源整合
-   │       └── 品質評估系統
-   │
-   ├── v0.6.0 遊戲化 + 視覺化 (2026-Q2)
-   │
-   └── v1.0.0 完整版發布 (2026-Q3)
-```
+### 已交付能力
+
+- [x] **Spark-Soup 創意湯**
+  - 以碎片化資訊組裝 context，強化意外連結
+  - 提供 `spark_soup_generate`、`spark_soup_quick`、`collect_creativity_fragments`、`get_trigger_words`
+- [x] **互動式創意 Session**
+  - 支援 `start_session` → `submit_ideas` → `submit_evolved_ideas` → `finalize_session`
+  - 讓外部 Agent 透過多次 MCP 呼叫推進創意迭代
+- [x] **品質與演化基礎**
+  - 已具備創意品質評估與對抗進化工具
+  - 已完成 ExplorerAgent LLM 整合收尾
+
+### 本階段待完成項目
+
+- [ ] **工作流閉環化**
+  - 將 Session、創意記錄、品質評估串成預設工作流
+  - 讓探索、挑戰、演化、定稿的輸出一致化
+- [ ] **知識擴充第一步**
+  - 將外部知識注入從可選能力提升為正式路線
+  - 為 ConceptNet / Wikidata 類型的資料源保留擴充點
+- [ ] **版本整理**
+  - 對齊 ROADMAP、CHANGELOG、README 與 Memory Bank
+  - 讓 v0.5.x 成為對外可說明、對內可追蹤的版本線
+
+### v0.5.x 版本完成定義
+
+- [ ] 至少一條官方推薦創意工作流可從「發想」走到「評估與定稿」
+- [ ] Session、Spark-Soup、評估工具的輸入輸出格式穩定
+- [ ] 文件、測試與版本記錄同步更新
+
+## 下一階段：v0.6 — 知識增強探索
+
+> 目標：讓 Agent 不只會用工具，還能借助外部知識與策略記憶提升探索品質。
+
+### 核心投資
+
+- [ ] **外部知識源整合**
+  - ConceptNet、Wikidata 或等價知識來源
+  - 將「跨域靈感」從提示詞技巧升級為可追蹤資料流程
+- [ ] **語義距離與排序**
+  - 導入 embedding / semantic distance 以輔助跨域連結
+  - 強化遠距類比、連結品質與多樣性評分
+- [ ] **探索策略學習**
+  - 分析歷史探索與 session 結果
+  - 讓 Agent 能根據目標、成效與上下文選擇更合適的工具組合
+
+### 預期成果
+
+- [ ] Agent 能在多知識源下維持一致的創意輸出格式
+- [ ] 類比、連結、評估之間具備更清楚的排序依據
+- [ ] 系統能回用過去探索經驗，而不只是單次生成
+
+## 長期目標：v1.0 — 產品化發布
+
+> 目標：把 CGU 從實驗型創意引擎提升為可被外部團隊穩定採用的 MCP 產品。
+
+### 產品化主題
+
+- [ ] **多模型與部署彈性**
+  - 支援更多 LLM provider 與穩定配置方式
+- [ ] **協作與歷史能力**
+  - 支援多人協作、歷史回顧與更完整的創意資產管理
+- [ ] **方法與工作流擴展**
+  - 支援更多自訂方法、工作流模板與評估面板
+- [ ] **對外發布**
+  - 完成文件、版本、測試與 Registry 發布能力
+
+### v1.0 完成定義
+
+- [ ] 專案可被外部開發者穩定安裝、啟動與整合
+- [ ] 主要 MCP 工具具備清楚文檔、範例與測試保護
+- [ ] 對外發布流程與版本治理成熟
+
+## 目標時程
+
+| 時間窗 | 版本 | 目標 |
+|--------|------|------|
+| 2026 Q2 | v0.5.x | 完成結構化創意工作流整理與文件正式化 |
+| 2026 H2 | v0.6 | 推進知識增強探索與語義排序能力 |
+| 後續 | v1.0 | 完成產品化、協作化與對外發布 |
+
+## 備註
+
+- 路線圖是**優先順序聲明**，不是不可變更的承諾。
+- 若實作過程出現更高價值的能力收斂，將優先更新本文件與 Memory Bank，再調整版本內容。
