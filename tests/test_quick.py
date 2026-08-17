@@ -1,7 +1,10 @@
 """快速測試 LangGraph Agent"""
+
 import asyncio
-from cgu.graph import run_cgu
+
 from cgu.core import CreativityLevel
+from cgu.graph import run_cgu
+
 
 async def test():
     result = await run_cgu(
@@ -15,12 +18,13 @@ async def test():
     print(f"  - Fast steps: {result.get('total_fast_steps')}")
     print(f"  - Slow steps: {result.get('total_slow_steps')}")
     print(f"  - Thinking steps: {result.get('thinking_steps')}")
-    
+
     ideas = result.get("ideas", [])
     print(f"  - 最終點子: {len(ideas)}")
     print()
     for i, idea in enumerate(ideas[:5]):
-        print(f"  💡 {i+1}. {idea.get('content', '?')} (score: {idea.get('score', 0):.2f})")
+        print(f"  💡 {i + 1}. {idea.get('content', '?')} (score: {idea.get('score', 0):.2f})")
+
 
 if __name__ == "__main__":
     asyncio.run(test())

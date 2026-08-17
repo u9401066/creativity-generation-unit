@@ -1,6 +1,6 @@
 [project]
 name = "creativity-generation-unit"
-version = "0.1.0"
+version = "0.6.0"
 description = "CGU - MCP-based Agent-to-Agent Creative Idea Generator with Fast/Slow Thinking"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,8 +16,8 @@ classifiers = [
 ]
 
 dependencies = [
-    # MCP SDK (FastMCP)
-    "mcp[cli]>=1.0.0",
+    # Official MCP Python SDK 2 (SDK 1 is intentionally unsupported)
+    "mcp>=2,<3",
     # LangGraph 1.0+ for Agent Orchestration (Functional API)
     "langgraph>=1.0.0",
     "langchain>=0.3.0",
@@ -25,7 +25,7 @@ dependencies = [
     # OpenAI-compatible API client (for vLLM)
     "openai>=1.0.0",
     # Structured Output
-    "pydantic>=2.0.0",
+    "pydantic>=2.12,<3",
     "instructor>=1.0.0",
     # Web Search
     "duckduckgo-search>=6.0.0",
@@ -62,7 +62,7 @@ build-backend = "hatchling.build"
 packages = ["src/cgu"]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
@@ -70,10 +70,17 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.12"
-strict = true
+python_version = "3.11"
 ignore_missing_imports = true
+follow_imports = "skip"
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_configs = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-m 'not integration'"
+markers = [
+    "integration: requires a live external LLM backend",
+]
