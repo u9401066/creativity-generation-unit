@@ -113,7 +113,7 @@ CGU implements structured creativity methods:
 
 ## 🛠️ Tech Stack
 
-- **MCP SDK**: FastMCP for tool serving
+- **MCP SDK**: official MCP Python SDK 2 (`MCPServer`); SDK 1 is unsupported
 - **Agent Orchestration**: LangGraph
 - **Local Inference**: vLLM + Qwen 4B
 - **Structured Output**: Pydantic + Instructor

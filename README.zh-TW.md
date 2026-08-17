@@ -3,7 +3,7 @@
 > 🧠 MCP-based Agent-to-Agent 創意發想服務，採用「快思慢想」架構
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![MCP](https://img.shields.io/badge/MCP-FastMCP-green.svg)](https://github.com/modelcontextprotocol)
+[![MCP](https://img.shields.io/badge/MCP-SDK_2-green.svg)](https://github.com/modelcontextprotocol/python-sdk)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## ✨ 特色

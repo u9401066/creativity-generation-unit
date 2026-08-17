@@ -3,6 +3,8 @@
 | Date | Decision | Rationale |
 |------|----------|-----------|
 | 2025-12-15 | 採用憲法-子法層級架構 | 類似 speckit 的規則層級，可擴展且清晰 |
+| 2026-08-17 | MCP SDK 2-only 並建立 protocol/wheel smoke hard gate | 避免只改依賴宣告；每次發布都驗證 direct、stdio 與已安裝 wheel 的實際協定行為 |
+| 2026-08-17 | live LLM 測試改為 opt-in integration marker | 預設 CI 必須可重現且不依賴本機 Ollama；真實後端仍可透過明確環境變數執行 |
 | 2025-12-15 | DDD + DAL 獨立架構 | 業務邏輯與資料存取分離，提高可測試性 |
 | 2025-12-15 | Skills 模組化拆分 | 單一職責，可組合使用，易於維護 |
 | 2025-12-15 | Memory Bank 與操作綁定 | 確保專案記憶即時更新，不遺漏 |

@@ -7,6 +7,12 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-17
+
+### Changed
+- 將 runtime 完整遷移至官方 MCP Python SDK 2 `MCPServer`，移除 SDK 1 / `FastMCP` 相依。
+- 將 Pydantic 最低版本提升至 2.12，並以 MCP 2026-07-28 協定 smoke test 驗證 tools/resources。
+
 ### Added
 - 🔌 **v3 Agent-Driven Creativity Tools → MCP Tools 註冊**
   - `explore_concept` - 概念探索 MCP 工具
