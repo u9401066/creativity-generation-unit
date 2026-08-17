@@ -45,7 +45,7 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 | 類別 | 技術 |
 |------|------|
 | 語言 | Python 3.11+ |
-| MCP SDK | FastMCP |
+| MCP SDK | Official MCP Python SDK 2 (`MCPServer`) |
 | Agent 編排 | LangGraph |
 | 本地推理 | vLLM + Qwen 4B |
 | 結構化輸出 | Pydantic + Instructor |
@@ -66,4 +66,4 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 - ruff, mypy
 
 ---
-*Last updated: 2025-12-15*
+*Last updated: 2026-08-17*
