@@ -4,13 +4,13 @@ version = "0.6.0"
 description = "CGU - MCP-based Agent-to-Agent Creative Idea Generator with Fast/Slow Thinking"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "Apache-2.0"
 authors = [{ name = "u9401066", email = "u9401066@gap.kmu.edu.tw" }]
 keywords = ["mcp", "agent", "creativity", "langgraph", "ollama", "qwen"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
