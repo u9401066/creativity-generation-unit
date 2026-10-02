@@ -453,6 +453,18 @@ async def test_errors_inside_a_session_carry_hints(open_cgu: Callable[..., Any])
     assert no_ideas["ok"] is False
 
 
+async def test_unknown_session_hint_names_the_real_session_ids(
+    open_cgu: Callable[..., Any],
+) -> None:
+    async with open_cgu() as h:
+        before = await h.call("cgu_judge", action="rank", session_id="made-up-name")
+        sid = await h.session()
+        after = await h.call("cgu_judge", action="rank", session_id="made-up-name")
+    assert before["error"]["code"] == after["error"]["code"] == "not_found"
+    assert "Existing ids" not in before["error"]["hint"]
+    assert sid in after["error"]["hint"]
+
+
 async def test_floats_in_caller_supplied_meta_are_rejected_not_echoed(
     open_cgu: Callable[..., Any],
 ) -> None:

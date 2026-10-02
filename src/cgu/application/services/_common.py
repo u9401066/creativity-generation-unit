@@ -41,11 +41,13 @@ def provenance(
 async def require_session(archive: ArchivePort, session_id: str) -> Session:
     session = await archive.get_session(session_id)
     if session is None:
-        raise CGUError(
-            "not_found",
-            f"session {session_id!r} does not exist",
-            'Open one with cgu_session(action="open", topic="...") or list them with action="list".',
+        known = [s.id for s in await archive.list_sessions()][:5]
+        hint = (
+            'Open one with cgu_session(action="open", topic="...") or list them with action="list".'
         )
+        if known:
+            hint += f" Use the id that open returned, not a made-up name. Existing ids: {known}."
+        raise CGUError("not_found", f"session {session_id!r} does not exist", hint)
     return session
 
 
