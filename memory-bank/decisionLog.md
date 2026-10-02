@@ -5,6 +5,11 @@
 | 2025-12-15 | 採用憲法-子法層級架構 | 類似 speckit 的規則層級，可擴展且清晰 |
 | 2026-08-17 | MCP SDK 2-only 並建立 protocol/wheel smoke hard gate | 避免只改依賴宣告；每次發布都驗證 direct、stdio 與已安裝 wheel 的實際協定行為 |
 | 2026-08-17 | live LLM 測試改為 opt-in integration marker | 預設 CI 必須可重現且不依賴本機 Ollama；真實後端仍可透過明確環境變數執行 |
+| 2026-10-02 | 缺陷先以審查文件凍結，再討論、再實作（`docs/critical-review-and-improvement-plan.md`） | 憲法第 6 條「文檔優先」；40 項缺陷之間有相依關係（評估缺位是多數機制缺陷的前提），需先決定 Q1–Q10 再排 P0 範圍 |
+| 2026-10-02 | 缺陷探針放在 `tests/probes/`（檔名非 `test_*`，不被 pytest 收集、不作 CI gate），修正後再轉為不變式回歸測試 | 憲法第 7.1 條要求零散測試寫進 `tests/`；但探針記錄的是「現況缺陷行為」，不能寫成斷言規格，否則會重蹈 E1「把缺陷鎖成規格」的覆轍 |
+| 2026-10-02 | **採用 Agent Plugins 1.0 作為 harness 的對外交付格式**：可攜核心（`plugin.json`＋`skills/`＋`mcp.json`）放在 `plugins/cgu/`，Copilot 專屬放 `com.github.copilot/`，Codex 專屬放 `extensions.com.openai` | 已回查官方來源：Copilot（VS Code／CLI／SDK／app GA）與 Codex 都實作此開放標準（2026-08-06 發布）；可攜的只有 skills 與 MCP，因此方法論放 skills，agents 只做 Copilot 端薄包裝，hooks 預設不附（D-20）。本機無 CLI，安裝需人工驗證，未驗證不宣稱支援 |
+| 2026-10-02 | 以分階段執行計畫（`docs/program-plan.md`）推進：P0 止血 → P1 地基／P2 Harness 骨架 → P3 哲學層 → P4 創意機制 → P5 人機回饋 → P6 v1.0；預設決策 D-01～D-20 先採用、可否決；G4 為預先登記的停損關卡 | 缺陷之間有相依（評估缺位是多數機制缺陷的前提），需有序處理；預先登記停損條件，避免在證據不利時持續投入生成機制 |
+| 2026-10-02 | 評估 baseline 命名為 `BL0–BL3`，缺陷維持 `A1–F4` | 原 `B0–B3` 與缺陷 `B1–B11` 撞名（「B3」同時指圖譜缺陷與等預算 baseline），會讓討論與驗收混淆 |
 | 2025-12-15 | DDD + DAL 獨立架構 | 業務邏輯與資料存取分離，提高可測試性 |
 | 2025-12-15 | Skills 模組化拆分 | 單一職責，可組合使用，易於維護 |
 | 2025-12-15 | Memory Bank 與操作綁定 | 確保專案記憶即時更新，不遺漏 |

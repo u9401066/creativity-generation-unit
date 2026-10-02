@@ -2,6 +2,8 @@
 
 CGU (Creativity Generation Unit) 專案發展路線圖。
 
+> ⚠️ **現況說明（2026-10-02）**：本檔下方的「進行中／計劃中」與「版本里程碑」寫於 v0.4.0 時期，已與現況（v0.6.0）不符，且部分勾選項目（例如 v2「實現創意機制」）經[嚴格審查](docs/critical-review-and-improvement-plan.md)證實只是骨架。**目前有效的路線請見[分階段執行計畫](docs/program-plan.md)**（P0 止血 → P1 地基 → P2 Harness plugin → P3 哲學層 → P4 創意機制 → P5 人機回饋 → P6 v1.0）。舊內容暫時保留作為歷史紀錄，將於 P0.11 整理。
+
 ## 已完成 ✅
 
 ### v0.1.0 (2025-12-15)

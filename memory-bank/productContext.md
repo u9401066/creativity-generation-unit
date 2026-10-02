@@ -18,10 +18,10 @@ CGU MCP Server
 │   ├── 快思慢想 (Thinking Fast/Slow)
 │   └── 創意層級 (Creativity Levels)
 ├── 創意方法 (Methods)
-│   └── 15 種人類創意方法論
+│   └── 16 種人類創意方法論
 ├── Agent 編排 (LangGraph)
 │   └── 快步驟 → 快步驟 → 慢步驟 → ...
-└── 推理引擎 (vLLM + Qwen 4B)
+└── 推理引擎 (Ollama qwen2.5:3b / passthrough 交給呼叫端 LLM)
 ```
 
 ### 快思慢想策略
@@ -35,10 +35,11 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 ## ✨ 核心功能
 
 - 🎨 3 層創意層級（組合、探索、變革）
-- 🧠 15 種結構化創意方法
+- 🧠 16 種結構化創意方法
 - ⚡ 快思慢想 Agent 編排
-- 🔧 MCP 工具介面
-- 🔍 Web Search 整合
+- 🔧 MCP 工具介面（24 tools）
+- 🍲 Spark-Soup 碎片化 context、🤝 A2A Brainstorm Protocol、🛠️ v3 Agent 工具
+- 🔍 Web Search 整合（DuckDuckGo，用於 Spark-Soup 碎片）
 
 ## 🔧 技術棧
 
@@ -47,8 +48,8 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 | 語言 | Python 3.11+ |
 | MCP SDK | Official MCP Python SDK 2 (`MCPServer`) |
 | Agent 編排 | LangGraph |
-| 本地推理 | vLLM + Qwen 4B |
-| 結構化輸出 | Pydantic + Instructor |
+| 本地推理 | Ollama（langchain-ollama `ChatOllama`）；或 passthrough |
+| 結構化輸出 | Pydantic + LangChain `with_structured_output` |
 | Web 搜尋 | DuckDuckGo Search |
 | 套件管理 | uv (優先) |
 
@@ -57,8 +58,8 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 ### 核心依賴
 - mcp[cli] - MCP SDK
 - langgraph, langchain - Agent 編排
-- vllm - 本地推理
-- pydantic, instructor - 結構化輸出
+- langchain-ollama - 本地推理（Ollama）
+- pydantic - 結構化輸出（`instructor`、`openai` 仍宣告於 pyproject，但 src 未使用）
 - duckduckgo-search - Web 搜尋
 
 ### 開發依賴
@@ -66,4 +67,4 @@ Creative:        DIVERGE → CONVERGE → TRANSFORM
 - ruff, mypy
 
 ---
-*Last updated: 2026-08-17*
+*Last updated: 2026-10-02*
