@@ -438,7 +438,7 @@ def test_plugin_condition_with_cgu_connection_records_tool_usage(
     assert meta["cgu_connected"] is True
     assert meta["cgu_tool_calls"] == 1
     assert meta["cgu_tools"] == {"list_methods": 1}
-    assert meta["plugin"]["mcp_files"] == [".mcp.json", "mcp.json"]
+    assert meta["plugin"]["mcp_files"] == ["mcp.json"]
 
 
 def test_baseline_contamination_is_flagged(plugin_src: Path, tmp_path: Path) -> None:

@@ -62,6 +62,22 @@ def test_final_answer_is_last_message_without_tool_requests() -> None:
     assert run.answer == "最終答案"
 
 
+def test_all_main_thread_final_answer_messages_are_kept_in_order() -> None:
+    def final(text: str, **extra: object) -> dict:
+        return {
+            "type": "assistant.message",
+            "data": {"content": text, "toolRequests": [], "phase": "final_answer", **extra},
+        }
+
+    events = [
+        final("子代理草稿", parentToolCallId="p"),
+        final("主答案"),
+        final("事後更正"),
+    ]
+    run = parse_events("\n".join(json.dumps(e) for e in events))
+    assert run.answer == "主答案\n\n事後更正"
+
+
 def test_answer_falls_back_to_deltas_and_tolerates_garbage() -> None:
     lines = [
         "not json",

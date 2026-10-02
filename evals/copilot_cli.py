@@ -361,6 +361,16 @@ def parse_events(text: str) -> ParsedRun:
 
 
 def _final_answer(messages: list[dict[str, Any]], deltas: dict[str, list[str]]) -> str:
+    # A run can emit several main-thread final_answer messages (e.g. an answer followed by a
+    # correction after a review sub-agent returns); keeping only the last would drop the answer.
+    finals = [
+        str(m.get("content") or "").strip()
+        for m in messages
+        if m.get("phase") == "final_answer" and not m.get("toolRequests")
+    ]
+    finals = [c for c in finals if c]
+    if finals:
+        return "\n\n".join(finals)
     for msg in reversed(messages):
         content = str(msg.get("content") or "").strip()
         if content and not msg.get("toolRequests"):

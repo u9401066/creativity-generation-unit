@@ -98,8 +98,9 @@ def prepare_plugin(
 ) -> dict[str, Any]:
     """複製 plugin 並依 mcp_source 改寫 MCP 設定。
 
-    Copilot CLI 1.0.91 實測只會載入 plugin 根目錄的 `.mcp.json`；若 plugin 只提供 `mcp.json`，
-    預設另存一份 `.mcp.json`（dotfile_shim），否則 plugin 條件會悄悄失去 MCP 工具。
+    Copilot CLI 1.0.91 實測可直接讀取 plugin 根目錄的 `mcp.json`（事件 `session.mcp_servers_loaded`
+    顯示 source=plugin、status=connected）。`dotfile_shim` 只是給舊版 CLI 的後備：另存 `.mcp.json`。
+    每個儲存格仍會解析 `mcp_servers_loaded`，plugin 條件若沒載入 MCP 會被標記，不會悄悄失去工具。
     """
     if not source.is_dir():
         raise FileNotFoundError(f"找不到 plugin 目錄: {source}")
@@ -539,7 +540,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--mcp-source", choices=("local", "git"), default="local")
     p.add_argument("--uv-no-sync", action="store_true", help="本機 MCP 以 uv run --no-sync 啟動")
     p.add_argument("--skip-mcp-check", action="store_true", help="略過本機 cgu-server 啟動預檢")
-    p.add_argument("--no-mcp-dotfile-shim", action="store_true")
+    p.add_argument(
+        "--mcp-dotfile-shim",
+        action="store_true",
+        help="另存 .mcp.json 副本（僅供舊版 CLI；1.0.91 已實測可直接讀 plugin 根目錄 mcp.json）",
+    )
     p.add_argument("--out-root", type=Path, default=common.DEFAULT_RUNS_DIR)
     p.add_argument("--run-id", default=None)
     p.add_argument("--resume", type=Path, default=None, help="沿用既有 run 目錄，略過已成功的格子")
@@ -596,7 +601,7 @@ def main(argv: list[str] | None = None, backend: Backend | None = None) -> int:
         retries=args.retries,
         reasoning_effort=args.reasoning_effort,
         uv_no_sync=args.uv_no_sync,
-        dotfile_shim=not args.no_mcp_dotfile_shim,
+        dotfile_shim=args.mcp_dotfile_shim,
         keep_work=args.keep_work,
         dry_run=args.dry_run,
         resume=args.resume is not None,
