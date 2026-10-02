@@ -45,16 +45,25 @@ HONESTY_MARKERS = {
     "null": "null reference set means not measured",
 }
 
-IDEA_CARD_LABELS = (
+IDEA_CARD_COMMON_LABELS = (
     "推導路徑",
-    "框架改寫",
     "素材（未驗證）",
-    "新穎度向量",
     "主要風險",
     "最小驗證步驟",
     "決策",
     "☐ 採用",
 )
+# creative-ideation cards are written for the decision maker: plain language, no tool internals.
+IDEA_CARD_LABELS = {
+    "creative-ideation": (
+        "這張卡改了什麼",
+        "符合限制",
+        "資源估計",
+        "繼續／放棄門檻",
+    ),
+    # idea-triage is the audit-style deliverable: it keeps the full measurement vector.
+    "idea-triage": ("框架改寫", "新穎度向量"),
+}
 
 STALE_V06_TOOLS = (
     "generate_ideas",
@@ -149,11 +158,22 @@ def test_companion_tools_are_only_ever_optional(skill: str) -> None:
 @pytest.mark.parametrize("skill", ["creative-ideation", "idea-triage"])
 def test_idea_card_template_is_complete(skill: str) -> None:
     _, _, raw = _skill(skill)
-    for label in IDEA_CARD_LABELS:
+    for label in IDEA_CARD_COMMON_LABELS + IDEA_CARD_LABELS[skill]:
         assert label in raw, f"{skill}: idea card is missing '{label}'"
-    for reference_set in ("vs_typical", "vs_human", "vs_prior_art", "vs_session"):
-        assert reference_set in raw
-    assert "最近鄰" in _skill("idea-triage")[2], "triage must show the nearest neighbour text"
+    if skill == "idea-triage":
+        for reference_set in ("vs_typical", "vs_human", "vs_prior_art", "vs_session"):
+            assert reference_set in raw
+        assert "最近鄰" in raw, "triage must show the nearest neighbour text"
+
+
+def test_creative_ideation_keeps_tool_internals_out_of_the_reply() -> None:
+    _, _, raw = _skill("creative-ideation")
+    output = raw.split("Output format", 1)[1].split("\n## ", 1)[0]
+    assert "不得出現 CGU 內部術語" in output
+    assert "CGU session：" in output, "the reply must point to the stored audit trail"
+    card = output.split("```", 2)[1]
+    for internal in ("disclosure", "Wilson", "vs_typical", "child_frame_id", "operator"):
+        assert internal not in card, f"user-facing card must not expose '{internal}'"
 
 
 @pytest.mark.parametrize("skill", ["creative-ideation", "frame-audit", "maieutic-session"])
