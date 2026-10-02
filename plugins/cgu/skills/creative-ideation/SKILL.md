@@ -5,7 +5,7 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 
 # 創意發想（creative-ideation）
 
-主流程：**開 session → 框架 → 典型答案 → 溯因假設 → 懷疑的經濟學 → 框架算子 → 素材 → 反典型發散 → 測量 → 成對評審 → 點子卡 → 回饋**。你的角色是嚴謹、有哲學素養的創意協作者：CGU 負責狀態、測量與隔離，你負責生成與判斷。
+主流程：**開 session → 框架 → 典型答案 → 溯因假設 → 懷疑的經濟學 → 框架算子 → 素材 → 反典型發散 → 測量 → 成對評審 → 可行性閘門 → 點子卡 → 回饋**。你的角色是嚴謹、有哲學素養的創意協作者：CGU 負責狀態、測量與隔離，你負責生成與判斷。
 
 ## 何時使用（When to use）
 - 使用者要新點子、新研究方向、新產品概念、新流程方案，或說「卡住了」「答案都很普通」。
@@ -14,6 +14,7 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 ## 前置條件（Preconditions）
 - CGU 的 `cgu_*` 工具可用。呼叫失敗 → 告知「CGU 伺服器未啟動，無法量測」並停止；**不要用純對話假裝跑完流程**。
 - 需要四樣東西：問題、目標、利害關係人、評估準則。缺的才問使用者（一次最多 3 題）；使用者說「都可以」就記為未指定，不要替他編。
+- **限制清單（逐字）**：把使用者明說的限制全部抄出來——時程（例：60 天、一年內）、人力、預算、「不要做 X」、要幾個點子、每個點子要含哪些項目。步驟 3 以 `constraints` 寫入，步驟 14 逐張核對。這份清單的目的是讓點子**做得起、交得出**，不是限制想像力：框架可以改，限制不能悄悄違反。
 - 預算：整輪 ≤ 30 次 CGU 工具呼叫。超過 25 次仍未到步驟 12 → 縮小範圍並告知。
 
 ## 工單規則（每一步都適用）
@@ -42,8 +43,9 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 11. **登錄候選**：`cgu_ideas(action=add, session_id, ideas=[{text, kind=candidate, frame_id=<F2>, operator=<算子>, material_ids=[…]}])`。`duplicate_of` 有值 → 丟棄並記為重複，不要改寫後重送。
 12. **測量**：`cgu_ideas(action=measure, session_id)`。逐一讀每個候選的 `novelty.vs_typical / vs_human / vs_prior_art / vs_session`（每個都含 `reference_size` 與帶 `method` 的 Measurement；**null ＝ 參照集為空 ＝ 未量測，絕不補數字**）、`diversity`、`embedding`。
 13. **成對評審**（去重後候選 ≥ 3 才做，否則說明並跳過）：`cgu_judge(action=plan, session_id, idea_ids=[≤6 個], rounds=1)`。工單 > 12 張 → 縮減 `idea_ids`。逐張執行（AB 與 BA 都要）：評審**不得**是產生該點子的同一個 context；可用 `adversarial-critic` 子 agent；客戶端能指定模型時 AB、BA 用**不同家族**（例如 Claude 與 GPT），做不到就在報告標「單一評審家族」。→ `cgu_judge(action=record, session_id, verdicts=[{matchup_id, order, winner, criteria_winners, judge_model, reason}])` → `cgu_judge(action=rank, session_id)`。
-14. **呈現點子卡**（格式見〈輸出格式〉）。優先放 Pareto 前緣上的點子，不要只排單一分數。
-15. **回饋**：請使用者對每張卡選「採用／修改／放棄」與理由 → `cgu_feedback(action=record, session_id, idea_id, decision=<adopt|modify|abandon>, reasons=[…])`。使用者沒表態 → **不代填**。
+14. **可行性閘門（交卡前必做，不可跳）**：把「限制清單」逐條對每張卡打 ✔／✘／未知。✘ → 修改到符合，或丟棄；**不得交出違反限制的卡**。時程要特別核對：使用者說 60 天，計畫就不能排到第 12 週。使用者要 N 個、且指定每個要含的項目 → 照數量與項目交付，缺項視為未完成。每張卡還要有「資源估計」與「繼續／放棄門檻」（指標、時點、數值）；沒有依據的數值寫「待估」，不要編。
+15. **呈現點子卡**（格式見〈輸出格式〉）。優先放 Pareto 前緣上的點子，不要只排單一分數。
+16. **回饋**：請使用者對每張卡選「採用／修改／放棄」與理由 → `cgu_feedback(action=record, session_id, idea_id, decision=<adopt|modify|abandon>, reasons=[…])`。使用者沒表態 → **不代填**。
 
 ## 算子選擇表（步驟 8）
 | 要改寫的元素 | 算子 | 一句話 |
@@ -72,7 +74,7 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 有 ≥ 3 張點子卡且已測量；或工具預算用盡；或 `doubt` 回傳 `stop_reasons`；或使用者說夠了。停止時一定交出：已完成什麼、跳過什麼、為什麼。
 
 ## 輸出格式（Output format）
-最終回覆依序：①三行摘要（問題、被改寫的框架元素、產出張數）②點子卡（≤ 5 張）③**量測與限制聲明**（見〈誠實規則〉）④尚未檢驗的承重假設 ⑤需要使用者決定的事。
+最終回覆依序：①三行摘要（問題、被改寫的框架元素、產出張數）＋**建議先做哪一張與原因（≤ 3 句）**②點子卡（≤ 5 張；數量與欄位以使用者要求為準）③**量測與限制聲明**（見〈誠實規則〉；量測表可縮成每個參照集一行）④尚未檢驗的承重假設 ⑤需要使用者決定的事。使用者要的是能決策的方案，CGU 的量測細節是佐證，不是主角。
 
 點子卡（zh-TW，欄位不可省；沒有就寫「無」）：
 ```
@@ -87,7 +89,10 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
   最近鄰原文：<nearest 的文字>
 - 評審：勝率 <win_rate>（Wilson 95% 區間，依賴評審，未校準）；AB/BA 一致率；評審模型 <…>
 - 主要風險：1) … 2) …
+- 符合限制：<限制清單逐條 ✔／✘／未知；✘ 不得交出>
+- 資源估計：<人力 × 時間 × 主要成本>（無依據寫「待估」）
 - 最小驗證步驟：<誰、做什麼、多久、什麼結果算推翻這個點子>
+- 繼續／放棄門檻：<指標> 在 <時點> 達 <數值> 才繼續；否則放棄或轉向
 - 決策：☐ 採用　☐ 修改　☐ 放棄（理由：＿＿）
 ```
 
