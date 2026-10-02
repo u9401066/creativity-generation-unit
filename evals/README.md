@@ -25,7 +25,7 @@
 3. `uv`（plugin 條件預設以 `uv --directory <repo> run cgu-server` 啟動本機 MCP）。
 4. `plugins/cgu` 存在。
 
-> **重要（CLI 1.0.91 實測）**：plugin 根目錄的 **`mcp.json` 不會被載入，`.mcp.json` 才會**。若 plugin 只提供 `mcp.json`，runner 會在副本中另存一份 `.mcp.json`（`--no-mcp-dotfile-shim` 可關閉）並在 meta 記錄警告；建議 plugin 本身也提供 `.mcp.json`。
+> **重要（CLI 1.0.91 實測，2026-10-03 更正）**：plugin 根目錄的 **`mcp.json` 會被直接載入**（`session.mcp_servers_loaded` 顯示 `source=plugin`、`status=connected`），不需要 `.mcp.json`；先前「只有 `.mcp.json` 才會載入」的說法是錯的。`--mcp-dotfile-shim` 保留給舊版 CLI，預設關閉。每個儲存格都會記錄 MCP 連線狀態，plugin 條件若沒連上 `cgu` 會在 meta 留下警告。
 
 ```powershell
 $env:PYTHONUTF8 = '1'
