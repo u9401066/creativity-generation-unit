@@ -102,7 +102,33 @@
 
 ---
 
-## 🧭 CGU 實際系統架構與成熟度盤點（2026-10-02）
+## 🧭 CGU v0.8.0 系統架構（2026-10-03，現行）
+
+> 完整契約見 [`docs/architecture.md`](../docs/architecture.md)。本節為摘要；下一節是 0.6 的歷史盤點，**已被取代**。
+
+```
+呼叫端 Agent（Copilot CLI / VS Code / Codex / 任何 MCP 客戶端）
+   │  skills（方法論，可攜）＋ MCP（stdio；SDK 2）
+   ▼
+src/cgu/interfaces/mcp   MCPServer(lifespan)：10 tools、5 resources、4 prompts；Elicit 同意
+   ▼
+src/cgu/application      ports（Protocol）＋ 每個工具的 service
+   ▼
+src/cgu/domain           純規則：Measurement、Frame、11 算子、doubt、fence、judge（無 I/O）
+   ▲
+src/cgu/infrastructure   SQLite（WAL）、embedding（n-gram／Ollama）、檢索、選用 LLM、Settings
+```
+
+- **依賴規則**：domain 不 import 其他層，也不用 `httpx`／`sqlite3`；由 `tests/test_architecture_rules.py` 強制。
+- **passthrough 工單模式**：預設不呼叫 LLM；CGU 回傳 `WorkOrder`，呼叫端模型生成，CGU 負責驗證、保存、測量、隔離。
+- **誠實不變式**：所有浮點只存在 `Measurement{value, method, reference, calibrated, n}`；未量測為 `null`；每個結果帶 `Provenance`（engine、degraded、warnings、seed、version）；領域錯誤回 `ok=false`，不丟例外。
+- **ADR-004（2026-10-03）**：以不相容重寫取代逐項修補。原因：審查證實多數舊機制是模板＋亂數＋常數，缺陷之間相互依賴，修補只會保留誤導性的介面。
+- **ADR-005（2026-10-03）**：以 Agent Plugins 1.0 交付；可攜核心（skills＋`mcp.json`）與 Copilot 專屬（`com.github.copilot/agents`）分離；不附 hooks。
+- **擴充點**：新增工具＝新增 `application/services/<name>.py` ＋ `interfaces/mcp/tools/<name>.py`，並更新 `docs/architecture.md` §4 與 plugin 契約測試；沒有全域單例。
+
+---
+
+## 🗄️ 歷史：CGU 0.6 系統架構與成熟度盤點（2026-10-02；已被 v0.8.0 取代）
 
 > 上方圖表描述的是源自模板的「規則/記憶層」；本節描述 CGU 產品本體。
 

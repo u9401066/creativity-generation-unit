@@ -1,41 +1,48 @@
 # Project Brief
 
-> 📌 此檔案描述專案的高層級目標和範圍，建立後很少更改。
-> 🔄 2026-10-02：原內容為專案模板殘留，依實際程式碼改寫為 CGU 定位。
+> 📌 高層級目標與範圍。v0.8.0（2026-10-03）依重寫後的定位更新。
 
 ## 🎯 專案目的
 
-CGU（Creativity Generation Unit）是以 MCP 提供的創意發想服務，讓 AI Agent（Copilot、Claude、OpenClaw 等）呼叫結構化創意方法、概念碰撞、碎片化原料（Spark-Soup）與雙 Agent 腦力激盪流程。
+CGU（Creativity Generation Unit）讓 AI Agent（Copilot、Codex、Claude 等）在創意協作時，不只是「再生成幾個點子」，而是像嚴謹、有哲學素養的協作者：先審查問題框架、再反典型發散、新穎度附參照集與方法、成對盲評、最後交付含風險與最小驗證步驟的點子卡。
 
 核心主張：
-- **創意 = 連結**：不需完整世界模型，局部資訊加上足夠的連結能力即可產生創意（Koestler Bisociation）。
-- **快思慢想**：System 1 快速聯想 × System 2 分析評估 × 發散 / 收斂。
-- **模型民主化**：小模型（Ollama qwen2.5:3b）或呼叫端大模型（passthrough）皆可使用。
-- **從 Prompt 到工具**（v3）：不規定流程，提供 Agent 可自主組合的創意工具。
+- **CGU 不假裝自己有創意**：生成與判斷交給呼叫端模型；CGU 負責狀態、測量、隔離、獨立性與誠實（passthrough 工單模式）。
+- **哲學即後設審查**：把問題從「內容層」拉到「結構層」——剝離隱性預設、界定概念邊界、整合相容視野；落地為 Frame 物件與 11 個框架算子，並以「懷疑的經濟學」避免無止境追問。
+- **工具價值四準則 I／C／S／M**：模型外的資訊、模型做不到的計算、跨 context 狀態、可驗證測量；沒有這四項之一的工具不該存在。
+- **誠實不變式**：浮點只能是附方法的 `Measurement`；沒量就是 `null`；每個結果有 `Provenance`。
+- **人機互補**：必要時以產婆模式讓人先產出、AI 只提問；以 `cgu_feedback` 記錄人類實際怎麼用這些點子。
 
 ## 👥 目標用戶
 
-- 直接呼叫者：需要「創意副駕」的 AI Agent（Agent-to-Agent）
-- 最終受益者：透過 VS Code Copilot / Claude Desktop / OpenClaw 使用這些 Agent 的開發者、研究者與創意工作者
-- 上層整合：med-paper-assistant（以 integration lock 固定 CGU 版本）
+- 直接使用者：用 Copilot／Codex／其他 MCP 客戶端做創意協作的人。
+- 示範領域：研究創意（研究缺口、問題重構）、醫療商品開發（差異化概念、法規與驗證路徑）、行政流程轉變（流程重定義、工作量來源）。
+- 設計上以 Sonnet／GPT luna 等級的中階模型為主要受益對象；SOTA 模型不需要這些輔助就能深度思考。
+- 上層整合：med-paper-assistant（以 integration lock 固定 CGU 版本；0.8.0 為不相容變更）。
 
 ## 🏆 成功指標
 
-- [x] 24 個 MCP tools 以 SDK 2 structured output 穩定運作（103 tests 綠燈）
-- [ ] 創意品質可被量測（NUS：Novelty × Usefulness × Surprise），而非啟發式假分數
-- [ ] 以外部知識源（ConceptNet / Wikidata / embedding）取代硬編碼小型知識庫
-- [ ] Agent 產出的創意能以人類可吸收、可回饋的形式呈現
+- [x] 以 MCP SDK 2 重寫，10 個工具有契約測試（397 tests、ruff、mypy 全綠）
+- [x] 可攜 plugin，並在隔離的 Copilot CLI 實際安裝與呼叫成功
+- [x] 效果實驗框架（baseline vs plugin vs plugin_explicit，盲評成對比較）
+- [ ] 實驗證據顯示 plugin 在創意品質上的效果（含 skill 自動觸發率），並據實揭露限制
+- [ ] 人類校準（2–3 位評分者、約 100 個點子）
+- [ ] VS Code 與 Codex 的實際安裝驗證
+- [ ] 人類實際採用與回饋的量測（H5、H9）
 
 ## 🚫 範圍限制
 
-- CGU 本身不保證創意品質；passthrough 模式下真正的生成者是呼叫端 LLM
-- 只提供發散、碰撞、收斂的框架與素材，不做最終決策
-- 不包含生產環境部署配置
+- 不保證創意品質；效果是**待驗證的假設**，以 `evals/` 的報告為準。
+- 只提供框架、測量與工單，不做最終決策。
+- 創意討論本身不設倫理閘門（使用者決定）；下游法規以點子卡的風險欄位呈現。
+- 不附 hooks（不可攜、會執行本機程式碼）。
+- 不包含生產環境部署配置。
 
 ## 📝 備註
 
-- 規則層（CONSTITUTION / bylaws / skills / Memory Bank）源自專案模板，仍然適用
-- 實作成熟度盤點見 `architect.md` 的「CGU 實際系統架構與成熟度盤點」
+- 規則層（CONSTITUTION／bylaws／skills／Memory Bank）源自專案模板，仍然適用。
+- 專案作者：u9401066 ＜u9401066@gap.kmu.edu.tw＞。
+- 架構見 `architect.md` 與 `docs/architecture.md`。
 
 ---
-*Created: 2025-12-15 | Rewritten: 2026-10-02*
+*Created: 2025-12-15 | Rewritten: 2026-10-03*
