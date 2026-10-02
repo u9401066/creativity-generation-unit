@@ -36,14 +36,16 @@ jobs:
           uv run python -c "from importlib.metadata import version; from mcp.server.mcpserver import MCPServer; print(version('mcp')); assert MCPServer"
           ! rg 'mcp\.server\.fastmcp|FastMCP' src tests pyproject.toml
 
-      - name: Lint and format
+      - name: Lint, format and type-check
         run: |
           uv run ruff check src tests
           uv run ruff format --check src tests
+          uv run mypy src
 
-      - name: Test core and protocol transports
+      - name: Test core, plugin package and protocol transports
         env:
-          CGU_LLM_PROVIDER: passthrough
+          CGU_PROVIDER: passthrough
+          CGU_NETWORK: "off"
         run: uv run python -m pytest -q
 
       - name: Build distributions
@@ -53,4 +55,5 @@ jobs:
         run: |
           uv venv .wheel-smoke
           uv pip install --python .wheel-smoke/bin/python dist/*.whl
-          .wheel-smoke/bin/python -c "from cgu.server import mcp; from mcp import Client; assert mcp.name == 'creativity-generation-unit'; assert Client"
+          .wheel-smoke/bin/python -c "from cgu.infrastructure.config import Settings; from cgu.interfaces.mcp.server import create_server; s = create_server(Settings.from_env()); assert s.name == 'creativity-generation-unit', s.name"
+          .wheel-smoke/bin/cgu doctor
