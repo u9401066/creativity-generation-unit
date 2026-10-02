@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "cgu": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/u9401066/creativity-generation-unit@master",
+        "cgu-server"
+      ],
+      "env": {
+        "CGU_PROVIDER": "passthrough",
+        "CGU_DATA_DIR": "${PLUGIN_DATA}/cgu"
+      }
+    }
+  }
+}

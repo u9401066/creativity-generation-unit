@@ -1,0 +1,20 @@
+{
+  "name": "creativity-generation-unit",
+  "interface": {
+    "displayName": "CGU 創意生成單元"
+  },
+  "plugins": [
+    {
+      "name": "cgu",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cgu"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

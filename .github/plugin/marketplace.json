@@ -1,0 +1,28 @@
+{
+  "name": "creativity-generation-unit",
+  "owner": {
+    "name": "u9401066",
+    "email": "u9401066@gap.kmu.edu.tw"
+  },
+  "metadata": {
+    "description": "CGU 創意生成單元的 plugin 目錄（Agent Plugins 1.0）。",
+    "version": "0.8.0"
+  },
+  "plugins": [
+    {
+      "name": "cgu",
+      "description": "以哲學式框架審查、反典型發散、可量測的新穎度與點子卡進行創意協作；資料只存本機。",
+      "version": "0.8.0",
+      "source": "./plugins/cgu",
+      "author": {
+        "name": "u9401066",
+        "email": "u9401066@gap.kmu.edu.tw"
+      },
+      "homepage": "https://github.com/u9401066/creativity-generation-unit",
+      "repository": "https://github.com/u9401066/creativity-generation-unit",
+      "license": "Apache-2.0",
+      "category": "productivity",
+      "keywords": ["creativity", "ideation", "philosophical-inquiry", "mcp"]
+    }
+  ]
+}

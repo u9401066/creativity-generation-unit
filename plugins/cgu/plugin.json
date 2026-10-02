@@ -1,0 +1,44 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cgu",
+  "version": "0.8.0",
+  "description": "CGU 創意生成單元：以哲學式框架審查、反典型發散、可量測的新穎度與點子卡，讓中階模型成為嚴謹的創意協作者。Philosophically literate creative-ideation harness (frame audit, anti-typical divergence, measured novelty, idea cards).",
+  "author": {
+    "name": "u9401066",
+    "email": "u9401066@gap.kmu.edu.tw"
+  },
+  "homepage": "https://github.com/u9401066/creativity-generation-unit",
+  "repository": "https://github.com/u9401066/creativity-generation-unit",
+  "license": "Apache-2.0",
+  "keywords": [
+    "creativity",
+    "ideation",
+    "brainstorming",
+    "philosophical-inquiry",
+    "frame-audit",
+    "novelty-measurement",
+    "mcp",
+    "medical-research",
+    "product-development",
+    "process-improvement",
+    "創意發想",
+    "框架審查"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "CGU 創意生成單元",
+        "shortDescription": "框架審查、反典型發散、可量測新穎度與點子卡",
+        "longDescription": "CGU 讓創意協作可追溯、可量測：先審查問題框架，再以反典型方式發散，所有新穎度數字都附上參照集與方法，最後交付含風險與最小驗證步驟的點子卡。資料只存在本機 SQLite。",
+        "developerName": "u9401066",
+        "category": "Productivity",
+        "websiteURL": "https://github.com/u9401066/creativity-generation-unit",
+        "defaultPrompt": [
+          "用 CGU 幫我審查這個研究問題的隱性假設，再發想新的研究方向。",
+          "用 CGU 的產婆模式，引導我自己想出醫療商品的新點子。",
+          "用 CGU 比較這幾個流程改造點子，並給我點子卡。"
+        ]
+      }
+    }
+  }
+}
