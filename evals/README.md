@@ -92,7 +92,7 @@ uv run --no-project python -m evals.judge --run-dir evals/runs/exp1 --jobs 3
 uv run --no-project python -m evals.aggregate --run-dir evals/runs/exp1
 ```
 
-產生 `evals/reports/<UTC時間戳>.md` 與 `.json`（`--name` 可改檔名）。內容：整體與依模型／領域／評審的勝率與 Wilson 95% CI、順序一致率、位置偏誤、評審間一致率與 kappa、答案長度比與「較長者勝」比例、長度相近子集、準則別結果、條件洩漏檢查、各條件的工具使用／觸發率／成本，以及「限制」與「這份結果不能說明什麼」。`evals/reports/` 納入版控；`evals/runs/` 不納入。
+產生 `evals/reports/<UTC時間戳>.md` 與 `.json`（`--name` 可改檔名）。內容：整體與依模型／領域／評審的勝率與 Wilson 95% CI、順序一致率、位置偏誤、評審間一致率與 kappa、答案長度比與「較長者勝」比例、長度相近子集、準則別結果、條件洩漏檢查、各條件的工具使用／觸發率／成本，以及「限制」與「這份結果不能說明什麼」。`evals/reports/` 納入版控；`evals/runs/` 不納入。**已完成的三輪實驗與人工整理的結論見 [`reports/SUMMARY.md`](reports/SUMMARY.md)**；held-out 題庫為 `suites/heldout.json`、`suites/heldout2.json`（用 `--suite` 指定）。
 
 ## 成本與時間預期（完整矩陣：6 題 × 2 模型 × 3 條件）
 

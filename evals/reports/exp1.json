@@ -1,0 +1,1554 @@
+{
+  "run": {
+    "schema_version": 1,
+    "run_id": "exp1",
+    "started_at": "2026-10-02T17:27:37+00:00",
+    "dry_run": false,
+    "suite": "D:\\workspace261002_creativity\\creativity-generation-unit\\evals\\suites\\domains.json",
+    "tasks": [
+      "mr-periop-opioid",
+      "mr-delirium",
+      "mp-homecare-device",
+      "mp-homecare-service",
+      "ap-preanesthesia-or",
+      "ap-grant-reimbursement"
+    ],
+    "conditions": [
+      "baseline",
+      "plugin",
+      "plugin_explicit"
+    ],
+    "models": [
+      "claude-sonnet-5.5",
+      "gpt-6-luna"
+    ],
+    "repeats": 1,
+    "mcp_source": "git",
+    "timeout": 900.0,
+    "retries": 1,
+    "reasoning_effort": null,
+    "plugin_source": "D:\\workspace261002_creativity\\creativity-generation-unit\\plugins\\cgu",
+    "plugin_tree_sha256": "9f4bca39ef7442f60d99ec22edf97d09e775741b1103c19cf6871492a537692f",
+    "git": {
+      "commit": "bb6e27c7212d7bfd04cbc34541a150ccdfc98fe8",
+      "dirty": true
+    },
+    "copilot_version": "GitHub Copilot CLI 1.0.91.",
+    "copilot_bin": "C:\\Users\\Ericlab\\AppData\\Local\\Temp\\cgu-copilot\\node_modules\\.bin\\copilot.cmd",
+    "python": "3.12.12",
+    "cells_planned": 36,
+    "preflight_warnings": [],
+    "finished_at": "2026-10-02T18:15:15+00:00",
+    "cells_ok": 36,
+    "cells_failed": 0,
+    "failed": []
+  },
+  "judge_models": {
+    "requested": [
+      "gpt-6-sol",
+      "claude-sonnet-5.5"
+    ],
+    "resolved": {
+      "gpt-6-sol": "gpt-6-sol",
+      "claude-sonnet-5.5": "claude-sonnet-5.5"
+    },
+    "warnings": []
+  },
+  "generated_at": "2026-10-02T18:27:36+00:00",
+  "n_judgments_total": 144,
+  "n_judgments_valid": 144,
+  "conditions": {
+    "baseline": {
+      "cells": 12,
+      "ok": 12,
+      "failed": 0,
+      "failure_reasons": {},
+      "cgu_connected_rate": 0.0,
+      "any_cgu_call_rate": 0.0,
+      "mean_cgu_calls": 0.0,
+      "cgu_tool_histogram": {},
+      "skill_invoked_rate": 0.0,
+      "mean_duration_s": 118.69916666666667,
+      "mean_answer_chars": 3095.1666666666665,
+      "mean_input_tokens": 268298.6666666667,
+      "mean_output_tokens": 9535.833333333334,
+      "mean_chat_calls": 6.833333333333333,
+      "mean_premium_requests": 1.0,
+      "warnings": {}
+    },
+    "plugin": {
+      "cells": 12,
+      "ok": 12,
+      "failed": 0,
+      "failure_reasons": {},
+      "cgu_connected_rate": 1.0,
+      "any_cgu_call_rate": 0.75,
+      "mean_cgu_calls": 16.333333333333332,
+      "cgu_tool_histogram": {
+        "cgu_frame": 75,
+        "cgu_ideas": 30,
+        "cgu_status": 27,
+        "cgu_diverge": 24,
+        "cgu_judge": 23,
+        "cgu_session": 9,
+        "cgu_question_gate": 6,
+        "cgu_material": 2
+      },
+      "skill_invoked_rate": 0.75,
+      "mean_duration_s": 264.67333333333335,
+      "mean_answer_chars": 3909.5833333333335,
+      "mean_input_tokens": 1105293.3333333333,
+      "mean_output_tokens": 25065.0,
+      "mean_chat_calls": 25.166666666666668,
+      "mean_premium_requests": 1.0,
+      "warnings": {}
+    },
+    "plugin_explicit": {
+      "cells": 12,
+      "ok": 12,
+      "failed": 0,
+      "failure_reasons": {},
+      "cgu_connected_rate": 1.0,
+      "any_cgu_call_rate": 1.0,
+      "mean_cgu_calls": 23.916666666666668,
+      "cgu_tool_histogram": {
+        "cgu_frame": 121,
+        "cgu_ideas": 45,
+        "cgu_diverge": 38,
+        "cgu_status": 36,
+        "cgu_judge": 32,
+        "cgu_session": 12,
+        "cgu_material": 3
+      },
+      "skill_invoked_rate": 1.0,
+      "mean_duration_s": 302.4925,
+      "mean_answer_chars": 5106.583333333333,
+      "mean_input_tokens": 1516002.1666666667,
+      "mean_output_tokens": 33315.666666666664,
+      "mean_chat_calls": 31.916666666666668,
+      "mean_premium_requests": 1.0,
+      "warnings": {}
+    }
+  },
+  "pairs": {
+    "baseline:plugin": {
+      "pair": "baseline:plugin",
+      "baseline": "baseline",
+      "treatment": "plugin",
+      "overall": {
+        "cells": 12,
+        "wins": 2,
+        "losses": 6,
+        "ties": 4,
+        "decisive": 8,
+        "win_rate": 0.25,
+        "ci95": [
+          0.071479212752109,
+          0.5907245696898311
+        ],
+        "win_rate_ties_half": 0.3333333333333333,
+        "ci95_ties_half_approx": [
+          0.13812009109121315,
+          0.6093779111272004
+        ]
+      },
+      "judgment_level": {
+        "judgments": 48,
+        "wins": 16,
+        "losses": 32,
+        "ties": 0,
+        "win_rate": 0.3333333333333333,
+        "ci95": [
+          0.21676780694818568,
+          0.4745989029405201
+        ]
+      },
+      "verdict": "95% CI 跨越 50%：無法與「沒有差別」區分，不得宣稱處理組較好或較差。",
+      "by_model": {
+        "claude-sonnet-5.5": {
+          "cells": 6,
+          "wins": 1,
+          "losses": 2,
+          "ties": 3,
+          "decisive": 3,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.06149194472039621,
+            0.7923403991979522
+          ],
+          "win_rate_ties_half": 0.4166666666666667,
+          "ci95_ties_half_approx": [
+            0.13946725896564666,
+            0.7589217890180477
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 10,
+            "losses": 14,
+            "ties": 0,
+            "win_rate": 0.4166666666666667,
+            "ci95": [
+              0.24467602609811764,
+              0.6116533413477124
+            ]
+          }
+        },
+        "gpt-6-luna": {
+          "cells": 6,
+          "wins": 1,
+          "losses": 4,
+          "ties": 1,
+          "decisive": 5,
+          "win_rate": 0.2,
+          "ci95": [
+            0.03622410863243014,
+            0.6244653702374747
+          ],
+          "win_rate_ties_half": 0.25,
+          "ci95_ties_half_approx": [
+            0.05998970468842124,
+            0.6351774392626615
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 6,
+            "losses": 18,
+            "ties": 0,
+            "win_rate": 0.25,
+            "ci95": [
+              0.11999366228595004,
+              0.44899444005154004
+            ]
+          }
+        }
+      },
+      "by_domain": {
+        "admin_process": {
+          "cells": 4,
+          "wins": 0,
+          "losses": 3,
+          "ties": 1,
+          "decisive": 3,
+          "win_rate": 0.0,
+          "ci95": [
+            5.551115123125783e-17,
+            0.5614970317550454
+          ],
+          "win_rate_ties_half": 0.125,
+          "ci95_ties_half_approx": [
+            0.013191161823726538,
+            0.6042269655172214
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 3,
+            "losses": 13,
+            "ties": 0,
+            "win_rate": 0.1875,
+            "ci95": [
+              0.06591599071428142,
+              0.4300888096197414
+            ]
+          }
+        },
+        "medical_product": {
+          "cells": 4,
+          "wins": 1,
+          "losses": 2,
+          "ties": 1,
+          "decisive": 3,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.06149194472039621,
+            0.7923403991979522
+          ],
+          "win_rate_ties_half": 0.375,
+          "ci95_ties_half_approx": [
+            0.09189922917901211,
+            0.7805734799346373
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 6,
+            "losses": 10,
+            "ties": 0,
+            "win_rate": 0.375,
+            "ci95": [
+              0.18481232558863633,
+              0.6135895945449727
+            ]
+          }
+        },
+        "medical_research": {
+          "cells": 4,
+          "wins": 1,
+          "losses": 1,
+          "ties": 2,
+          "decisive": 2,
+          "win_rate": 0.5,
+          "ci95": [
+            0.09453120573423074,
+            0.9054687942657693
+          ],
+          "win_rate_ties_half": 0.5,
+          "ci95_ties_half_approx": [
+            0.15003898915214947,
+            0.8499610108478506
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 7,
+            "losses": 9,
+            "ties": 0,
+            "win_rate": 0.4375,
+            "ci95": [
+              0.23098652405492354,
+              0.6682144360118811
+            ]
+          }
+        }
+      },
+      "by_judge": {
+        "claude-sonnet-5.5": {
+          "cells": 12,
+          "wins": 1,
+          "losses": 6,
+          "ties": 5,
+          "decisive": 7,
+          "win_rate": 0.14285714285714285,
+          "ci95": [
+            0.02567962434474355,
+            0.5131278292743189
+          ],
+          "win_rate_ties_half": 0.2916666666666667,
+          "ci95_ties_half_approx": [
+            0.11272859380939668,
+            0.5716439089636204
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 7,
+            "losses": 17,
+            "ties": 0,
+            "win_rate": 0.2916666666666667,
+            "ci95": [
+              0.14914648196960875,
+              0.49167693664496637
+            ]
+          }
+        },
+        "gpt-6-sol": {
+          "cells": 12,
+          "wins": 2,
+          "losses": 5,
+          "ties": 5,
+          "decisive": 7,
+          "win_rate": 0.2857142857142857,
+          "ci95": [
+            0.08221892400405678,
+            0.6410655481673808
+          ],
+          "win_rate_ties_half": 0.375,
+          "ci95_ties_half_approx": [
+            0.16499251513006294,
+            0.6456309865337473
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 9,
+            "losses": 15,
+            "ties": 0,
+            "win_rate": 0.375,
+            "ci95": [
+              0.21159367559548778,
+              0.5729003755732572
+            ]
+          }
+        }
+      },
+      "order_consistency": {
+        "pairs_with_both_orders": 24,
+        "consistent": 14,
+        "rate": 0.5833333333333334,
+        "ci95": [
+          0.3883466586522876,
+          0.7553239739018824
+        ]
+      },
+      "position_bias": {
+        "decisive": 48,
+        "a_win_rate": 0.6666666666666666,
+        "ci95": [
+          0.5254010970594798,
+          0.7832321930518142
+        ]
+      },
+      "judge_agreement": {
+        "n": 24,
+        "agreement": 0.75,
+        "kappa": 0.441860465116279,
+        "by_judge_pair": {
+          "claude-sonnet-5.5 vs gpt-6-sol": {
+            "n": 24,
+            "agreement": 0.75,
+            "kappa": 0.441860465116279
+          }
+        }
+      },
+      "length": {
+        "cells_with_length": 12,
+        "mean_ratio": 1.305265366463622,
+        "median_ratio": 1.1860843392260325,
+        "longer_wins": 5,
+        "longer_decisive": 8,
+        "longer_wins_rate": 0.625,
+        "longer_wins_ci95": [
+          0.30574239460262737,
+          0.8631557141764026
+        ],
+        "length_matched_range": [
+          0.67,
+          1.5
+        ],
+        "length_matched": {
+          "cells": 8,
+          "wins": 1,
+          "losses": 4,
+          "ties": 3,
+          "decisive": 5,
+          "win_rate": 0.2,
+          "ci95": [
+            0.03622410863243014,
+            0.6244653702374747
+          ],
+          "win_rate_ties_half": 0.3125,
+          "ci95_ties_half_approx": [
+            0.10240799721608618,
+            0.6442448396153689
+          ]
+        },
+        "flag": true
+      },
+      "criteria": {
+        "novelty": {
+          "judgments": 48,
+          "wins": 35,
+          "losses": 13,
+          "ties": 0,
+          "win_rate": 0.7291666666666666,
+          "ci95": [
+            0.5900303501775939,
+            0.8343404237254355
+          ]
+        },
+        "practicality": {
+          "judgments": 48,
+          "wins": 14,
+          "losses": 34,
+          "ties": 0,
+          "win_rate": 0.2916666666666667,
+          "ci95": [
+            0.18241578926516536,
+            0.431792598095717
+          ]
+        },
+        "reframing": {
+          "judgments": 48,
+          "wins": 33,
+          "losses": 15,
+          "ties": 0,
+          "win_rate": 0.6875,
+          "ci95": [
+            0.5466692858410841,
+            0.8005431655341219
+          ]
+        },
+        "decidability": {
+          "judgments": 48,
+          "wins": 28,
+          "losses": 20,
+          "ties": 0,
+          "win_rate": 0.5833333333333334,
+          "ci95": [
+            0.4428133228397628,
+            0.7115033222158844
+          ]
+        }
+      },
+      "overconfidence": {
+        "judgments": 48,
+        "baseline_mean": 0.3333333333333333,
+        "treatment_mean": 0.5833333333333334,
+        "scale": "low=0, medium=1, high=2（評審對『確定語氣但無法驗證』主張的主觀評等）"
+      },
+      "leakage": {
+        "judgments_with_redactions": 20,
+        "judgments": 48,
+        "clean_cells": {
+          "cells": 7,
+          "wins": 1,
+          "losses": 5,
+          "ties": 1,
+          "decisive": 6,
+          "win_rate": 0.16666666666666666,
+          "ci95": [
+            0.030053369748306635,
+            0.5635028221864702
+          ],
+          "win_rate_ties_half": 0.21428571428571427,
+          "ci95_ties_half_approx": [
+            0.05112430604577595,
+            0.579921656849474
+          ]
+        },
+        "truncated_judgments": 0
+      },
+      "judgments_failed": 0,
+      "parse_retries": 0,
+      "cells": [
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        }
+      ]
+    },
+    "baseline:plugin_explicit": {
+      "pair": "baseline:plugin_explicit",
+      "baseline": "baseline",
+      "treatment": "plugin_explicit",
+      "overall": {
+        "cells": 12,
+        "wins": 3,
+        "losses": 8,
+        "ties": 1,
+        "decisive": 11,
+        "win_rate": 0.2727272727272727,
+        "ci95": [
+          0.09746059290024889,
+          0.5656453011761291
+        ],
+        "win_rate_ties_half": 0.2916666666666667,
+        "ci95_ties_half_approx": [
+          0.11272859380939668,
+          0.5716439089636204
+        ]
+      },
+      "judgment_level": {
+        "judgments": 48,
+        "wins": 16,
+        "losses": 32,
+        "ties": 0,
+        "win_rate": 0.3333333333333333,
+        "ci95": [
+          0.21676780694818568,
+          0.4745989029405201
+        ]
+      },
+      "verdict": "95% CI 跨越 50%：無法與「沒有差別」區分，不得宣稱處理組較好或較差。",
+      "by_model": {
+        "claude-sonnet-5.5": {
+          "cells": 6,
+          "wins": 2,
+          "losses": 4,
+          "ties": 0,
+          "decisive": 6,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.09677141110578041,
+            0.700006684861608
+          ],
+          "win_rate_ties_half": 0.3333333333333333,
+          "ci95_ties_half_approx": [
+            0.09677141110578041,
+            0.700006684861608
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 7,
+            "losses": 17,
+            "ties": 0,
+            "win_rate": 0.2916666666666667,
+            "ci95": [
+              0.14914648196960875,
+              0.49167693664496637
+            ]
+          }
+        },
+        "gpt-6-luna": {
+          "cells": 6,
+          "wins": 1,
+          "losses": 4,
+          "ties": 1,
+          "decisive": 5,
+          "win_rate": 0.2,
+          "ci95": [
+            0.03622410863243014,
+            0.6244653702374747
+          ],
+          "win_rate_ties_half": 0.25,
+          "ci95_ties_half_approx": [
+            0.05998970468842124,
+            0.6351774392626615
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 9,
+            "losses": 15,
+            "ties": 0,
+            "win_rate": 0.375,
+            "ci95": [
+              0.21159367559548778,
+              0.5729003755732572
+            ]
+          }
+        }
+      },
+      "by_domain": {
+        "admin_process": {
+          "cells": 4,
+          "wins": 0,
+          "losses": 4,
+          "ties": 0,
+          "decisive": 4,
+          "win_rate": 0.0,
+          "ci95": [
+            0.0,
+            0.4898908364545973
+          ],
+          "win_rate_ties_half": 0.0,
+          "ci95_ties_half_approx": [
+            0.0,
+            0.4898908364545973
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 2,
+            "losses": 14,
+            "ties": 0,
+            "win_rate": 0.125,
+            "ci95": [
+              0.03497748774324047,
+              0.36022827265758695
+            ]
+          }
+        },
+        "medical_product": {
+          "cells": 4,
+          "wins": 1,
+          "losses": 2,
+          "ties": 1,
+          "decisive": 3,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.06149194472039621,
+            0.7923403991979522
+          ],
+          "win_rate_ties_half": 0.375,
+          "ci95_ties_half_approx": [
+            0.09189922917901211,
+            0.7805734799346373
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 6,
+            "losses": 10,
+            "ties": 0,
+            "win_rate": 0.375,
+            "ci95": [
+              0.18481232558863633,
+              0.6135895945449727
+            ]
+          }
+        },
+        "medical_research": {
+          "cells": 4,
+          "wins": 2,
+          "losses": 2,
+          "ties": 0,
+          "decisive": 4,
+          "win_rate": 0.5,
+          "ci95": [
+            0.15003898915214947,
+            0.8499610108478506
+          ],
+          "win_rate_ties_half": 0.5,
+          "ci95_ties_half_approx": [
+            0.15003898915214947,
+            0.8499610108478506
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 8,
+            "losses": 8,
+            "ties": 0,
+            "win_rate": 0.5,
+            "ci95": [
+              0.27999563610326017,
+              0.7200043638967398
+            ]
+          }
+        }
+      },
+      "by_judge": {
+        "claude-sonnet-5.5": {
+          "cells": 12,
+          "wins": 2,
+          "losses": 5,
+          "ties": 5,
+          "decisive": 7,
+          "win_rate": 0.2857142857142857,
+          "ci95": [
+            0.08221892400405678,
+            0.6410655481673808
+          ],
+          "win_rate_ties_half": 0.375,
+          "ci95_ties_half_approx": [
+            0.16499251513006294,
+            0.6456309865337473
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 9,
+            "losses": 15,
+            "ties": 0,
+            "win_rate": 0.375,
+            "ci95": [
+              0.21159367559548778,
+              0.5729003755732572
+            ]
+          }
+        },
+        "gpt-6-sol": {
+          "cells": 12,
+          "wins": 3,
+          "losses": 8,
+          "ties": 1,
+          "decisive": 11,
+          "win_rate": 0.2727272727272727,
+          "ci95": [
+            0.09746059290024889,
+            0.5656453011761291
+          ],
+          "win_rate_ties_half": 0.2916666666666667,
+          "ci95_ties_half_approx": [
+            0.11272859380939668,
+            0.5716439089636204
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 7,
+            "losses": 17,
+            "ties": 0,
+            "win_rate": 0.2916666666666667,
+            "ci95": [
+              0.14914648196960875,
+              0.49167693664496637
+            ]
+          }
+        }
+      },
+      "order_consistency": {
+        "pairs_with_both_orders": 24,
+        "consistent": 18,
+        "rate": 0.75,
+        "ci95": [
+          0.55100555994846,
+          0.8800063377140499
+        ]
+      },
+      "position_bias": {
+        "decisive": 48,
+        "a_win_rate": 0.625,
+        "ci95": [
+          0.4836276351921527,
+          0.747847332391318
+        ]
+      },
+      "judge_agreement": {
+        "n": 24,
+        "agreement": 0.6666666666666666,
+        "kappa": 0.25581395348837194,
+        "by_judge_pair": {
+          "claude-sonnet-5.5 vs gpt-6-sol": {
+            "n": 24,
+            "agreement": 0.6666666666666666,
+            "kappa": 0.25581395348837194
+          }
+        }
+      },
+      "length": {
+        "cells_with_length": 12,
+        "mean_ratio": 1.7595496036421465,
+        "median_ratio": 1.7481541950403936,
+        "longer_wins": 4,
+        "longer_decisive": 11,
+        "longer_wins_rate": 0.36363636363636365,
+        "longer_wins_ci95": [
+          0.15166471095367573,
+          0.6461988254921511
+        ],
+        "length_matched_range": [
+          0.67,
+          1.5
+        ],
+        "length_matched": {
+          "cells": 3,
+          "wins": 1,
+          "losses": 2,
+          "ties": 0,
+          "decisive": 3,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.06149194472039621,
+            0.7923403991979522
+          ],
+          "win_rate_ties_half": 0.3333333333333333,
+          "ci95_ties_half_approx": [
+            0.06149194472039621,
+            0.7923403991979522
+          ]
+        },
+        "flag": true
+      },
+      "criteria": {
+        "novelty": {
+          "judgments": 48,
+          "wins": 46,
+          "losses": 2,
+          "ties": 0,
+          "win_rate": 0.9583333333333334,
+          "ci95": [
+            0.8602434412954456,
+            0.9884981065106133
+          ]
+        },
+        "practicality": {
+          "judgments": 48,
+          "wins": 8,
+          "losses": 40,
+          "ties": 0,
+          "win_rate": 0.16666666666666666,
+          "ci95": [
+            0.08695513576485567,
+            0.295778284012556
+          ]
+        },
+        "reframing": {
+          "judgments": 48,
+          "wins": 40,
+          "losses": 8,
+          "ties": 0,
+          "win_rate": 0.8333333333333334,
+          "ci95": [
+            0.7042217159874441,
+            0.9130448642351444
+          ]
+        },
+        "decidability": {
+          "judgments": 48,
+          "wins": 17,
+          "losses": 31,
+          "ties": 0,
+          "win_rate": 0.3541666666666667,
+          "ci95": [
+            0.23433644125604858,
+            0.4956094298965691
+          ]
+        }
+      },
+      "overconfidence": {
+        "judgments": 48,
+        "baseline_mean": 0.3333333333333333,
+        "treatment_mean": 0.5833333333333334,
+        "scale": "low=0, medium=1, high=2（評審對『確定語氣但無法驗證』主張的主觀評等）"
+      },
+      "leakage": {
+        "judgments_with_redactions": 16,
+        "judgments": 48,
+        "clean_cells": {
+          "cells": 8,
+          "wins": 2,
+          "losses": 6,
+          "ties": 0,
+          "decisive": 8,
+          "win_rate": 0.25,
+          "ci95": [
+            0.071479212752109,
+            0.5907245696898311
+          ],
+          "win_rate_ties_half": 0.25,
+          "ci95_ties_half_approx": [
+            0.071479212752109,
+            0.5907245696898311
+          ]
+        },
+        "truncated_judgments": 0
+      },
+      "judgments_failed": 0,
+      "parse_retries": 0,
+      "cells": [
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 1.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        }
+      ]
+    },
+    "plugin:plugin_explicit": {
+      "pair": "plugin:plugin_explicit",
+      "baseline": "plugin",
+      "treatment": "plugin_explicit",
+      "overall": {
+        "cells": 12,
+        "wins": 4,
+        "losses": 7,
+        "ties": 1,
+        "decisive": 11,
+        "win_rate": 0.36363636363636365,
+        "ci95": [
+          0.15166471095367573,
+          0.6461988254921511
+        ],
+        "win_rate_ties_half": 0.375,
+        "ci95_ties_half_approx": [
+          0.16499251513006294,
+          0.6456309865337473
+        ]
+      },
+      "judgment_level": {
+        "judgments": 48,
+        "wins": 18,
+        "losses": 30,
+        "ties": 0,
+        "win_rate": 0.375,
+        "ci95": [
+          0.25215266760868205,
+          0.5163723648078473
+        ]
+      },
+      "verdict": "95% CI 跨越 50%：無法與「沒有差別」區分，不得宣稱處理組較好或較差。",
+      "by_model": {
+        "claude-sonnet-5.5": {
+          "cells": 6,
+          "wins": 2,
+          "losses": 4,
+          "ties": 0,
+          "decisive": 6,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.09677141110578041,
+            0.700006684861608
+          ],
+          "win_rate_ties_half": 0.3333333333333333,
+          "ci95_ties_half_approx": [
+            0.09677141110578041,
+            0.700006684861608
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 8,
+            "losses": 16,
+            "ties": 0,
+            "win_rate": 0.3333333333333333,
+            "ci95": [
+              0.1797219032729775,
+              0.5329368316186824
+            ]
+          }
+        },
+        "gpt-6-luna": {
+          "cells": 6,
+          "wins": 2,
+          "losses": 3,
+          "ties": 1,
+          "decisive": 5,
+          "win_rate": 0.4,
+          "ci95": [
+            0.11762077423264783,
+            0.769275718723987
+          ],
+          "win_rate_ties_half": 0.4166666666666667,
+          "ci95_ties_half_approx": [
+            0.13946725896564666,
+            0.7589217890180477
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 10,
+            "losses": 14,
+            "ties": 0,
+            "win_rate": 0.4166666666666667,
+            "ci95": [
+              0.24467602609811764,
+              0.6116533413477124
+            ]
+          }
+        }
+      },
+      "by_domain": {
+        "admin_process": {
+          "cells": 4,
+          "wins": 1,
+          "losses": 3,
+          "ties": 0,
+          "decisive": 4,
+          "win_rate": 0.25,
+          "ci95": [
+            0.04558726080970055,
+            0.6993581574175981
+          ],
+          "win_rate_ties_half": 0.25,
+          "ci95_ties_half_approx": [
+            0.04558726080970055,
+            0.6993581574175981
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 4,
+            "losses": 12,
+            "ties": 0,
+            "win_rate": 0.25,
+            "ci95": [
+              0.10182067491213048,
+              0.49498316535508774
+            ]
+          }
+        },
+        "medical_product": {
+          "cells": 4,
+          "wins": 0,
+          "losses": 3,
+          "ties": 1,
+          "decisive": 3,
+          "win_rate": 0.0,
+          "ci95": [
+            5.551115123125783e-17,
+            0.5614970317550454
+          ],
+          "win_rate_ties_half": 0.125,
+          "ci95_ties_half_approx": [
+            0.013191161823726538,
+            0.6042269655172214
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 3,
+            "losses": 13,
+            "ties": 0,
+            "win_rate": 0.1875,
+            "ci95": [
+              0.06591599071428142,
+              0.4300888096197414
+            ]
+          }
+        },
+        "medical_research": {
+          "cells": 4,
+          "wins": 3,
+          "losses": 1,
+          "ties": 0,
+          "decisive": 4,
+          "win_rate": 0.75,
+          "ci95": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "win_rate_ties_half": 0.75,
+          "ci95_ties_half_approx": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "judgment_level": {
+            "judgments": 16,
+            "wins": 11,
+            "losses": 5,
+            "ties": 0,
+            "win_rate": 0.6875,
+            "ci95": [
+              0.44404355834740666,
+              0.8583535614521796
+            ]
+          }
+        }
+      },
+      "by_judge": {
+        "claude-sonnet-5.5": {
+          "cells": 12,
+          "wins": 4,
+          "losses": 6,
+          "ties": 2,
+          "decisive": 10,
+          "win_rate": 0.4,
+          "ci95": [
+            0.16818032970623614,
+            0.6873262302663417
+          ],
+          "win_rate_ties_half": 0.4166666666666667,
+          "ci95_ties_half_approx": [
+            0.19326031365875665,
+            0.6804886874504503
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 10,
+            "losses": 14,
+            "ties": 0,
+            "win_rate": 0.4166666666666667,
+            "ci95": [
+              0.24467602609811764,
+              0.6116533413477124
+            ]
+          }
+        },
+        "gpt-6-sol": {
+          "cells": 12,
+          "wins": 2,
+          "losses": 6,
+          "ties": 4,
+          "decisive": 8,
+          "win_rate": 0.25,
+          "ci95": [
+            0.071479212752109,
+            0.5907245696898311
+          ],
+          "win_rate_ties_half": 0.3333333333333333,
+          "ci95_ties_half_approx": [
+            0.13812009109121315,
+            0.6093779111272004
+          ],
+          "judgment_level": {
+            "judgments": 24,
+            "wins": 8,
+            "losses": 16,
+            "ties": 0,
+            "win_rate": 0.3333333333333333,
+            "ci95": [
+              0.1797219032729775,
+              0.5329368316186824
+            ]
+          }
+        }
+      },
+      "order_consistency": {
+        "pairs_with_both_orders": 24,
+        "consistent": 18,
+        "rate": 0.75,
+        "ci95": [
+          0.55100555994846,
+          0.8800063377140499
+        ]
+      },
+      "position_bias": {
+        "decisive": 48,
+        "a_win_rate": 0.5833333333333334,
+        "ci95": [
+          0.4428133228397628,
+          0.7115033222158844
+        ]
+      },
+      "judge_agreement": {
+        "n": 24,
+        "agreement": 0.6666666666666666,
+        "kappa": 0.29411764705882343,
+        "by_judge_pair": {
+          "claude-sonnet-5.5 vs gpt-6-sol": {
+            "n": 24,
+            "agreement": 0.6666666666666666,
+            "kappa": 0.29411764705882343
+          }
+        }
+      },
+      "length": {
+        "cells_with_length": 12,
+        "mean_ratio": 1.415534984348728,
+        "median_ratio": 1.175538975490666,
+        "longer_wins": 6,
+        "longer_decisive": 11,
+        "longer_wins_rate": 0.5454545454545454,
+        "longer_wins_ci95": [
+          0.280091537409322,
+          0.7872872837754024
+        ],
+        "length_matched_range": [
+          0.67,
+          1.5
+        ],
+        "length_matched": {
+          "cells": 10,
+          "wins": 3,
+          "losses": 6,
+          "ties": 1,
+          "decisive": 9,
+          "win_rate": 0.3333333333333333,
+          "ci95": [
+            0.1205838183869109,
+            0.6457978644196036
+          ],
+          "win_rate_ties_half": 0.35,
+          "ci95_ties_half_approx": [
+            0.13693056347003557,
+            0.6463292764888311
+          ]
+        },
+        "flag": true
+      },
+      "criteria": {
+        "novelty": {
+          "judgments": 48,
+          "wins": 35,
+          "losses": 13,
+          "ties": 0,
+          "win_rate": 0.7291666666666666,
+          "ci95": [
+            0.5900303501775939,
+            0.8343404237254355
+          ]
+        },
+        "practicality": {
+          "judgments": 48,
+          "wins": 14,
+          "losses": 34,
+          "ties": 0,
+          "win_rate": 0.2916666666666667,
+          "ci95": [
+            0.18241578926516536,
+            0.431792598095717
+          ]
+        },
+        "reframing": {
+          "judgments": 48,
+          "wins": 31,
+          "losses": 17,
+          "ties": 0,
+          "win_rate": 0.6458333333333334,
+          "ci95": [
+            0.504390570103431,
+            0.7656635587439515
+          ]
+        },
+        "decidability": {
+          "judgments": 48,
+          "wins": 19,
+          "losses": 29,
+          "ties": 0,
+          "win_rate": 0.3958333333333333,
+          "ci95": [
+            0.2702082786059137,
+            0.5368959150745274
+          ]
+        }
+      },
+      "overconfidence": {
+        "judgments": 48,
+        "baseline_mean": 0.3125,
+        "treatment_mean": 0.3125,
+        "scale": "low=0, medium=1, high=2（評審對『確定語氣但無法驗證』主張的主觀評等）"
+      },
+      "leakage": {
+        "judgments_with_redactions": 32,
+        "judgments": 48,
+        "clean_cells": {
+          "cells": 4,
+          "wins": 2,
+          "losses": 2,
+          "ties": 0,
+          "decisive": 4,
+          "win_rate": 0.5,
+          "ci95": [
+            0.15003898915214947,
+            0.8499610108478506
+          ],
+          "win_rate_ties_half": 0.5,
+          "ci95_ties_half_approx": [
+            0.15003898915214947,
+            0.8499610108478506
+          ]
+        },
+        "truncated_judgments": 0
+      },
+      "judgments_failed": 0,
+      "parse_retries": 0,
+      "cells": [
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-grant-reimbursement",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "ap-preanesthesia-or",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-device",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "tie",
+          "mean_treatment_score": 0.5,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mp-homecare-service",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 1.0,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-delirium",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "loss",
+          "mean_treatment_score": 0.25,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "claude-sonnet-5.5",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        },
+        {
+          "task_id": "mr-periop-opioid",
+          "gen_model": "gpt-6-luna",
+          "repeat": 0,
+          "outcome": "win",
+          "mean_treatment_score": 0.75,
+          "judgments": 4
+        }
+      ]
+    }
+  }
+}
