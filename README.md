@@ -123,7 +123,7 @@ CGU implements structured creativity methods:
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/creativity-generation-unit.git
+git clone https://github.com/u9401066/creativity-generation-unit.git
 cd creativity-generation-unit
 
 # Setup environment (uv recommended)

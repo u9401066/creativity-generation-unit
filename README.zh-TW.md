@@ -237,5 +237,5 @@ MIT License - 詳見 [LICENSE](LICENSE)
 ---
 
 <p align="center">
-  Made with 💡 by CGU Team
+  Made with 💡 by <a href="https://github.com/u9401066">u9401066</a>
 </p>

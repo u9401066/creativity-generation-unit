@@ -459,5 +459,5 @@ soup = await spark_soup(
 ---
 
 *創建日期: 2026-01-08*
-*作者: CGU Team*
+*作者: u9401066 <u9401066@gap.kmu.edu.tw>*
 *狀態: 設計中*

@@ -12,8 +12,8 @@
 
 ### 回報方式
 
-1. 發送郵件至：[security@example.com]
-2. 或使用 GitHub 的私人漏洞回報功能
+1. 發送郵件至：[u9401066@gap.kmu.edu.tw](mailto:u9401066@gap.kmu.edu.tw)
+2. 或使用 GitHub 的私人漏洞回報功能（[Security Advisories](https://github.com/u9401066/creativity-generation-unit/security/advisories/new)）
 
 ### 回報內容
 
