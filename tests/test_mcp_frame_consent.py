@@ -323,6 +323,24 @@ async def test_explicate_work_order_carries_the_sessions_typical_ideas(
     assert out["provenance"]["warnings"] == []
 
 
+async def test_operate_defaults_the_target_only_when_the_operator_implies_one(
+    open_cgu: Callable[..., Any],
+) -> None:
+    async with open_cgu() as h:
+        sid, fid = await make_frame(h)
+        base = {"action": "operate", "session_id": sid, "frame_id": fid}
+        explicate = await h.ok("cgu_frame", operator="explicate", **base)
+        single = await h.ok("cgu_frame", operator="bracket", **base)
+        restricted = await h.ok("cgu_frame", operator="invert_criterion", **base)
+        ambiguous = await h.call("cgu_frame", operator="shift_stakeholder", **base)
+    assert explicate["work_order"]["inputs"]["target"]["kind"] == "assumption"
+    assert any("defaulted" in w for w in explicate["provenance"]["warnings"])
+    assert single["work_order"]["inputs"]["target"]["kind"] == "assumption"
+    assert restricted["data"]["requires_consent"] is True
+    assert ambiguous["ok"] is False
+    assert ambiguous["error"]["code"] == "invalid_input"
+
+
 async def test_operator_cards_listing_matches_the_spec(open_cgu: Callable[..., Any]) -> None:
     async with open_cgu() as h:
         sid, _ = await make_frame(h)

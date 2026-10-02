@@ -50,6 +50,7 @@ def card_view(card: OperatorCard) -> dict[str, Any]:
         "source": card.source,
         "summary": card.summary,
         "targets": card.targets,
+        "default_target": card.default_target,
         "restricted": card.restricted,
         "guardrails": card.guardrails,
         "required_checks": card.required_checks,
@@ -187,6 +188,10 @@ class FrameService:
         frame = await require_frame(self._archive, session_id, frame_id)
         card = get_operator(operator)
         reject_floats(params or {}, "params")
+        warnings: list[str] = []
+        if not target and card.default_target:
+            target = card.default_target
+            warnings.append(f"target omitted; defaulted to {target!r} for {operator}")
         if not target:
             raise CGUError(
                 "invalid_input",
@@ -195,7 +200,6 @@ class FrameService:
             )
         kind, element_id = resolve_target(frame, target, card)
         requires_consent = kind in RESTRICTED_KINDS
-        warnings: list[str] = []
         inputs: dict[str, Any] = {
             "parent_frame": frame.view(),
             "operator": operator,

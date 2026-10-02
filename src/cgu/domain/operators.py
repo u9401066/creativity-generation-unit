@@ -32,6 +32,7 @@ class OperatorCard(BaseModel):
     source: str
     summary: str
     targets: list[str]
+    default_target: str | None = None
     restricted: bool
     guardrails: list[str]
     required_checks: list[str] = Field(default_factory=list)
@@ -48,12 +49,14 @@ def _card(
     example_domain: str,
     template: str,
     required_checks: list[str] | None = None,
+    default_target: str | None = None,
 ) -> OperatorCard:
     return OperatorCard(
         name=name,
         source=source,
         summary=summary,
         targets=targets,
+        default_target=default_target or (targets[0] if len(targets) == 1 else None),
         restricted=bool(set(targets) & RESTRICTED_KINDS),
         guardrails=guardrails,
         required_checks=required_checks or [],
@@ -80,6 +83,7 @@ _CARDS = [
 $shape
 護欄：你推出的只是「候選假設」，不是事實，必須經使用者確認；每條必須能指回某個典型答案，不得憑空新增。
 範例（醫療研究）：問題「如何降低老年人術後譫妄」，典型答案「減少苯二氮平類藥物」「早期下床」。回交：{"why": "從典型答案溯因", "assumptions": [{"text": "譫妄主要由藥物引起", "kind": "belt", "source": "abduced_from_typical_answers"}, {"text": "評估期限為術後 7 天內", "kind": "belt", "source": "abduced_from_typical_answers"}]}""",
+        default_target="assumption",
     ),
     _card(
         "bracket",
