@@ -24,6 +24,7 @@ description: "Philosophical inquiry on a problem frame using the CGU MCP server:
    - 「什麼假設必須成立，這些答案才合理？」列 3–5 條。
    - 對每條問：**「若它是假的，方案哪裡會變？」**「什麼都不變」→ 不承重，刪。
    - 對每條問：**「放棄它，這還是同一個專案嗎？」** 是 → `belt`（保護帶）；否 → `core`（硬核，動它＝變革型改寫，要明講）。
+   - **FrameDraft 的 id 規則**：新增的元素**不要填 `id`**（由伺服器配發）；只有沿用或改寫 parent 既有元素時才帶它原本的 `id`。
 5. **概念審查**（挑最有爭議的 1–2 個詞）：`cgu_frame(action=operate, session_id, frame_id=F1, operator=re_explicate, target=<概念 ID>)`：
    - 寫兩個合理的工作定義；對每個定義問**「採用它，我們會做什麼不同的事？」**。兩者決策相同 → 口頭之爭，記錄後停止。
    - 禁用該詞重述問題；分歧消失 → 原本只是用詞不同。
