@@ -1,314 +1,192 @@
 # Creativity Generation Unit (CGU)
 
-> 🎨 **MCP-based Agent-to-Agent Creative Idea Generator**
-> 
-> 基於快思慢想 (Thinking, Fast and Slow) 的創意發想服務
+> An honest creativity scaffold for LLM agents, shipped as an MCP server (SDK 2) plus a portable Agent Plugin.
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![MCP SDK](https://img.shields.io/badge/MCP_SDK-2.x-green.svg)](https://modelcontextprotocol.io/)
 
 🌐 [繁體中文](README.zh-TW.md)
 
-## 💡 Core Insight
+> **v0.8.0 is a breaking rewrite.** The old 24-tool server (`generate_ideas`, `spark_collision`, `deep_think`, …) is gone, with no aliases. See [Migrating from 0.6](#migrating-from-06).
 
-> **"All models are wrong, but some are useful!"** — George Box
+## Why
 
-**Key Discovery: Creativity can emerge from partial information!**
+An LLM can already brainstorm. What it cannot do alone is the part around brainstorming:
 
-- Humans don't need complete world knowledge to generate creative ideas
-- Creativity requires **connection ability**, not information volume
-- Even the simplest models can provide unique creative perspectives
+| LLMs are weak at | CGU supplies |
+|---|---|
+| Noticing the assumptions inside its own question | **Frame objects** and 11 philosophical operators (bracket, negate, re-explicate, genealogize, …) with consent for restricted elements |
+| Escaping the typical answer | **Anti-typical divergence**: write the typical set first, then generate away from it |
+| Independence between "parallel" ideas | **Fan-out work orders**: each idea is generated in a separate context, not a role-play in one |
+| Knowing whether an idea is new | **Measurement with a reference set**: novelty is always relative, reported with method and `reference_size`, or `null` when unmeasured |
+| Judging without bias | **Blinded pairwise judging with A/B and B/A order**, Wilson intervals, position-bias reporting |
+| Remembering across a long session | **State**: SQLite sessions, frame lineage, idea archive, verdicts, feedback |
+| Telling you what it did not do | **Provenance on every result**: engine, degraded flags, warnings, seed, version |
 
-## 🏗️ Architecture
+CGU **does not pretend to be creative**. By default (`CGU_PROVIDER=passthrough`) it never calls an LLM: it returns *work orders* for the model you are already using, then validates, stores, measures and fences what comes back. Numbers are produced only by code, and every float travels inside a `Measurement` that names its method.
 
-<p align="center">
-  <img src="docs/images/architecture-overview.jpg" alt="CGU Architecture" width="700">
-</p>
+## Install
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│               Creativity Generation Unit (CGU)                │
-│                        MCP Server                             │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │       🧠 v0.4.0: Agent-Driven Creativity                │   │
-│   │                                                       │   │
-│   │   ┌─────────────────────────────────────────────┐   │   │
-│   │   │           Agent Creativity Toolbox              │   │   │
-│   │   │  ┌─────────┐ ┌────────┐ ┌─────────┐ ┌──────┐ │   │   │
-│   │   │  │ Concept │ │Connect-│ │ Novelty │ │ Idea │ │   │   │
-│   │   │  │Explorer│ │  ion   │ │ Checker │ │Evolver│ │   │   │
-│   │   │  │  🔍   │ │ Finder │ │   ✅    │ │  🧬  │ │   │   │
-│   │   │  └─────────┘ └────────┘ └─────────┘ └──────┘ │   │   │
-│   │   └─────────────────────────────────────────────┘   │   │
-│   │                         │                               │   │
-│   │   Agent decides:  ┌─────┴──────┐                      │   │
-│   │   - Which tool?   │   Agent   │  ← Autonomous        │   │
-│   │   - How to use?   │  Decision │    Exploration       │   │
-│   │   - When to stop? └────────────┘                      │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                               │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │        v0.2-v0.3: Core Engines (Foundation)           │   │
-│   │  ┌─────────┐ ┌─────────┐ ┌──────────┐ ┌─────────┐ │   │
-│   │  │ Analogy │ │  Graph  │ │Adversari-│ │Thinking │ │   │
-│   │  │ Engine  │ │Traversal│ │al Engine │ │ Engine  │ │   │
-│   │  └─────────┘ └─────────┘ └──────────┘ └─────────┘ │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                               │
-│   Backend: Ollama (Local) / Copilot (Framework Mode)         │
-└──────────────────────────────────────────────────────────────┘
+Requirements: [`uv`](https://docs.astral.sh/uv/) (for `uvx`), `git`, network access to GitHub on first start. The first start builds the package from git and takes about a minute; later starts are cached.
+
+### GitHub Copilot CLI
+
+```shell
+copilot plugin marketplace add u9401066/creativity-generation-unit
+copilot plugin install cgu@creativity-generation-unit
 ```
 
-## 💡 Core Insight: Agent-Driven Creativity (v0.4.0)
+Verify with `copilot plugin list` and, in a session, ask for `cgu_status`. Installing from a local clone also works: `copilot plugin install ./plugins/cgu` (Copilot CLI marks direct local-path installs as deprecated in favor of marketplaces).
 
-> **"Copilot 內部觸碰不到，無論外層做什麼最終都是 Prompt 進去"**
+### VS Code (GitHub Copilot) and Codex
 
-**Key Shift**: From "Human-Agent Language Interaction" to "Agent Autonomous Tool Interaction"
+**Codex CLI** (verified install and MCP registration on Codex CLI 0.160.0; a full model session was *not* verified because it needs a login):
 
-| Traditional | Agent-Driven |
-|-------------|---------------|
-| We design the process | Agent designs its own process |
-| Fixed methodology | Dynamic exploration strategy |
-| Output cannot be verified | Tools can verify |
-| One-shot generation | Iterative exploration |
-
-## 🧠 Thinking, Fast and Slow
-
-Based on Daniel Kahneman's theory:
-
-| System | Speed | Characteristics | CGU Implementation |
-|--------|-------|-----------------|-------------------|
-| **System 1** | Fast ⚡ | Intuitive, automatic | `REACT`, `ASSOCIATE`, `PATTERN_MATCH` |
-| **System 2** | Slow 🐢 | Deliberate, analytical | `ANALYZE`, `SYNTHESIZE`, `EVALUATE` |
-| **Creative** | Mixed 🎨 | Breaking boundaries | `DIVERGE`, `CONVERGE`, `TRANSFORM` |
-
-**Core Strategy**: Multiple fast steps + occasional slow steps = Efficient creativity
-
-## 🎯 Creativity Levels
-
-```
-Level 1: Combinational (0.7-1.0 association)
-└─ New combinations of known elements
-
-Level 2: Exploratory (0.3-0.7 association)
-└─ Exploring boundaries within existing rules
-
-Level 3: Transformational (0.0-0.3 association)
-└─ Breaking rules, creating new paradigms
+```shell
+codex plugin marketplace add u9401066/creativity-generation-unit
+codex plugin add cgu@creativity-generation-unit
+codex mcp list    # shows the cgu server
 ```
 
-## 📚 15 Human Creativity Methods
+**VS Code** implements the same [Agent Plugins 1.0](https://agent-plugins.org) standard (Copilot reads `.github/plugin/marketplace.json`). Add this repository as a plugin marketplace and install `cgu`; menu names vary by client version. **VS Code is not yet verified by us.** Details: [plugins/cgu/README.md](plugins/cgu/README.md).
 
-CGU implements structured creativity methods:
+### Any MCP client (server only, no skills)
 
-| Category | Methods |
-|----------|---------|
-| **Divergent** | Mind Map, Brainstorm, SCAMPER, Random Input |
-| **Structural** | 9-Grid Mandala, Morphological Analysis, 5W2H, Fishbone |
-| **Perspective** | Six Thinking Hats, Reverse Thinking, Analogy |
-| **Process** | Double Diamond, Design Sprint, KJ Method, World Café |
-| **Systematic** | TRIZ 40 Principles |
-
-## 🛠️ Tech Stack
-
-- **MCP SDK**: official MCP Python SDK 2 (`MCPServer`); SDK 1 is unsupported
-- **Agent Orchestration**: LangGraph
-- **Local Inference**: vLLM + Qwen 4B
-- **Structured Output**: Pydantic + Instructor
-- **Web Search**: DuckDuckGo Search
-
-## 🚀 Quick Start
-
-```bash
-# Clone repository
-git clone https://github.com/u9401066/creativity-generation-unit.git
-cd creativity-generation-unit
-
-# Setup environment (uv recommended)
-uv venv
-uv sync --all-extras
-
-# Run MCP server
-cgu-server
-
-# Or use CLI
-cgu generate "How to improve remote work productivity?"
+```json
+{
+  "mcpServers": {
+    "cgu": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/u9401066/creativity-generation-unit@master", "cgu-server"],
+      "env": { "CGU_PROVIDER": "passthrough" }
+    }
+  }
+}
 ```
 
-## 📁 Project Structure
+From a clone: `uv sync` then `uv run cgu-server`; `uv run cgu doctor` prints what is available.
+
+## What is inside the plugin
+
+| Skill | Use it when |
+|---|---|
+| `creative-ideation` | "Help me find ideas", "we are stuck": frame → typical set → operators → diverge → measure → judge → idea cards |
+| `frame-audit` | "Are we asking the right question?": hidden assumptions, concept boundaries, criterion genealogy, question-quality gate |
+| `maieutic-session` | "Don't give me answers, guide me": the human produces, the AI only asks |
+| `idea-triage` | "Compare these ideas": measurement + blinded pairwise judging + idea cards |
+
+Copilot also gets four thin agents (`creative-facilitator`, `frame-auditor`, `independent-ideator`, `adversarial-critic`). Hooks are deliberately not shipped (non-portable, and they run local code).
+
+## The 10 tools
+
+| Tool | Actions | Purpose |
+|---|---|---|
+| `cgu_status` | | What is available now (provider, embedding `semantic` or not, maturity per tool) |
+| `cgu_session` | open, get, list, export, delete | Session lifecycle; `delete` needs `confirm=true` and leaves no residue |
+| `cgu_frame` | create, get, operators, operate, commit, doubt | Frame objects, 11 operators, lineage, economy of doubt |
+| `cgu_material` | search, add, list | Prior art and fragments; untrusted text is fenced and instruction-like patterns stripped |
+| `cgu_diverge` | typical_set, anti_typical, fanout, collide | Work orders for divergence; independence is stated, not assumed |
+| `cgu_ideas` | add, list, measure | Idea archive, duplicate detection, novelty / diversity with reference sets |
+| `cgu_judge` | plan, record, rank | Pairwise judging in both orders, Wilson intervals, Pareto front |
+| `cgu_evolve` | map, next, submit, resolve | Niche map and mutation work orders with A/B order control |
+| `cgu_feedback` | record, summary, export, delete | What the human actually did with the ideas |
+| `cgu_question_gate` | check, record | Question-quality gate before spending effort |
+
+Every tool returns `ToolResult{ok, data, work_order, work_orders, provenance, error}`. Domain errors are `ok=false`, never exceptions. Also exposed: 5 resources (`cgu://methods/*`, `cgu://operators`, rubrics, triggers) and 4 prompts for clients without skills. Full contract: [docs/architecture.md](docs/architecture.md).
+
+### Example (medical product development)
+
+> "We are an 8-person startup building a home-care product to cut 30-day readmissions. Not another SpO2 wearable plus app."
+
+With the plugin, a mid-tier model opens a session, writes the 8 typical answers, extracts the shared hidden assumptions (home sensing → alert → someone acts), and rewrites three of them with operators. For example, it negates "the alert is the product" into "the product is who receives the alert, under an SLA". It then fans each rewrite out as an independent idea card with payer vs. user, regulatory class (marked as a guess to confirm with the regulator), required validation and the cheapest MVP. Each card carries its derivation path (typical answer → assumption → operator → frame id).
+
+## Configuration
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `CGU_PROVIDER` | `passthrough` | `passthrough` returns work orders; `ollama` enables optional execute mode for `cgu_diverge` |
+| `CGU_DATA_DIR` | `$PLUGIN_DATA`, else `~/.cgu` | SQLite location (`cgu.sqlite3`, WAL) |
+| `CGU_EMBEDDING` | `auto` | `auto` / `ollama` / `ngram`. Without Ollama, novelty is **lexical** (`semantic=false`) |
+| `CGU_OLLAMA_URL` | `http://localhost:11434` | Do not append `/v1` |
+| `CGU_OLLAMA_MODEL` | `qwen2.5:3b` | Execute mode only |
+| `CGU_EMBED_MODEL` | `nomic-embed-text` | |
+| `CGU_NETWORK` | `on` | `off` disables `cgu_material(search)` (reports `degraded`) |
+| `CGU_LOG_LEVEL` | `INFO` | Logs go to stderr only; stdout is reserved for MCP stdio |
+
+## Architecture
 
 ```
-creativity-generation-unit/
-├── src/cgu/
-│   ├── core/           # Core engines (v2)
-│   │   ├── analogy.py  # Cross-domain analogy
-│   │   ├── graph.py    # Concept graph traversal
-│   │   ├── adversarial.py # Adversarial evolution
-│   │   └── creativity_core.py # Unified engine
-│   ├── tools/          # Agent tools (v0.4)
-│   │   └── creativity_tools.py # 5 creativity tools
-│   ├── soup/           # Spark-Soup 創意湯 (v0.5 NEW) 🆕
-│   │   └── spark_soup.py # Context Stuffing for Creativity
-│   ├── agents/         # Multi-Agent system (v0.3)
-│   ├── thinking/       # Thinking Engine (v0.3)
-│   ├── graph/          # LangGraph definitions
-│   ├── llm/            # LLM backends
-│   └── server.py       # MCP Server
-├── docs/               # Documentation
-├── tests/              # Test suite
-├── memory-bank/        # Project memory
-└── pyproject.toml      # Dependencies
+src/cgu/
+├── domain/          pure rules: Measurement, frames, operators, doubt, fence, judge (no I/O)
+├── application/     ports (Protocols) + services per tool
+├── infrastructure/  SQLite archive, embeddings, retrieval, optional LLM, Settings
+└── interfaces/      mcp/ (SDK 2 server, tools, resources, prompts) and cli
 ```
 
-## 🔧 MCP Tools
+Dependency direction is enforced by a test (domain imports nothing from other layers, nor `httpx`/`sqlite3`).
 
-```typescript
-// Core Tools (v0.2)
-generateIdeas(topic, creativityLevel, count)
-sparkCollision(conceptA, conceptB)
-associativeExpansion(seed, direction, depth)
-applyMethod(method, input)
+## Honest limits
 
-// Deep Thinking Tools (v0.3)
-deepThink(topic, depth, mode)
-multiAgentBrainstorm(topic, agents)
-sparkCollisionDeep(conceptA, conceptB)
+- Novelty is **relative to an explicit reference set**, and with the n-gram fallback it cannot detect a paraphrase.
+- Heuristic numbers (priority, diversity, win rate) are **uncalibrated**. LLM judges inherit judge-model bias; order disagreement is reported.
+- "Philosophical frame audit improves creativity" and "maieutic mode preserves human originality" are **hypotheses under test**, not conclusions.
+- Skill effectiveness depends on the host model following the procedure; mid-tier models can skip steps.
+- Creativity is not given an ethics gate here by design; downstream regulation (medical devices, privacy, hospital rules) is surfaced as a *risk field on each idea card*, not as a filter.
 
-// Agent Creativity Tools (v0.4)
-exploreConcept(concept)       // Search concept space
-findConnection(a, b)          // Discover connections
-checkNovelty(idea)            // Validate novelty
-evolveIdea(idea, mutation)    // Mutate ideas
-getProgress()                 // Track exploration
+## Evidence
 
-// Spark-Soup Tools (v0.5 NEW) 🆕
-sparkSoupGenerate(topic)      // Assemble "creativity soup"
-sparkSoupQuick(topic)         // Quick soup + idea generation
-collectFragments(topic)       // Collect info fragments
-getTriggerWords(categories)   // Get creativity triggers
+<!-- EVIDENCE:START -->
+We ran an isolated Copilot CLI experiment (plugin installed for real; mid-tier models `claude-sonnet-5.5` and `gpt-6-luna`; research, medical-product and admin-process tasks; blinded pairwise judging by `gpt-6-sol` and `claude-sonnet-5.5`, both orders). Full write-up: [evals/reports/SUMMARY.md](evals/reports/SUMMARY.md).
+
+**What we can and cannot claim**
+
+- The plugin **does not demonstrably beat plain prompting overall.** Cell-level win rate vs. baseline was 27% (exp1, v1), 25% (exp2, v2) and 50% (exp3, v3: 1 win / 1 loss / 4 ties). Every 95% CI spans 50%, so the honest reading is "indistinguishable", with the point estimate unfavorable for v1 and v2.
+- It **reliably changes what answers look like**: strongly preferred on novelty (75–96%) and problem reframing (75–96%) in all three rounds.
+- v1 and v2 were disliked on practicality and decidability (17–38%). The judges' own reasons: tool jargon leaking into the answer, and go/no-go thresholds left as "待估". v3 fixed those two things (plain-language output, concrete adjustable thresholds) and moved decidability from ~36% to 79% and practicality from ~19% to 38%, at the cost of a smaller novelty edge. **v3 rests on only 6 cells with unstable judge order agreement.**
+- One of our hypotheses was falsified: adding a constraint ledger and feasibility gate (v2) did not recover practicality.
+- Cost: about 2–5× the wall time and 4–40× the input tokens (mostly cached).
+- Auto-triggering is unreliable: with an unmodified prompt the skill led to substantial CGU tool use in 9 of 12 cells (Sonnet 3/6, luna 6/6).
+- LLM judges only, no human calibration, tiny n, and the v2/v3 changes were tuned from judge reasons, so they may partly be tuned to LLM judges. Not a claim about SOTA models.
+<!-- EVIDENCE:END -->
+
+## Development
+
+```shell
+uv sync --extra dev
+uv run pytest
+uv run ruff check src tests evals && uv run ruff format --check src tests evals
+uv run mypy src
 ```
 
-## 🎮 Agent-Driven Creativity (v0.4.0)
+On Windows, a running `cgu-server.exe` (for example one started by an editor) locks `.venv`. Use a separate environment: `$env:UV_PROJECT_ENVIRONMENT = "$env:TEMP\cgu-venv"`.
 
-Agent autonomously uses tools to explore creativity:
+## Documents
 
-```python
-from cgu.tools import CreativityToolbox
+| Document | Content |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | v0.8.0 contract: tools, types, persistence, SDK 2 notes |
+| [docs/critical-review-and-improvement-plan.md](docs/critical-review-and-improvement-plan.md) | 40 defects found in 0.6 and the improvement plan |
+| [docs/philosophical-inquiry-and-creativity.md](docs/philosophical-inquiry-and-creativity.md) | Philosophy as meta-inquiry: frames, operators, economy of doubt |
+| [docs/program-plan.md](docs/program-plan.md) | Phases, work packages, gates, decisions |
+| [evals/README.md](evals/README.md) | Effect-experiment protocol |
+| [plugins/cgu/README.md](plugins/cgu/README.md) | Plugin install, portability, privacy |
+| [CHANGELOG.md](CHANGELOG.md) | Release notes |
 
-toolbox = CreativityToolbox()
+## Migrating from 0.6
 
-# Agent starts exploration
-session = toolbox.start_session("remote work")
+| 0.6 | 0.8 |
+|---|---|
+| `generate_ideas`, `deep_think`, `multi_agent_brainstorm`, `spark_soup_quick` | `cgu_diverge` + your model generates + `cgu_ideas` |
+| `spark_collision`, `spark_collision_deep`, `find_connections`, `suggest_bridges` | `cgu_diverge(action=collide)` |
+| `spark_soup_*`, `collect_creativity_fragments`, `explore_concept`, `random_concept`, `associative_expansion` | `cgu_material` |
+| `check_novelty`, `evaluate_brainstorm_ideas` | `cgu_ideas(action=measure)`, `cgu_judge` |
+| `evolve_idea_tool` | `cgu_evolve` |
+| `creativity_session_*` | `cgu_session`, `cgu_ideas` |
+| `apply_method`, `select_method`, `list_methods`, `brainstorm_protocol`, `get_trigger_words` | `cgu://methods/*` resources, prompts, skills |
+| `CGU_LLM_PROVIDER`, `CGU_USE_LLM`, `OLLAMA_BASE_URL` | see [Configuration](#configuration) |
 
-# Agent decides to explore concept
-explore = toolbox.explore_concept("remote work")
-# -> related: ['collaboration', 'efficiency', 'flexibility']
-# -> unexpected: ['nomad', 'ritual', 'cafe']
+## License
 
-# Agent tries cross-domain connection
-connection = toolbox.find_connection("remote work", "nomad")
-# -> novelty_score: 0.80
-
-# Agent generates idea
-idea = "Combine remote work with nomad lifestyle"
-novelty = toolbox.check_novelty(idea)
-# -> is_novel: True, score: 1.0
-
-# If not novel, agent evolves
-evolved = toolbox.evolve_idea(idea, "combine")
-```
-
-## 🌟 Design Principles
-
-1. **Model Democracy** - Even simple models have unique perspectives
-2. **Partial is Enough** - No need for complete world model
-3. **Connection > Knowledge** - Creativity is about linking
-4. **Errors are Useful** - Wrong connections may be innovations
-
-## 🤖 OpenClaw Integration
-
-CGU works natively with [OpenClaw](https://docs.openclaw.ai) as an MCP tool server.
-
-### Passthrough Mode (Recommended for OpenClaw)
-
-When running inside OpenClaw, your agents (Claude, GPT, etc.) **are** the LLM — no need for a secondary Ollama model. Use `passthrough` mode to get rich methodology frameworks that your agents fill with their own reasoning:
-
-```bash
-CGU_LLM_PROVIDER=passthrough  # Returns structured frameworks, no LLM call
-```
-
-**What passthrough returns:**
-- SCAMPER: all 7 dimensions with thinking angles and prompts
-- Six Hats: 6 perspectives with focus areas and guiding questions
-- Brainstorm: 3-round structure (wild → build → ground)
-- Every method includes `_meta` with instructions
-
-### OpenClaw Config
-
-Add to your OpenClaw `config.yaml`:
-
-```yaml
-mcp:
-  servers:
-    cgu:
-      url: "http://localhost:8818/mcp"  # or your CGU server URL
-```
-
-Or run as stdio:
-
-```yaml
-mcp:
-  servers:
-    cgu:
-      command: "uv"
-      args: ["--directory", "/path/to/creativity-generation-unit", "run", "cgu-server"]
-      env:
-        CGU_LLM_PROVIDER: "passthrough"
-```
-
-### Agent-to-Agent Brainstorming
-
-Use `brainstorm_protocol` to generate structured discussion scripts for two agents:
-
-```
-Agent A (domain expert) + Agent B (architect)
-    │
-    ▼
-brainstorm_protocol(topic="...", method="six_hats")
-    │
-    ▼
-Phase 1: Diverge → each agent explores from their angle
-Phase 2: Collide → agents challenge each other's ideas  
-Phase 3: Converge → jointly select best ideas
-    │
-    ▼
-evaluate_brainstorm_ideas(ideas=[...])
-    │
-    ▼
-Ranked results with feasibility/novelty/impact scores
-```
-
-### Provider Modes
-
-| Mode | LLM | Use Case |
-|------|-----|----------|
-| `ollama` | Local Ollama model | Standalone / offline use |
-| `passthrough` | None (framework only) | **OpenClaw / any LLM-capable agent** |
-| `copilot` | *(deprecated, alias for passthrough)* | Legacy VS Code Copilot |
-
-## 📋 Documentation
-
-- [CGU Concept](docs/creativity-generation-unit.md) - Core concepts & methods
-- [Constitution](CONSTITUTION.md) - Project principles
-- [Architecture](ARCHITECTURE.md) - System design
-- [Changelog](CHANGELOG.md) - Version history
-
-## 📄 License
-
-[Apache License 2.0](LICENSE)
-
----
-
-*"Creativity is just connecting things."* — Steve Jobs
+Apache-2.0. Author: u9401066 <u9401066@gap.kmu.edu.tw>.

@@ -7,6 +7,47 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-03
+
+> **BREAKING.** Full rewrite on MCP Python SDK 2. No aliases, no compatibility layer. Rationale and defect list: `docs/critical-review-and-improvement-plan.md`; contract: `docs/architecture.md`.
+
+### Changed
+- 24 tools → **10 tools** with `action` enums: `cgu_status`, `cgu_session`, `cgu_frame`, `cgu_material`, `cgu_diverge`, `cgu_ideas`, `cgu_judge`, `cgu_evolve`, `cgu_feedback`, `cgu_question_gate`.
+- Default `CGU_PROVIDER=passthrough`: CGU no longer calls an LLM. It returns **work orders** for the host model and owns state, measurement, dedup, fencing and persistence.
+- Every result is `ToolResult{ok, data, work_order(s), provenance, error}`; domain errors are `ok=false`. Every float is a `Measurement{value, method, reference, calibrated, n}`; unmeasured is `null`.
+- Layered architecture `domain / application / infrastructure / interfaces` with dependency rules enforced by test.
+- Persistence is SQLite (WAL, migrations, cascade delete, export) under `CGU_DATA_DIR`, else `PLUGIN_DATA`, else `~/.cgu`.
+- Environment variables: `CGU_PROVIDER`, `CGU_DATA_DIR`, `CGU_EMBEDDING`, `CGU_OLLAMA_URL` (no `/v1`), `CGU_OLLAMA_MODEL`, `CGU_EMBED_MODEL`, `CGU_NETWORK`, `CGU_LOG_LEVEL`. `Settings.from_env()` has no import-time side effects; logs go to stderr only.
+- Dependencies: runtime is now `mcp>=2,<3`, `pydantic>=2.12`, `httpx`, `numpy`.
+
+### Added
+- **Philosophical frame layer**: frame objects with lineage, 11 operators (explicate, bracket, negate, tetralemma, re_explicate, swap_metaphor, recut_unit, shift_stakeholder, invert_criterion, genealogize, thought_experiment), economy of doubt, question-quality gate. Rewriting `goal`, `stakeholder` or `criterion` requires consent (SDK `Elicit`, falling back to `consent_required`).
+- **Untrusted-data fence** for retrieved text (length cap, instruction-pattern stripping).
+- **Agent Plugin** `plugins/cgu` (Agent Plugins 1.0): 4 skills (`creative-ideation`, `frame-audit`, `maieutic-session`, `idea-triage`), 4 Copilot agents, marketplaces for Copilot (`.github/plugin`) and Codex (`.agents/plugins`).
+- 5 resources and 4 prompts (methods, operators, rubrics, triggers) for clients without skills.
+- `evals/`: isolated Copilot CLI effect-experiment harness (baseline vs plugin vs plugin_explicit, cross-family blinded pairwise judging, bootstrap and Wilson intervals).
+- `cgu doctor` CLI.
+
+### Removed
+- All 24 legacy tools, the LangGraph/LangChain stack, the template "thinking engines", `spark_soup`, and the `openai`, `instructor`, `duckduckgo-search`, `rich`, `python-dotenv` dependencies.
+- The stale `.claude/skills/creative-ideation` (referenced deleted tools and shadowed the plugin skill).
+
+### Fixed
+- Operator cards carry `default_target` (explicate → `assumption`; single-target operators default automatically). Found in a real Sonnet 5.5 session where `operate(explicate)` without `target` was rejected (8 such errors in exp1, 0 afterwards).
+- `not_found` for an unknown session now lists the real session ids in its hint (models sometimes invent a session name).
+- Skills state the FrameDraft id rule (new elements get no id); `creative-ideation` v3 keeps tool internals (ids, operator names, n-gram tables, win rates) out of the user-facing reply, adds a constraint ledger and feasibility gate, and requires concrete, justified, adjustable numbers for resource estimates and go/no-go thresholds. These changes came from the effect experiments (see `evals/reports/SUMMARY.md`).
+- Provider settings were ignored (`OLLAMA_BASE_URL`, temperature, timeout); replaced by `Settings`.
+- Event-loop stalls (up to 1.2 s for 100 ideas) in duplicate detection and measurement; now under 40 ms.
+- Author and contact information corrected across LICENSE, SECURITY, CODE_OF_CONDUCT and READMEs.
+
+### Verified
+- Copilot CLI 1.0.91: marketplace add + `plugin install cgu@creativity-generation-unit`; `cgu` connects (`source=plugin`) from the root `mcp.json`, tools run.
+- Codex CLI 0.160.0: marketplace add + `plugin add`; `codex mcp list` shows `cgu`. A real Codex model session is **not** verified (no login). VS Code is **not** verified.
+- Effect experiment (3 rounds, mid-tier models, LLM judges): no demonstrable overall win over plain prompting; strong, consistent shift toward novelty and reframing; v1/v2 lost on practicality; v3 reached parity on 6 cells. See `evals/reports/SUMMARY.md`.
+
+### Migration
+See the table in `README.md` (“Migrating from 0.6”).
+
 ## [0.6.0] - 2026-08-17
 
 ### Changed

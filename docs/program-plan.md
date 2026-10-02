@@ -2,6 +2,8 @@
 
 > **狀態**：計畫 v1（預設決策已採用，可否決）｜**日期**：2026-10-02｜**基線**：`master` @ `f293e19`（v0.6.0）
 >
+> **執行狀態（2026-10-03）**：依使用者指示改為「直接以 MCP SDK 2 重寫、不相容」，P0–P3 的核心成果已併入 **v0.8.0**（見 [`architecture.md`](./architecture.md) 與 [`CHANGELOG.md`](../CHANGELOG.md)）。**D-05（別名）與 D-06（隔離舊引擎）已被取代**：舊工具與舊引擎直接刪除，沒有別名。逐工作包的狀態以 [`memory-bank/progress.md`](../memory-bank/progress.md) 為準。
+>
 > **前置文件**：
 > - [嚴格審查：缺陷分析與改進方案](./critical-review-and-improvement-plan.md)（缺陷編號 A1–F4）
 > - [哲學後設探究 × 創意](./philosophical-inquiry-and-creativity.md)（缺口 PH1–PH8、Frame 與框架算子）
@@ -172,8 +174,8 @@ creativity-generation-unit/
 | D-02 | 預設**不在 CGU 內生成**；生成交給呼叫端強模型。本地 Ollama 只作為可選 adapter，用於驗證 H3 | Q2 | passthrough 初衷；強模型不需要 3B 替它發想 | 保留本地生成：P1.2、P4.2 增加 provider 路徑與評估 |
 | D-03 | 本機優先；embedding 走可選的本機 adapter（Ollama `nomic-embed-text`）；**沒有 embedding 時降級為字元 n-gram，並如實標示** | Q3 | 你的環境已有該模型；降級必須誠實 | 允許雲端 API：新增 adapter 與隱私說明 |
 | D-04 | 第一個評估領域：通用（中英文）；第二個垂直領域：醫學研究發想 | Q4 | 你已有 PubMed／MedPaper 工具鏈可比對既有成果 | 換領域：只影響 P1.5 題庫與 P4.3 檢索 adapter |
-| D-05 | 24 個工具在 v0.8.0 收斂；舊名稱保留**一個小版本**的別名並標示 deprecated | Q5 | 上層 med-paper-assistant 有 integration lock | 立即移除：加速 P1.1，但需通知上層 |
-| D-06 | v1／v2／v3 舊引擎先隔離到 `experimental/` 並在描述中標示，之後逐步重寫或刪除 | Q6 | 降低一次性風險，保留可回溯 | 直接刪除：P0.10 改為刪除，工作量更小 |
+| D-05 | ~~24 個工具在 v0.8.0 收斂；舊名稱保留**一個小版本**的別名並標示 deprecated~~ **已被取代（2026-10-03）**：24 個工具直接收斂為 10 個，不保留別名（使用者指示不相容重寫） | Q5 | 上層 med-paper-assistant 有 integration lock | 立即移除：加速 P1.1，但需通知上層 |
+| D-06 | ~~v1／v2／v3 舊引擎先隔離到 `experimental/`~~ **已被取代（2026-10-03）**：舊引擎直接刪除，歷史保留在 git（`f293e19` 之前） | Q6 | 降低一次性風險，保留可回溯 | 直接刪除：P0.10 改為刪除，工作量更小 |
 | D-07 | 品質評估只在手動或 nightly 執行；契約與不變式測試進 CI | Q7 | 評估有成本與隨機性 | 小型 smoke eval 進 CI：P1.5 增加預算上限 |
 | D-08 | agent 對問題框架的改寫：概念與隱喻可直接提案；改寫**目標、利害關係人、評估準則**必須取得同意 | Q8、Q14 | 防止越權與操縱（框架效應） | 全部需同意：P3.6 更嚴格；全部不需：不建議 |
 | D-09 | 回饋與存檔：本機 SQLite；可匯出、可刪除；預設不上傳 | Q9 | 隱私與可控 | 雲端同步：新增威脅模型 |

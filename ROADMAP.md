@@ -1,105 +1,38 @@
 # Roadmap
 
-CGU (Creativity Generation Unit) 專案發展路線圖。
+CGU (Creativity Generation Unit) 的路線圖。詳細的工作包、關卡與決策見[分階段執行計畫](docs/program-plan.md)；逐項狀態見 [`memory-bank/progress.md`](memory-bank/progress.md)。
 
-> ⚠️ **現況說明（2026-10-02）**：本檔下方的「進行中／計劃中」與「版本里程碑」寫於 v0.4.0 時期，已與現況（v0.6.0）不符，且部分勾選項目（例如 v2「實現創意機制」）經[嚴格審查](docs/critical-review-and-improvement-plan.md)證實只是骨架。**目前有效的路線請見[分階段執行計畫](docs/program-plan.md)**（P0 止血 → P1 地基 → P2 Harness plugin → P3 哲學層 → P4 創意機制 → P5 人機回饋 → P6 v1.0）。舊內容暫時保留作為歷史紀錄，將於 P0.11 整理。
+## 現況：v0.8.0（2026-10-03）
 
-## 已完成 ✅
+不相容重寫完成並已發布到 `master`：
 
-### v0.1.0 (2025-12-15)
-- [x] 專案初始化
-- [x] Memory Bank 系統建立
-- [x] Claude Skills 基礎架構
-- [x] Git 文檔自動更新 Skill
+- [x] MCP SDK 2 原生 server：10 個工具、5 個 resources、4 個 prompts（[契約](docs/architecture.md)）
+- [x] 分層架構（domain / application / infrastructure / interfaces），依賴規則由測試強制
+- [x] passthrough 為預設：CGU 不呼叫 LLM，只回傳工單並負責狀態、測量、隔離
+- [x] 所有數值皆為附方法的 `Measurement`；未量測回報 `null`
+- [x] 哲學框架層：Frame 物件、11 個算子、懷疑的經濟學、提問品質閘門、受限元素同意
+- [x] Agent Plugin（Agent Plugins 1.0）：4 skills、4 個 Copilot agents、Copilot／Codex marketplace
+- [x] 在隔離的 Copilot CLI 實際安裝（marketplace 流程）並以 Sonnet／GPT luna 等級模型測試；Codex CLI 驗證安裝與 MCP 註冊
+- [x] 效果實驗框架 `evals/`（baseline vs plugin vs plugin_explicit，盲評成對比較）與三輪實驗（[摘要](evals/reports/SUMMARY.md)）：**未證明整體勝過直接提問**，但穩定提升新穎度與問題重構；v3 與 baseline 持平
 
-### v0.2.0 (2025-12-16)
-- [x] CGU 核心架構（快思慢想）
-- [x] 16 種創意方法實作
-- [x] LangGraph Agent 整合
-- [x] vLLM → Ollama 遷移
-- [x] MCP Server 完整實作
-- [x] 真實 LLM 整合（qwen2.5:3b）
-- [x] 思考引擎切換（Ollama/Copilot 模式）
-- [x] VS Code MCP 配置
+## 下一步
 
-### v0.3.0 (2025-12-16) 
-- [x] 🧠 **ThinkingEngine** - 統一思考引擎（Simple/Deep/Spark/Hybrid）
-- [x] 🤖 **Multi-Agent 系統** - Explorer/Critic/Wildcard 三種人格
-- [x] ⚡ **Spark Engine** - 概念碰撞火花引擎
-- [x] 🔗 **Ollama + Copilot 整合** - 簡單/深度模式兼容
-- [x] 📋 **LangGraph 1.0 Functional API** - @entrypoint/@task 裝飾器
-- [x] 🔧 **新 MCP 工具** - deep_think, multi_agent_brainstorm, spark_collision_deep
+| 優先 | 項目 | 說明 |
+|---|---|---|
+| 1 | 人類校準與更大樣本 | 目前只有 LLM 評審、n 很小（見 [效果實驗摘要](evals/reports/SUMMARY.md)）：2–3 位評分者、約 100 個點子（D-10）；加一次 Opus 評審抽樣驗證 |
+| 2 | `agent` 條件與消融 | 自動觸發不穩定（9/12 格實質使用 CGU）：加 `--agent creative-facilitator` 條件；消融「白話輸出＋決策值」與 `frame-audit` 各自的貢獻 |
+| 3 | 任務型題的退讓 | 行政流程題在 exp1 的 plugin_explicit 為 0/4；評估 skill 是否該在任務型題自動退讓 |
+| 4 | VS Code 與 Codex 對話實測 | Copilot CLI 已實測安裝＋對話；Codex CLI 已驗證安裝與 MCP 註冊但未登入、未驗證對話；VS Code 未驗證 |
+| 5 | 語意 embedding 成為預設路徑 | 目前無 Ollama 時新穎度只是詞面相似；補上語意 embedding 的評估與提示 |
+| 6 | P5 人機回饋 | `cgu_feedback` 已有資料模型；補上對人類原創性與擁有感的量測（H5、H9） |
+| 7 | 發版 | 建立 git tag 供 plugin 固定版本；之後評估 PyPI 與 MCP Registry |
 
-### v0.4.0 (2026-01-06) ⭐ NEW - Agent-Driven Creativity
-- [x] 🧠 **v2 核心引擎** - 從「模擬創意」到「實現創意機制」
-  - AnalogyEngine - 跨域類比搜尋器
-  - GraphTraversalEngine - 概念圖譜遍歷
-  - AdversarialEngine - 對抗式進化
-  - CreativityCore - 統一創意引擎
-- [x] 🛠️ **v3 Agent-Driven Tools** - Agent 自主創意工具
-  - ConceptExplorer - 概念搜尋器
-  - ConnectionFinder - 連結發現器
-  - NoveltyChecker - 新穎度驗證器
-  - IdeaEvolver - 想法演化器
-  - CreativityToolbox - 統一工具箱
-- [x] 💡 **核心轉變** - 從「語言互動」到「Agent 工具互動」
+## 刻意不做
 
-## 進行中 🚧
+- 不附 hooks（不可攜且會執行本機程式碼，決策 D-20）。
+- 不在創意討論上加倫理閘門；下游法規以點子卡的風險欄位呈現。
+- 不再提供舊版 24 個工具的別名。
 
-### v0.5.0 - Agent 自主探索強化 (Agent Autonomy Enhancement)
+## 歷史
 
-> 💡 **設計理念**：擴充 Agent 工具，整合外部知識源，
-> 讓 Agent 能更自主地探索創意空間。
-
-#### Phase 1: 工具擴充
-- [x] 🔌 **MCP Tool 註冊** - 將 v3 Tools 註冊為 MCP Tools
-- [ ] 🌐 **外部知識源整合** - ConceptNet, Wikidata API
-- [ ] 📊 **Embedding 語義距離** - 真實的跨域相似度計算
-
-#### Phase 2: Agent 智能
-- [ ] 🤖 **探索策略學習** - Agent 學習哪些工具組合有效
-- [ ] 📝 **探索歷史分析** - 從過去探索中學習
-- [ ] 🎯 **目標導向探索** - 根據目標自動調整策略
-
-#### Phase 3: 評估與回饋
-- [ ] ✅ **品質評估系統** - NUS 模型（Novelty × Usefulness × Surprise）
-- [ ] 🔄 **自動迭代** - 根據評估結果自動演化
-
-## 計劃中 📋
-
-### 短期目標 (v0.5.0) - 遊戲化與評估
-- [ ] 🎮 **遊戲化介面** - 創意積分、成就系統
-- [ ] 📊 **創意品質評估** - 自動評分與改進建議
-- [ ] 🔄 **動態方法生成** - 根據主題自動組合方法
-- [ ] 💾 **創意歷史記錄** - 保存與回顧過往發想
-
-### 中期目標 (v0.6.0)
-- [ ] 🌐 **知識圖譜整合** - 結構化聯想路徑
-- [ ] 🎲 **隨機挑戰模式** - 強制跳出舒適圈
-- [ ] 📈 **思維成長樹** - 視覺化創意擴展路徑
-- [ ] 🔌 **多 LLM 支援** - OpenAI/Anthropic 切換
-
-### 長期目標 (v1.0.0)
-- [ ] 🚀 **GPU 加速** - 本地高效能推理
-- [ ] 🛠️ **自訂方法編輯器** - 使用者自建創意方法
-- [ ] 🤝 **協作模式** - 多人即時腦力激盪
-- [ ] 📦 **發布至 MCP Registry** - 讓更多人使用
-
-## 版本里程碑
-
-```
-v0.4.0 ──────────────────────────────► 現在位置 ⭐
-   │   Agent-Driven Creativity
-   │   - v2 核心引擎 (Analogy/Graph/Adversarial)
-   │   - v3 Agent Tools (5 個創意工具)
-   │   - 核心轉變: 語言 → 工具互動
-   │
-   ├── v0.5.0 Agent 自主探索強化 (2026-Q1)
-   │       ├── MCP Tool 註冊
-   │       ├── 外部知識源整合
-   │       └── 品質評估系統
-   │
-   ├── v0.6.0 遊戲化 + 視覺化 (2026-Q2)
-   │
-   └── v1.0.0 完整版發布 (2026-Q3)
-```
+v0.1–v0.6 的紀錄見 [CHANGELOG.md](CHANGELOG.md)。0.6 以前的「創意機制」多為模板、隨機數與固定常數，詳見[嚴格審查](docs/critical-review-and-improvement-plan.md)。

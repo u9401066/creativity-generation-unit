@@ -29,8 +29,10 @@ copilot plugin install ./plugins/cgu
 **Codex**
 ```shell
 codex plugin marketplace add u9401066/creativity-generation-unit
+codex plugin add cgu@creativity-generation-unit
+codex mcp list
 ```
-然後在 Codex／ChatGPT 桌面版的 Plugins 目錄選擇 marketplace「CGU 創意生成單元」安裝。若要在特定專案啟用，於該專案 `.codex/config.toml`：
+已在 Codex CLI 0.160.0 實測：marketplace 可加入、plugin 為「installed, enabled」，`codex mcp list` 看得到 `cgu`（命令與環境變數正確，含 Codex 注入的 `PLUGIN_ROOT`／`PLUGIN_DATA`）。**未驗證**：實際的 Codex 對話中 skills 是否載入、工具是否被呼叫（該環境未登入）。若要在特定專案啟用，於該專案 `.codex/config.toml`：
 ```toml
 [plugins."cgu@creativity-generation-unit"]
 enabled = true
