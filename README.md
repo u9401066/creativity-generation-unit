@@ -10,6 +10,8 @@
 
 > **v0.8.0 is a breaking rewrite.** The old 24-tool server (`generate_ideas`, `spark_collision`, `deep_think`, …) is gone, with no aliases. See [Migrating from 0.6](#migrating-from-06).
 
+**v0.9.0** adds opt-in inquiry memory and caller-model distillation of creative material. Install sources are pinned to `v0.9.0`; [release notes and packages](https://github.com/u9401066/creativity-generation-unit/releases/tag/v0.9.0).
+
 ## Why
 
 An LLM can already brainstorm. What it cannot do alone is the part around brainstorming:
@@ -25,6 +27,10 @@ An LLM can already brainstorm. What it cannot do alone is the part around brains
 | Telling you what it did not do | **Provenance on every result**: engine, degraded flags, warnings, seed, version |
 
 CGU **does not pretend to be creative**. By default (`CGU_PROVIDER=passthrough`) it never calls an LLM: it returns *work orders* for the model you are already using, then validates, stores, measures and fences what comes back. Numbers are produced only by code, and every float travels inside a `Measurement` that names its method.
+
+**No additional local LLM is required.** Default `CGU_EMBEDDING=ngram` also avoids probing Ollama. The calling agent's model performs reasoning, naming, semantic review and creative judgment; that agent may use a local or cloud model. Optional semantic embeddings improve comparisons, not reasoning.
+
+With inquiry memory enabled, a hook can collect user prompts. `cgu_status` reports pending reviews; after 20 prompts by default, the agent uses `cgu_inquiry(organize)` and submits `distill` to store reusable questions, constraints, assumptions, analogies, observations and ideas with source IDs and hashes. `materials` retrieves them across sessions. Storage defaults to `~/.cgu`, shared across clients. Without an active agent, prompts accumulate until the next review. See the [contract](docs/inquiry-memory-design.md).
 
 ## Install
 
@@ -59,7 +65,7 @@ codex mcp list    # shows the cgu server
     "cgu": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/u9401066/creativity-generation-unit@master", "cgu-server"],
+      "args": ["--from", "git+https://github.com/u9401066/creativity-generation-unit@v0.9.0", "cgu-server"],
       "env": { "CGU_PROVIDER": "passthrough" }
     }
   }
@@ -76,10 +82,11 @@ From a clone: `uv sync` then `uv run cgu-server`; `uv run cgu doctor` prints wha
 | `frame-audit` | "Are we asking the right question?": hidden assumptions, concept boundaries, criterion genealogy, question-quality gate |
 | `maieutic-session` | "Don't give me answers, guide me": the human produces, the AI only asks |
 | `idea-triage` | "Compare these ideas": measurement + blinded pairwise judging + idea cards |
+| `inquiry-mining` | "What do I keep asking?": themes, framing habits, bridges and reusable creative material from your history |
 
-Copilot also gets four thin agents (`creative-facilitator`, `frame-auditor`, `independent-ideator`, `adversarial-critic`). Hooks are deliberately not shipped (non-portable, and they run local code).
+Copilot also gets four thin agents (`creative-facilitator`, `frame-auditor`, `independent-ideator`, `adversarial-critic`). The plugin does not automatically install hooks; the optional Copilot collector is installed separately by the user.
 
-## The 10 tools
+## The 11 tools
 
 | Tool | Actions | Purpose |
 |---|---|---|
@@ -93,6 +100,7 @@ Copilot also gets four thin agents (`creative-facilitator`, `frame-auditor`, `in
 | `cgu_evolve` | map, next, submit, resolve | Niche map and mutation work orders with A/B order control |
 | `cgu_feedback` | record, summary, export, delete | What the human actually did with the ideas |
 | `cgu_question_gate` | check, record | Question-quality gate before spending effort |
+| `cgu_inquiry` | settings, capture, list, themes, label, mine, related, organize, distill, materials, export, delete | Cross-session inquiry and creative material memory; agent performs semantic review |
 
 Every tool returns `ToolResult{ok, data, work_order, work_orders, provenance, error}`. Domain errors are `ok=false`, never exceptions. Also exposed: 5 resources (`cgu://methods/*`, `cgu://operators`, rubrics, triggers) and 4 prompts for clients without skills. Full contract: [docs/architecture.md](docs/architecture.md).
 
@@ -102,13 +110,36 @@ Every tool returns `ToolResult{ok, data, work_order, work_orders, provenance, er
 
 With the plugin, a mid-tier model opens a session, writes the 8 typical answers, extracts the shared hidden assumptions (home sensing → alert → someone acts), and rewrites three of them with operators. For example, it negates "the alert is the product" into "the product is who receives the alert, under an SLA". It then fans each rewrite out as an independent idea card with payer vs. user, regulatory class (marked as a guess to confirm with the regulator), required validation and the cheapest MVP. Each card carries its derivation path (typical answer → assumption → operator → frame id).
 
+## Inquiry memory and the optional hook
+
+Recording starts off. The portable path is for the agent to forward selected prompts through `capture`. To collect Copilot CLI prompts continuously, install the pinned CLI, inspect the hook and enable recording:
+
+```shell
+uv tool install git+https://github.com/u9401066/creativity-generation-unit@v0.9.0
+cgu inquiry install-hook --print
+cgu inquiry settings --enable --yes
+cgu inquiry install-hook
+```
+
+Restart Copilot CLI after installation. The hook records user prompt text, timestamps, channel and the final project-directory name. It does not capture assistant replies or full transcripts. Installing the CLI first keeps the hook command local. Hook payload and installation were tested for Copilot CLI; Codex and VS Code hooks have not been verified.
+
+Ask your agent to organize accumulated material. `cgu_status.inquiry.maintenance` reports `pending` and `due` (20 pending prompts by default; change this through `cgu_inquiry(action=settings, organize_after=...)`). The agent gets a batch with `organize`, interprets it using its own model, and submits `distill` with evidence IDs and stored-text SHA-256 hashes. `materials` retrieves questions, constraints, assumptions, analogies, observations and ideas; `fragments_payload` can be added to an ideation session. Without an active agent, prompts accumulate until the next review.
+
+Manage records with `cgu inquiry settings --disable`, `cgu inquiry settings --exclude PROJECT`, `cgu inquiry export`, `cgu inquiry delete --all --yes`, or `cgu inquiry install-hook --remove`. Removing the hook leaves existing records in place. Deleting a source also deletes material that depends on it. De-identification is best effort; the agent's model and data policies are controlled by your client. Full [contract and limits](docs/inquiry-memory-design.md).
+
+## Upgrading from 0.8
+
+Storage defaults to `~/.cgu` and ignores `PLUGIN_DATA`. For an existing plugin-specific database, stop the server and back it up before moving `cgu.sqlite3` to `~/.cgu`, or set `CGU_DATA_DIR` to the existing directory. There is no automatic move or merge. Ensure all database connections are closed before moving a WAL database. Schema migrations preserve existing sessions.
+
+Default embeddings change from `auto` to `ngram`: similarity is lexical (`semantic=false`) and no model is contacted. Explicit `CGU_EMBEDDING=auto` or `ollama` opts into the configured embedding backend. Embeddings improve comparison; the agent's model still performs reasoning.
+
 ## Configuration
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `CGU_PROVIDER` | `passthrough` | `passthrough` returns work orders; `ollama` enables optional execute mode for `cgu_diverge` |
-| `CGU_DATA_DIR` | `$PLUGIN_DATA`, else `~/.cgu` | SQLite location (`cgu.sqlite3`, WAL) |
-| `CGU_EMBEDDING` | `auto` | `auto` / `ollama` / `ngram`. Without Ollama, novelty is **lexical** (`semantic=false`) |
+| `CGU_DATA_DIR` | `~/.cgu` | SQLite location (`cgu.sqlite3`, WAL); ignores `PLUGIN_DATA` |
+| `CGU_EMBEDDING` | `ngram` | No model connection by default; novelty is **lexical** (`semantic=false`). Explicit `auto` / `ollama` enables optional embeddings |
 | `CGU_OLLAMA_URL` | `http://localhost:11434` | Do not append `/v1` |
 | `CGU_OLLAMA_MODEL` | `qwen2.5:3b` | Execute mode only |
 | `CGU_EMBED_MODEL` | `nomic-embed-text` | |
@@ -166,7 +197,8 @@ On Windows, a running `cgu-server.exe` (for example one started by an editor) lo
 
 | Document | Content |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | v0.8.0 contract: tools, types, persistence, SDK 2 notes |
+| [docs/architecture.md](docs/architecture.md) | v0.9.0 contract: 11 tools, types, persistence, SDK 2 notes |
+| [docs/inquiry-memory-design.md](docs/inquiry-memory-design.md) | Hook collection, agent review, creative material, evidence and management |
 | [docs/critical-review-and-improvement-plan.md](docs/critical-review-and-improvement-plan.md) | 40 defects found in 0.6 and the improvement plan |
 | [docs/philosophical-inquiry-and-creativity.md](docs/philosophical-inquiry-and-creativity.md) | Philosophy as meta-inquiry: frames, operators, economy of doubt |
 | [docs/program-plan.md](docs/program-plan.md) | Phases, work packages, gates, decisions |

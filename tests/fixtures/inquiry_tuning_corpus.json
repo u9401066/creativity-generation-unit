@@ -1,0 +1,1002 @@
+{
+ "note": "SYNTHETIC tuning corpus (zh-TW, clinician-researcher). Hand-written questions; times, sessions and planted structure from a fixed seed. For tuning/regression only.",
+ "now": "2026-10-03T00:00:00+00:00",
+ "themes": {
+  "T1": "術後譫妄研究",
+  "T2": "鎮靜藥物與預後",
+  "T3": "居家血壓裝置開發",
+  "T4": "病歷申請流程",
+  "T5": "護理排班與人力",
+  "T6": "醫療器材法規"
+ },
+ "inquiries": [
+  {
+   "id": "q108",
+   "text": "這篇論文的統計方法我看不懂，可以幫我解釋 Cox regression 嗎？",
+   "theme": "U2",
+   "occurred_at": "2026-07-16T10:06:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q021",
+   "text": "有沒有人研究過術後譫妄跟術中腦電圖爆發抑制的關係？",
+   "theme": "T1",
+   "occurred_at": "2026-07-18T13:11:00+00:00",
+   "session": "S-T1-1",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q022",
+   "text": "有沒有比較 CAM-ICU 和 3D-CAM 在術後病房的敏感度？",
+   "theme": "T1",
+   "occurred_at": "2026-07-18T13:23:00+00:00",
+   "session": "S-T1-1",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q033",
+   "text": "remimazolam 在老人內視鏡鎮靜的最佳起始劑量是多少？",
+   "theme": "T2",
+   "occurred_at": "2026-07-20T16:49:00+00:00",
+   "session": "S-T2-1",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q034",
+   "text": "remimazolam 和 propofol 比較，術中低血壓的發生率差多少？",
+   "theme": "T2",
+   "occurred_at": "2026-07-20T16:57:00+00:00",
+   "session": "S-T2-1",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q001",
+   "text": "有沒有可能把夜間睡眠中斷的次數當成譫妄的早期指標？",
+   "theme": "T1",
+   "occurred_at": "2026-07-21T09:03:00+00:00",
+   "session": "S-BR-1",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q002",
+   "text": "想做一個譫妄風險預測模型，需要收集哪些術前變項？",
+   "theme": "T1",
+   "occurred_at": "2026-07-21T09:25:00+00:00",
+   "session": "S-BR-1",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q003",
+   "text": "腕戴式血壓量測的誤差在國際標準 ISO 81060-2 要怎麼驗證？",
+   "theme": "T3",
+   "occurred_at": "2026-07-21T09:28:00+00:00",
+   "session": "S-BR-1",
+   "project": "bp-device"
+  },
+  {
+   "id": "q004",
+   "text": "穿戴式裝置的光學感測器在深膚色使用者的準確度如何？",
+   "theme": "T3",
+   "occurred_at": "2026-07-21T09:41:00+00:00",
+   "session": "S-BR-1",
+   "project": "bp-device"
+  },
+  {
+   "id": "q112",
+   "text": "Python 怎麼把 CSV 的日期欄位轉成 datetime？",
+   "theme": "U6",
+   "occurred_at": "2026-07-24T19:11:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q051",
+   "text": "居家血壓計的使用者研究，應該先訪談哪些族群？",
+   "theme": "T3",
+   "occurred_at": "2026-07-26T09:35:00+00:00",
+   "session": "S-T3-1",
+   "project": "bp-device"
+  },
+  {
+   "id": "q052",
+   "text": "血壓計的電池壽命和充電方式，高齡者偏好哪一種？",
+   "theme": "T3",
+   "occurred_at": "2026-07-26T09:42:00+00:00",
+   "session": "S-T3-1",
+   "project": "bp-device"
+  },
+  {
+   "id": "q023",
+   "text": "有沒有文獻說明老年髖部骨折術後譫妄的盛行率大概是多少？",
+   "theme": "T1",
+   "occurred_at": "2026-07-27T08:36:00+00:00",
+   "session": "S-T1-2",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q024",
+   "text": "有沒有大型的隨機試驗證實右美托咪啶可以降低譫妄發生率？",
+   "theme": "T1",
+   "occurred_at": "2026-07-27T08:46:00+00:00",
+   "session": "S-T1-2",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q025",
+   "text": "怎麼設計一個前瞻性世代研究來追蹤術後譫妄的長期認知功能？",
+   "theme": "T1",
+   "occurred_at": "2026-07-27T08:53:00+00:00",
+   "session": "S-T1-2",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q035",
+   "text": "長時間手術用 remimazolam 持續輸注會不會蓄積？",
+   "theme": "T2",
+   "occurred_at": "2026-07-28T12:14:00+00:00",
+   "session": null,
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q036",
+   "text": "flumazenil 逆轉 remimazolam 之後有沒有再鎮靜的風險？",
+   "theme": "T2",
+   "occurred_at": "2026-07-28T12:21:00+00:00",
+   "session": "S-T2-2",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q037",
+   "text": "ICU 機械通氣病人用 remimazolam 的鎮靜深度怎麼監測？",
+   "theme": "T2",
+   "occurred_at": "2026-07-28T12:26:00+00:00",
+   "session": "S-T2-2",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q076",
+   "text": "護理師排班要怎麼兼顧公平和夜班次數上限？",
+   "theme": "T5",
+   "occurred_at": "2026-08-03T08:49:00+00:00",
+   "session": "S-T5-1",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q077",
+   "text": "三班輪值和彈性工時哪一種離職率比較低？",
+   "theme": "T5",
+   "occurred_at": "2026-08-03T08:53:00+00:00",
+   "session": "S-T5-1",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q005",
+   "text": "如何在術後復甦室就早期辨識出譫妄的徵兆？",
+   "theme": "T1",
+   "occurred_at": "2026-08-03T10:47:00+00:00",
+   "session": "S-BR-2",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q006",
+   "text": "術中血壓變異度和術後譫妄有關聯嗎，該用什麼指標？",
+   "theme": "T1",
+   "occurred_at": "2026-08-03T11:05:00+00:00",
+   "session": "S-BR-2",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q007",
+   "text": "產品的第一版 MVP 該包含哪些功能才夠臨床使用？",
+   "theme": "T3",
+   "occurred_at": "2026-08-03T11:17:00+00:00",
+   "session": "S-BR-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q008",
+   "text": "血壓異常的警示門檻應該由醫師設定還是由演算法決定？",
+   "theme": "T3",
+   "occurred_at": "2026-08-03T11:36:00+00:00",
+   "session": "S-BR-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q059",
+   "text": "病人申請病歷影本現在要等幾個工作天？",
+   "theme": "T4",
+   "occurred_at": "2026-08-04T09:15:00+00:00",
+   "session": "S-T4-1",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q060",
+   "text": "病歷申請書的欄位可不可以簡化成一頁？",
+   "theme": "T4",
+   "occurred_at": "2026-08-04T09:21:00+00:00",
+   "session": "S-T4-1",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q038",
+   "text": "BIS 值多少代表 remimazolam 鎮靜剛好？",
+   "theme": "T2",
+   "occurred_at": "2026-08-04T17:17:00+00:00",
+   "session": "S-T2-3",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q039",
+   "text": "肝腎功能不全的病人 remimazolam 要不要減量？",
+   "theme": "T2",
+   "occurred_at": "2026-08-04T17:20:00+00:00",
+   "session": "S-T2-3",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q061",
+   "text": "家屬代理申請病歷需要附哪些證明文件？",
+   "theme": "T4",
+   "occurred_at": "2026-08-06T09:27:00+00:00",
+   "session": "S-T4-2",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q062",
+   "text": "病歷影印收費標準每頁多少錢，有沒有依法規調整？",
+   "theme": "T4",
+   "occurred_at": "2026-08-06T09:45:00+00:00",
+   "session": "S-T4-2",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q063",
+   "text": "電子病歷可以直接給病人下載嗎，院內規定怎麼寫？",
+   "theme": "T4",
+   "occurred_at": "2026-08-06T09:59:00+00:00",
+   "session": null,
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q053",
+   "text": "商品定價要參考健保給付還是自費市場？",
+   "theme": "T3",
+   "occurred_at": "2026-08-06T13:33:00+00:00",
+   "session": "S-T3-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q054",
+   "text": "競品分析要看哪幾家的居家血壓計？",
+   "theme": "T3",
+   "occurred_at": "2026-08-06T13:36:00+00:00",
+   "session": "S-T3-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q055",
+   "text": "包裝與說明書的字體大小，對老年人的易用性有什麼建議？",
+   "theme": "T3",
+   "occurred_at": "2026-08-06T13:45:00+00:00",
+   "session": "S-T3-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q064",
+   "text": "病歷申請窗口的尖峰時段是什麼時候，排隊會多久？",
+   "theme": "T4",
+   "occurred_at": "2026-08-07T11:24:00+00:00",
+   "session": "S-T4-3",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q065",
+   "text": "出院病歷摘要要在幾天內完成才符合規定？",
+   "theme": "T4",
+   "occurred_at": "2026-08-07T11:27:00+00:00",
+   "session": "S-T4-3",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q066",
+   "text": "申請病歷的紀錄要保存多久？",
+   "theme": "T4",
+   "occurred_at": "2026-08-12T13:39:00+00:00",
+   "session": "S-T4-4",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q067",
+   "text": "病歷申請的 SOP 上次修訂是什麼時候？",
+   "theme": "T4",
+   "occurred_at": "2026-08-12T13:52:00+00:00",
+   "session": "S-T4-4",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q092",
+   "text": "第二類醫療器材查驗登記要準備哪些文件？",
+   "theme": "T6",
+   "occurred_at": "2026-08-13T15:09:00+00:00",
+   "session": null,
+   "project": "bp-device"
+  },
+  {
+   "id": "q093",
+   "text": "TFDA 臨床試驗豁免的條件是什麼？",
+   "theme": "T6",
+   "occurred_at": "2026-08-13T15:22:00+00:00",
+   "session": "S-T6-1",
+   "project": "bp-device"
+  },
+  {
+   "id": "q094",
+   "text": "軟體即醫療器材 SaMD 的分級原則怎麼判斷？",
+   "theme": "T6",
+   "occurred_at": "2026-08-14T09:02:00+00:00",
+   "session": "S-T6-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q095",
+   "text": "查驗登記審查期間通常多久，可以加速嗎？",
+   "theme": "T6",
+   "occurred_at": "2026-08-14T09:20:00+00:00",
+   "session": "S-T6-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q096",
+   "text": "國外已上市的血壓計來台灣，要不要重新做臨床？",
+   "theme": "T6",
+   "occurred_at": "2026-08-14T09:36:00+00:00",
+   "session": "S-T6-2",
+   "project": "bp-device"
+  },
+  {
+   "id": "q040",
+   "text": "propofol 輸注症候群在 ICU 長期鎮靜到底多常見？",
+   "theme": "T2",
+   "occurred_at": "2026-08-15T09:20:00+00:00",
+   "session": "S-T2-4",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q041",
+   "text": "小兒牙科鎮靜用 midazolam 和 remimazolam 哪個恢復比較快？",
+   "theme": "T2",
+   "occurred_at": "2026-08-15T09:38:00+00:00",
+   "session": "S-T2-4",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q056",
+   "text": "要不要把血壓計和藥盒結合成一個產品？",
+   "theme": "T3",
+   "occurred_at": "2026-08-15T11:26:00+00:00",
+   "session": "S-T3-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q057",
+   "text": "售後服務與校正週期要怎麼規劃？",
+   "theme": "T3",
+   "occurred_at": "2026-08-15T11:41:00+00:00",
+   "session": "S-T3-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q042",
+   "text": "目標控制輸注 TCI 的藥物動力學模型該選哪一個？",
+   "theme": "T2",
+   "occurred_at": "2026-08-16T15:14:00+00:00",
+   "session": "S-T2-5",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q043",
+   "text": "鎮靜過程中呼吸抑制的偵測，capnography 的證據夠嗎？",
+   "theme": "T2",
+   "occurred_at": "2026-08-16T15:16:00+00:00",
+   "session": "S-T2-5",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q044",
+   "text": "麻醉深度和一年死亡率的關係，BALANCED 試驗怎麼說？",
+   "theme": "T2",
+   "occurred_at": "2026-08-16T15:27:00+00:00",
+   "session": "S-T2-5",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q009",
+   "text": "腦部氧合監測 NIRS 能不能降低術後譫妄？",
+   "theme": "T1",
+   "occurred_at": "2026-08-17T10:19:00+00:00",
+   "session": "S-BR-3",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q010",
+   "text": "有沒有辦法用術前認知篩檢預測術後譫妄的風險？",
+   "theme": "T1",
+   "occurred_at": "2026-08-17T10:34:00+00:00",
+   "session": "S-BR-3",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q011",
+   "text": "用戶資料上傳雲端的隱私與資安要符合哪些規範？",
+   "theme": "T3",
+   "occurred_at": "2026-08-17T10:53:00+00:00",
+   "session": "S-BR-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q012",
+   "text": "臨床驗證試驗的受試者人數怎麼估？",
+   "theme": "T3",
+   "occurred_at": "2026-08-17T11:05:00+00:00",
+   "session": "S-BR-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q058",
+   "text": "專利檢索要用哪些關鍵字才不會漏掉血壓量測的先前技術？",
+   "theme": "T3",
+   "occurred_at": "2026-08-17T11:08:00+00:00",
+   "session": "S-T3-4",
+   "project": "bp-device"
+  },
+  {
+   "id": "q097",
+   "text": "品質系統文件 QMS 要建到什麼程度才夠申請？",
+   "theme": "T6",
+   "occurred_at": "2026-08-19T13:15:00+00:00",
+   "session": "S-T6-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q098",
+   "text": "醫療器材廣告宣稱的限制有哪些？",
+   "theme": "T6",
+   "occurred_at": "2026-08-19T13:30:00+00:00",
+   "session": "S-T6-3",
+   "project": "bp-device"
+  },
+  {
+   "id": "q107",
+   "text": "下週的院務會議議程在哪裡可以查？",
+   "theme": "U1",
+   "occurred_at": "2026-08-20T09:41:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q068",
+   "text": "外院轉診病人調閱病歷的流程可以線上化嗎？",
+   "theme": "T4",
+   "occurred_at": "2026-08-22T11:27:00+00:00",
+   "session": "S-T4-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q069",
+   "text": "病歷申請被退件最常見的原因是什麼？",
+   "theme": "T4",
+   "occurred_at": "2026-08-22T11:34:00+00:00",
+   "session": "S-T4-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q070",
+   "text": "病歷室人力不足的時候，有沒有臨時的替代流程？",
+   "theme": "T4",
+   "occurred_at": "2026-08-22T11:46:00+00:00",
+   "session": "S-T4-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q078",
+   "text": "病房護病比超標的時候，通報流程是什麼？",
+   "theme": "T5",
+   "occurred_at": "2026-08-22T11:53:00+00:00",
+   "session": "S-T5-2",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q079",
+   "text": "臨時請假的代班名單由誰維護？",
+   "theme": "T5",
+   "occurred_at": "2026-08-22T12:11:00+00:00",
+   "session": "S-T5-2",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q080",
+   "text": "新進護理師的輪訓計畫要排幾週才合理？",
+   "theme": "T5",
+   "occurred_at": "2026-08-22T12:17:00+00:00",
+   "session": "S-T5-2",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q045",
+   "text": "鎮靜藥物的成本效益分析怎麼做比較合理？",
+   "theme": "T2",
+   "occurred_at": "2026-08-28T11:51:00+00:00",
+   "session": "S-T2-6",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q046",
+   "text": "老年人使用苯二氮平類藥物的建議劑量調整原則是什麼？",
+   "theme": "T2",
+   "occurred_at": "2026-08-28T12:00:00+00:00",
+   "session": "S-T2-6",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q026",
+   "text": "術後譫妄的診斷標準在 DSM-5 和 ICD-11 有什麼差異？",
+   "theme": "T1",
+   "occurred_at": "2026-08-29T08:39:00+00:00",
+   "session": "S-T1-3",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q027",
+   "text": "全身麻醉和脊椎麻醉對老年人術後譫妄的影響，meta-analysis 做過了嗎？",
+   "theme": "T1",
+   "occurred_at": "2026-08-29T08:51:00+00:00",
+   "session": "S-T1-3",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q099",
+   "text": "製造許可與販賣許可要分開申請嗎？",
+   "theme": "T6",
+   "occurred_at": "2026-08-29T14:26:00+00:00",
+   "session": "S-T6-4",
+   "project": "bp-device"
+  },
+  {
+   "id": "q100",
+   "text": "產品變更以後，要不要重新送審？",
+   "theme": "T6",
+   "occurred_at": "2026-08-29T14:36:00+00:00",
+   "session": "S-T6-4",
+   "project": "bp-device"
+  },
+  {
+   "id": "q028",
+   "text": "譫妄病人使用 haloperidol 的證據強度如何？",
+   "theme": "T1",
+   "occurred_at": "2026-08-30T14:08:00+00:00",
+   "session": "S-T1-4",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q029",
+   "text": "哪些麻醉藥物被列在 Beers criteria 裡會增加老人譫妄風險？",
+   "theme": "T1",
+   "occurred_at": "2026-08-30T14:11:00+00:00",
+   "session": "S-T1-4",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q013",
+   "text": "術後譫妄病人的住院天數平均多長，要怎麼校正共變項？",
+   "theme": "T1",
+   "occurred_at": "2026-08-31T09:02:00+00:00",
+   "session": "S-BR-4",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q014",
+   "text": "老年患者術前禁食時間太長會增加譫妄嗎？",
+   "theme": "T1",
+   "occurred_at": "2026-08-31T09:26:00+00:00",
+   "session": "S-BR-4",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q015",
+   "text": "長輩不會用手機 App，血壓數據要怎麼傳回醫院？",
+   "theme": "T3",
+   "occurred_at": "2026-08-31T09:44:00+00:00",
+   "session": "S-BR-4",
+   "project": "bp-device"
+  },
+  {
+   "id": "q016",
+   "text": "藍牙連線失敗的使用情境，要怎麼設計防呆？",
+   "theme": "T3",
+   "occurred_at": "2026-08-31T09:59:00+00:00",
+   "session": "S-BR-4",
+   "project": "bp-device"
+  },
+  {
+   "id": "q071",
+   "text": "保險公司來函調閱病歷，院內回覆流程誰簽核？",
+   "theme": "T4",
+   "occurred_at": "2026-09-01T10:22:00+00:00",
+   "session": "S-T4-6",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q072",
+   "text": "病歷申請滿意度調查要問哪些題目？",
+   "theme": "T4",
+   "occurred_at": "2026-09-01T10:34:00+00:00",
+   "session": "S-T4-6",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q110",
+   "text": "幫我把這段英文摘要翻成中文",
+   "theme": "U4",
+   "occurred_at": "2026-09-03T09:09:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q109",
+   "text": "怎麼在 Zotero 裡整理 PDF？",
+   "theme": "U3",
+   "occurred_at": "2026-09-03T16:45:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q081",
+   "text": "加班費的核算方式在勞基法修正後怎麼調整？",
+   "theme": "T5",
+   "occurred_at": "2026-09-04T08:06:00+00:00",
+   "session": "S-T5-3",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q082",
+   "text": "排班系統要自己開發還是採購現成的？",
+   "theme": "T5",
+   "occurred_at": "2026-09-04T08:25:00+00:00",
+   "session": "S-T5-3",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q083",
+   "text": "護理人員夜班後隔天休息的間隔，法規最少要多久？",
+   "theme": "T5",
+   "occurred_at": "2026-09-05T15:39:00+00:00",
+   "session": null,
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q084",
+   "text": "假日門診的人力調度，有沒有數學模型可以參考？",
+   "theme": "T5",
+   "occurred_at": "2026-09-05T15:48:00+00:00",
+   "session": "S-T5-4",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q047",
+   "text": "dexmedetomidine 和 remimazolam 併用的藥物交互作用如何？",
+   "theme": "T2",
+   "occurred_at": "2026-09-06T09:33:00+00:00",
+   "session": "S-T2-7",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q073",
+   "text": "掛號櫃台和病歷室的交接單格式要不要統一？",
+   "theme": "T4",
+   "occurred_at": "2026-09-06T09:35:00+00:00",
+   "session": "S-T4-7",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q048",
+   "text": "無痛腸胃鏡的鎮靜失敗率怎麼定義？",
+   "theme": "T2",
+   "occurred_at": "2026-09-06T09:50:00+00:00",
+   "session": null,
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q074",
+   "text": "病歷掃描歸檔的品質檢查頻率應該多久一次？",
+   "theme": "T4",
+   "occurred_at": "2026-09-06T09:52:00+00:00",
+   "session": "S-T4-7",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q049",
+   "text": "鎮靜後恢復時間的測量方式有沒有標準？",
+   "theme": "T2",
+   "occurred_at": "2026-09-06T09:53:00+00:00",
+   "session": "S-T2-7",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q075",
+   "text": "要不要把病歷申請改成 LINE 機器人線上預約？",
+   "theme": "T4",
+   "occurred_at": "2026-09-06T09:54:00+00:00",
+   "session": "S-T4-7",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q101",
+   "text": "IEC 62304 軟體生命週期文件要怎麼準備？",
+   "theme": "T6",
+   "occurred_at": "2026-09-06T15:27:00+00:00",
+   "session": "S-T6-5",
+   "project": "bp-device"
+  },
+  {
+   "id": "q102",
+   "text": "臨床評估報告可以引用文獻代替自己做試驗嗎？",
+   "theme": "T6",
+   "occurred_at": "2026-09-06T15:30:00+00:00",
+   "session": "S-T6-5",
+   "project": "bp-device"
+  },
+  {
+   "id": "q103",
+   "text": "風險管理 ISO 14971 的流程要怎麼落地？",
+   "theme": "T6",
+   "occurred_at": "2026-09-06T15:35:00+00:00",
+   "session": "S-T6-5",
+   "project": "bp-device"
+  },
+  {
+   "id": "q050",
+   "text": "remimazolam 的藥物動力學在肥胖病人要用理想體重還是實際體重？",
+   "theme": "T2",
+   "occurred_at": "2026-09-08T16:25:00+00:00",
+   "session": "S-T2-8",
+   "project": "sedation-trial"
+  },
+  {
+   "id": "q030",
+   "text": "研究計畫書裡譫妄的 primary outcome 要用發生率還是持續天數？",
+   "theme": "T1",
+   "occurred_at": "2026-09-09T09:27:00+00:00",
+   "session": null,
+   "project": "delirium-study"
+  },
+  {
+   "id": "q031",
+   "text": "術後譫妄的樣本數要怎麼估算，預期發生率抓 20% 合理嗎？",
+   "theme": "T1",
+   "occurred_at": "2026-09-09T09:39:00+00:00",
+   "session": "S-T1-5",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q032",
+   "text": "用眼動儀自動偵測譫妄的做法可行嗎？",
+   "theme": "T1",
+   "occurred_at": "2026-09-09T09:50:00+00:00",
+   "session": "S-T1-5",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q017",
+   "text": "術後譫妄的家屬衛教單張應該包含哪些內容？",
+   "theme": "T1",
+   "occurred_at": "2026-09-13T10:21:00+00:00",
+   "session": "S-BR-5",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q018",
+   "text": "我們病房的譫妄發生率怎麼和國外的資料做比較才公平？",
+   "theme": "T1",
+   "occurred_at": "2026-09-13T10:28:00+00:00",
+   "session": "S-BR-5",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q019",
+   "text": "產品原型第一次給病人試用，觀察重點要列哪些？",
+   "theme": "T3",
+   "occurred_at": "2026-09-13T10:50:00+00:00",
+   "session": "S-BR-5",
+   "project": "bp-device"
+  },
+  {
+   "id": "q020",
+   "text": "做一個原型要找哪裡的代工廠，打樣一輪大概多少錢？",
+   "theme": "T3",
+   "occurred_at": "2026-09-13T11:09:00+00:00",
+   "session": "S-BR-5",
+   "project": "bp-device"
+  },
+  {
+   "id": "q111",
+   "text": "高鐵台北到高雄最晚一班幾點？",
+   "theme": "U5",
+   "occurred_at": "2026-09-17T10:10:00+00:00",
+   "session": null,
+   "project": null
+  },
+  {
+   "id": "q085",
+   "text": "護理長的行政工作可以怎麼減量？",
+   "theme": "T5",
+   "occurred_at": "2026-09-17T16:31:00+00:00",
+   "session": "S-T5-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q086",
+   "text": "流感季急診壅塞時的跨病房支援機制怎麼訂？",
+   "theme": "T5",
+   "occurred_at": "2026-09-17T16:48:00+00:00",
+   "session": "S-T5-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q087",
+   "text": "員工滿意度與排班公平性的問卷怎麼設計？",
+   "theme": "T5",
+   "occurred_at": "2026-09-17T16:57:00+00:00",
+   "session": "S-T5-5",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q104",
+   "text": "輸出到東南亞的法規要先看哪一國？",
+   "theme": "T6",
+   "occurred_at": "2026-09-18T14:46:00+00:00",
+   "session": "S-T6-6",
+   "project": "bp-device"
+  },
+  {
+   "id": "q105",
+   "text": "查驗登記的規費和技術服務費怎麼算？",
+   "theme": "T6",
+   "occurred_at": "2026-09-18T15:05:00+00:00",
+   "session": null,
+   "project": "bp-device"
+  },
+  {
+   "id": "q088",
+   "text": "實習護生帶教的人力成本要怎麼分攤？",
+   "theme": "T5",
+   "occurred_at": "2026-09-28T14:23:00+00:00",
+   "session": null,
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q089",
+   "text": "夜班津貼調整的預算要向誰申請？",
+   "theme": "T5",
+   "occurred_at": "2026-09-28T14:25:00+00:00",
+   "session": "S-T5-6",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q106",
+   "text": "有沒有比較便宜的眼動追蹤方法可以自動偵測譫妄？",
+   "theme": "T1",
+   "occurred_at": "2026-09-30T10:12:00+00:00",
+   "session": "S-T1-RESURFACE",
+   "project": "delirium-study"
+  },
+  {
+   "id": "q090",
+   "text": "醫師排班和護理排班的衝突，協調會議多久開一次？",
+   "theme": "T5",
+   "occurred_at": "2026-09-30T14:45:00+00:00",
+   "session": "S-T5-7",
+   "project": "hospital-admin"
+  },
+  {
+   "id": "q091",
+   "text": "護理人力預估要用病人數還是護理時數做依據？",
+   "theme": "T5",
+   "occurred_at": "2026-09-30T14:58:00+00:00",
+   "session": "S-T5-7",
+   "project": "hospital-admin"
+  }
+ ],
+ "ideas": [
+  {
+   "id": "i1",
+   "session": "S-T1-5",
+   "theme": "T1",
+   "text": "用眼動儀自動偵測術後譫妄",
+   "decision": "abandon"
+  },
+  {
+   "id": "i2",
+   "session": "S-T1-1",
+   "theme": "T1",
+   "text": "術後第一天由病房護理師用 3D-CAM 固定篩檢並記在護理紀錄",
+   "decision": "adopt"
+  },
+  {
+   "id": "i3",
+   "session": "S-T2-3",
+   "theme": "T2",
+   "text": "用 BIS 引導 remimazolam 滴定的內視鏡鎮靜流程",
+   "decision": "adopt"
+  },
+  {
+   "id": "i4",
+   "session": "S-BR-4",
+   "theme": "T3",
+   "text": "把藍牙配對改成掃 QR code 一次完成",
+   "decision": "adopt"
+  },
+  {
+   "id": "i5",
+   "session": "S-BR-1",
+   "theme": "T3",
+   "text": "做成手環型血壓計",
+   "decision": "abandon"
+  },
+  {
+   "id": "i6",
+   "session": "S-T4-7",
+   "theme": "T4",
+   "text": "把病歷申請改成 LINE 機器人線上預約",
+   "decision": "abandon"
+  },
+  {
+   "id": "i7",
+   "session": "S-T4-3",
+   "theme": "T4",
+   "text": "尖峰時段加開臨時窗口",
+   "decision": "abandon"
+  },
+  {
+   "id": "i8",
+   "session": "S-T4-1",
+   "theme": "T4",
+   "text": "申請書縮減為單頁",
+   "decision": "modify"
+  },
+  {
+   "id": "i9",
+   "session": "S-T5-3",
+   "theme": "T5",
+   "text": "用排班軟體自動平衡夜班次數",
+   "decision": "adopt"
+  },
+  {
+   "id": "i10",
+   "session": "S-T6-2",
+   "theme": "T6",
+   "text": "先做 SaMD 分級預審再決定是否做臨床",
+   "decision": "adopt"
+  }
+ ],
+ "planted": {
+  "recurring_stem": {
+   "stem": "有沒",
+   "theme": "T1"
+  },
+  "stalled_theme": "T4",
+  "bridge": [
+   "T1",
+   "T3"
+  ],
+  "dormant": {
+   "idea": "i1",
+   "resurfaced_by": "q106"
+  },
+  "abandoned_without_resurfacing": [
+   "i5",
+   "i6",
+   "i7"
+  ]
+ }
+}

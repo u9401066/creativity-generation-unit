@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "CGU 創意生成單元的 plugin 目錄（Agent Plugins 1.0）。",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "plugins": [
     {
       "name": "cgu",
-      "description": "以哲學式框架審查、反典型發散、可量測的新穎度與點子卡進行創意協作；資料只存本機。",
-      "version": "0.8.0",
+      "description": "以哲學式框架審查、反典型發散、可量測的新穎度與點子卡進行創意協作；可選的本機提問記憶；資料只存本機。",
+      "version": "0.9.0",
       "source": "./plugins/cgu",
       "author": {
         "name": "u9401066",

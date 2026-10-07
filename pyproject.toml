@@ -1,7 +1,7 @@
 [project]
 name = "creativity-generation-unit"
-version = "0.8.0"
-description = "CGU - an MCP server for frame-aware ideation: work orders, honest novelty measurement, frame operators and session-scoped persistence"
+version = "0.9.0"
+description = "CGU - MCP tools for frame-aware ideation, caller-model work orders, honest measurements and cross-session creative material memory"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
@@ -54,6 +54,28 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cgu"]
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "src/cgu",
+    "plugins/cgu",
+    "tests",
+    "evals",
+    "docs",
+    "memory-bank",
+    "mcp-config",
+    ".github/plugin/marketplace.json",
+    ".agents/plugins/marketplace.json",
+    "README.md",
+    "README.zh-TW.md",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "CONSTITUTION.md",
+    "LICENSE",
+    "pyproject.toml",
+    "uv.lock",
+]
+exclude = ["/evals/runs", "/evals/work", "**/__pycache__", "**/*.pyc"]
 
 [tool.ruff]
 target-version = "py311"

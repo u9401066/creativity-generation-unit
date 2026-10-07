@@ -118,7 +118,7 @@ async def test_search_results_are_fenced_before_they_reach_the_caller(
         )
     request = transport.requests[0]
     assert request.url.params["gsrsearch"] == "delirium"
-    assert request.headers["user-agent"].startswith("cgu/0.8.0")
+    assert request.headers["user-agent"].startswith("cgu/0.9.0")
     fragments = out["data"]["fragments"]
     assert len(fragments) == 2
     assert_clean(fragments[0])

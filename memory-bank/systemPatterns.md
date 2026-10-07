@@ -20,6 +20,12 @@ CONSTITUTION.md (最高原則)
 
 ## 🛠️ 設計模式
 
+### Hook 累積與 agent 整理（2026-10-07）
+- Hook 快速寫入提問，不載入 MCP 或呼叫模型；未整理佇列由缺少 review 的提問推導。
+- MCP 暴露待辦與 `inquiry_organize` 工單；呼叫端模型完成語意整理，`distill` 回交可重用素材。
+- 來源 ID 與儲存文字 SHA-256 在同一資料庫寫入交易驗證；素材 ID 依種類、去識別後文字與證據產生，重送不重複。
+- 刪除任一來源即刪除依賴素材；預設 `ngram`，embedding 與 local generation 僅明確選用。
+
 ### Repository Pattern
 - 介面在 Domain 層定義
 - 實作在 Infrastructure 層

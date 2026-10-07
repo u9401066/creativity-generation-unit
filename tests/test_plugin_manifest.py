@@ -65,7 +65,7 @@ def test_plugin_json_identity_and_metadata() -> None:
     manifest = load_json(PLUGIN_DIR / "plugin.json")
     assert manifest["$schema"] == PLUGIN_SCHEMA_ID
     assert manifest["name"] == "cgu"
-    assert manifest["version"] == "0.8.0"
+    assert manifest["version"] == "0.9.0"
     assert manifest["license"] == "Apache-2.0"
     assert manifest["author"] == {"name": "u9401066", "email": "u9401066@gap.kmu.edu.tw"}
     repo = "https://github.com/u9401066/creativity-generation-unit"
@@ -118,10 +118,12 @@ def test_mcp_json_declares_cgu_stdio_server_via_uvx() -> None:
     assert server["command"] == "uvx"
     assert server["args"] == [
         "--from",
-        "git+https://github.com/u9401066/creativity-generation-unit@master",
+        "git+https://github.com/u9401066/creativity-generation-unit@v0.9.0",
         "cgu-server",
     ]
-    assert server["env"] == {"CGU_PROVIDER": "passthrough", "CGU_DATA_DIR": "${PLUGIN_DATA}/cgu"}
+    assert server["env"] == {"CGU_PROVIDER": "passthrough"}, (
+        "CGU_DATA_DIR must stay unset: the memory lives in the user-level ~/.cgu"
+    )
 
 
 def test_mcp_json_uses_only_reserved_placeholders_and_no_secrets() -> None:

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 
 from cgu.application.ports import ArchivePort, EmbeddingPort, LLMPort, RetrievalPort
 from cgu.application.services.diverge import DivergeService
@@ -10,6 +12,7 @@ from cgu.application.services.evolve import EvolveService
 from cgu.application.services.feedback import FeedbackService
 from cgu.application.services.frame import FrameService
 from cgu.application.services.ideas import IdeaService
+from cgu.application.services.inquiry import InquiryService
 from cgu.application.services.judge import JudgeService
 from cgu.application.services.material import MaterialService
 from cgu.application.services.question_gate import QuestionGateService
@@ -27,6 +30,7 @@ class Services:
     evolve: EvolveService
     feedback: FeedbackService
     question_gate: QuestionGateService
+    inquiry: InquiryService
 
 
 def build_services(
@@ -37,6 +41,7 @@ def build_services(
     *,
     network_enabled: bool,
     execute_locally: bool,
+    clock: Callable[[], datetime] | None = None,
 ) -> Services:
     ideas = IdeaService(archive, embedding)
     judge = JudgeService(archive)
@@ -50,4 +55,5 @@ def build_services(
         evolve=EvolveService(archive, embedding, ideas, judge),
         feedback=FeedbackService(archive),
         question_gate=QuestionGateService(archive),
+        inquiry=InquiryService(archive, embedding, clock=clock),
     )

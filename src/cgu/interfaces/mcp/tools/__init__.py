@@ -11,6 +11,7 @@ from cgu.interfaces.mcp.tools import (
     feedback,
     frame,
     ideas,
+    inquiry,
     judge,
     material,
     question_gate,
@@ -29,6 +30,7 @@ _MODULES = (
     evolve,
     feedback,
     question_gate,
+    inquiry,
 )
 
 

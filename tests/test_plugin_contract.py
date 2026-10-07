@@ -43,6 +43,20 @@ ARCH_ACTIONS: dict[str, set[str]] = {
     "cgu_evolve": {"map", "next", "submit", "resolve"},
     "cgu_feedback": {"record", "summary", "export", "delete"},
     "cgu_question_gate": {"check", "record"},
+    "cgu_inquiry": {
+        "settings",
+        "capture",
+        "list",
+        "themes",
+        "label",
+        "mine",
+        "related",
+        "organize",
+        "distill",
+        "materials",
+        "export",
+        "delete",
+    },
 }
 OPERATORS = {
     "explicate",
@@ -163,6 +177,10 @@ def test_enumerated_argument_values_are_valid() -> None:
         ("frame-audit", {"cgu_frame", "cgu_question_gate", "cgu_diverge", "cgu_ideas"}),
         ("maieutic-session", {"cgu_question_gate", "cgu_ideas", "cgu_frame", "cgu_feedback"}),
         ("idea-triage", {"cgu_ideas", "cgu_judge", "cgu_feedback", "cgu_material"}),
+        (
+            "inquiry-mining",
+            {"cgu_status", "cgu_inquiry", "cgu_session", "cgu_frame", "cgu_diverge", "cgu_ideas"},
+        ),
     ],
 )
 def test_each_skill_uses_its_core_tools(skill: str, required: set[str]) -> None:

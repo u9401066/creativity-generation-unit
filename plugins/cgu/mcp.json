@@ -6,12 +6,11 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/u9401066/creativity-generation-unit@master",
+        "git+https://github.com/u9401066/creativity-generation-unit@v0.9.0",
         "cgu-server"
       ],
       "env": {
-        "CGU_PROVIDER": "passthrough",
-        "CGU_DATA_DIR": "${PLUGIN_DATA}/cgu"
+        "CGU_PROVIDER": "passthrough"
       }
     }
   }

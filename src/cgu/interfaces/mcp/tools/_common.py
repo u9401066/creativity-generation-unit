@@ -27,6 +27,7 @@ TOOL_MATURITY: dict[str, str] = {
     "cgu_evolve": "experimental",
     "cgu_feedback": "stable",
     "cgu_question_gate": "experimental",
+    "cgu_inquiry": "heuristic",
 }
 
 

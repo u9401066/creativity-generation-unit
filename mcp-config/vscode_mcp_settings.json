@@ -10,9 +10,8 @@
         "cgu-server"
       ],
       "env": {
-        "CGU_USE_LLM": "true",
-        "OLLAMA_BASE_URL": "http://localhost:11434/v1",
-        "OLLAMA_MODEL": "qwen2.5:3b"
+        "CGU_PROVIDER": "passthrough",
+        "CGU_EMBEDDING": "ngram"
       },
       "envFile": "${workspaceFolder}/.env"
     }

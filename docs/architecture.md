@@ -1,14 +1,14 @@
-# CGU v0.8 架構規格（SDK 2 原生重寫）
+# CGU v0.9 架構規格（SDK 2 與創意素材記憶）
 
-> **版本**：v0.8.0（**與 0.6 / 0.7 不相容，無別名、無遷移層**）｜**日期**：2026-10-02｜**作者**：u9401066 ＜u9401066@gap.kmu.edu.tw＞
+> **版本**：v0.9.0（與 0.6 / 0.7 不相容；保留 0.8 工具並新增提問記憶）｜**日期**：2026-10-07｜**作者**：u9401066 ＜u9401066@gap.kmu.edu.tw＞
 >
 > **依據**：[嚴格審查](./critical-review-and-improvement-plan.md)、[哲學後設探究](./philosophical-inquiry-and-creativity.md)、[執行計畫](./program-plan.md)。使用者於 2026-10-02 明確指示：MCP 以 SDK 2.0+ 為準、不相容舊版、直接重寫並設計較佳架構、可整合其他工具。因此執行計畫 D-05（保留別名）作廢；D-06（隔離舊引擎）改為**直接刪除**。
 
 ## 1. 設計原則
 
 1. **誠實**：任何浮點「分數、距離、相似度」只能出現在 `Measurement` 物件內，且必須有 `method`、`reference`、`calibrated`；沒有測量程序就輸出 `null`。計數、ID、預算可以是整數。
-2. **Work order 模式**：CGU **不假裝自己會創意**。預設（`passthrough`）下，凡需要生成或判斷的步驟，CGU 回傳 `WorkOrder`（指示、輸入、輸出 schema、回交方式），由呼叫端強模型執行，再用工具回交；CGU 負責**狀態、測量、去重、編排、隔離、持久化**（執行計畫的 I／C／S／M）。
-3. **Session 為界**：除 `cgu_status`、`cgu_session(open/list)` 外，所有工具都要 `session_id`；狀態存 SQLite，不使用模組全域狀態。
+2. **Work order 模式**：MCP 本身不提供思考能力。預設（`CGU_PROVIDER=passthrough`、`CGU_EMBEDDING=ngram`）下，CGU 不呼叫或探測本地模型；凡需要生成、命名、整理或語意判斷的步驟，CGU 回傳 `WorkOrder`（指示、輸入、輸出 schema、回交方式），由呼叫它的 agent 背後的模型執行，再用工具回交。Agent 可以使用雲端或本地模型；CGU 負責**狀態、測量、去重、編排、隔離、持久化**。
+3. **Session 與個人記憶分界**：除 `cgu_status`、`cgu_session(open/list)` 與跨 session 的 `cgu_inquiry` 外，所有工具都要 `session_id`；狀態存 SQLite，不使用模組全域狀態。
 4. **框架是一等公民**：Frame（假設、概念、隱喻、準則、利害關係人、單位、鉸鏈）有譜系；框架算子把變革型創意變成可執行、可追溯的操作。
 5. **不受信任內容隔離**：網頁、PubMed 等外部碎片一律 `trusted=false`，截斷、剝除指令句型、包進 `<untrusted_data>` 區塊。
 6. **降級要明說**：沒有 embedding 時退回字元 n-gram，並標 `semantic=false`；網路關閉或失敗時 `provenance.degraded=true` 並附警告。**不得**用模板冒充結果。
@@ -34,7 +34,7 @@ src/cgu/
 │   └── services/               # session, frame, material, diverge, ideas, judge, evolve, feedback, question_gate
 ├── infrastructure/             # 實作 ports
 │   ├── config.py               # Settings.from_env()（明確呼叫，不在 import 時執行）
-│   ├── embedding.py            # NgramHashEmbedding（預設降級）、OllamaEmbedding
+│   ├── embedding.py            # NgramHashEmbedding（預設，無模型）、OllamaEmbedding（選用）
 │   ├── llm.py                  # OllamaLLM（可選；僅 provider=ollama 的 execute 模式使用）
 │   ├── retrieval.py            # WikipediaRetrieval（httpx）
 │   └── sqlite.py               # SQLiteArchive（WAL、user_version migration、執行緒安全）
@@ -95,7 +95,7 @@ class ToolResult(BaseModel):           # 所有工具的回傳外殼
 
 領域錯誤回傳 `ok=false` 的 `ToolResult`，**不丟例外**；真正的程式錯誤才讓 SDK 處理。
 
-## 4. 工具規格（10 個；名稱與 action 為對外契約）
+## 4. 工具規格（v0.8.0 為 10 個，v0.9.0 起 11 個；名稱與 action 為對外契約）
 
 工具描述必須以成熟度標記開頭：`[stable]`、`[heuristic]` 或 `[experimental]`，並說明「量測了什麼、沒量測什麼」。多工具以 `action`（`Literal`）區分動作，使 JSON Schema 產生 enum。
 
@@ -178,6 +178,9 @@ Frame 元素種類：`goal`、`assumption`（`core`｜`belt`）、`concept`、`m
 | `check` | `{question, frame_id?, decision_context}` → `work_order`，內含五項判準與操作程序：①決策相關（答案不同，行動排序會變嗎）②可操作（能指出要蒐集什麼證據）③承重（反事實：假設被推翻，結論翻轉嗎）④非口頭（禁用關鍵詞後問題仍在嗎）⑤非典型（加分項） |
 | `record` | `{question, verdicts{decision_relevant, operable, load_bearing, non_verbal, non_typical?}, judge_model?}`；前四項皆真才算通過，回傳 `passed` 與未通過原因 |
 
+### 4.11 `cgu_inquiry(action, …)` `[heuristic]`（v0.9.0 新增）
+使用者提問歷史的**本機、opt-in**記憶：`settings`、`capture`、`list`、`themes`、`label`、`mine`、`related`、`organize`、`distill`、`materials`、`export`、`delete`。完整契約、管理規則與演算法見 [inquiry-memory-design.md](./inquiry-memory-design.md)。預設關閉；與其他工具不同，**它跨 session**（資料在使用者層級的 `~/.cgu`）。Hook 累積原始提問；agent 依 `maintenance.due` 取得整理工單，用自己的模型回交創意素材；CGU 驗證来源 ID 與儲存文字 SHA-256 後保存。這是個人參照與素材變豐富，不宣稱模型創造力增加。
+
 ## 5. Resources 與 Prompts
 
 - **Resources**：`cgu://methods/{name}`（SCAMPER、六頂思考帽、TRIZ 原理、5W2H、逆向、形態分析…的**方法說明**，取代舊 `apply_method`）、`cgu://operators`、`cgu://rubrics/question-gate`、`cgu://rubrics/pairwise`、`cgu://triggers`（觸發問句庫）。
@@ -185,8 +188,10 @@ Frame 元素種類：`goal`、`assumption`（`core`｜`belt`）、`concept`、`m
 
 ## 6. 持久化（SQLite）
 
-`CGU_DATA_DIR`（預設：環境變數 `PLUGIN_DATA`；其次 `~/.cgu`）下的 `cgu.sqlite3`；WAL；以 `PRAGMA user_version` 做 migration；所有寫入經單一連線鎖或 `to_thread`，**不得阻塞事件迴圈**。
-資料表：`sessions`、`frames`（含 `parent_id`、`operator`、`json`）、`ideas`、`fragments`、`verdicts`、`niches`、`questions`、`feedback`。刪除 session 時以外鍵 `ON DELETE CASCADE` 清除；`export` 與 `delete` 皆有測試。
+`CGU_DATA_DIR`（預設 `~/.cgu`；v0.9.0 起**不再使用 `PLUGIN_DATA`**，見 inquiry-memory-design D-22）下的 `cgu.sqlite3`；WAL；以 `PRAGMA user_version` 做 migration；所有寫入經單一連線鎖或 `to_thread`，**不得阻塞事件迴圈**。
+資料表：`sessions`、`frames`（含 `parent_id`、`operator`、`json`）、`ideas`、`fragments`、`verdicts`、`niches`、`questions`、`feedback`；v0.9.0 migration 2 新增 `inquiry_settings`、`inquiries`、`inquiry_vectors`、`inquiry_themes`、`inquiry_sources`。刪除 session 時以外鍵 `ON DELETE CASCADE` 清除；`export` 與 `delete` 皆有測試。
+
+Migration 3 新增 `inquiry_reviews`、`inquiry_materials`、`inquiry_material_links`；整理批次的證據驗證、素材寫入與已讀標記在同一寫入交易完成。刪除任一來源提問時，trigger 移除所有依賴素材，包含從 session CASCADE 進來的刪除；不留下失去來源的摘要。
 
 ## 7. 設定（環境變數；`Settings.from_env()`）
 
@@ -194,7 +199,7 @@ Frame 元素種類：`goal`、`assumption`（`core`｜`belt`）、`concept`、`m
 |---|---|---|
 | `CGU_PROVIDER` | `passthrough` | `passthrough`（回傳 work order）｜`ollama`（可選 execute 模式） |
 | `CGU_DATA_DIR` | 見上 | 資料目錄 |
-| `CGU_EMBEDDING` | `auto` | `auto`（有 Ollama 且可用才用語意 embedding，否則 n-gram）｜`ollama`｜`ngram` |
+| `CGU_EMBEDDING` | `ngram` | 確定性的詞面比對，不需模型；明確設定 `auto` 或 `ollama` 才連線至選用 embedding 後端。Embedding 不負責思考 |
 | `CGU_OLLAMA_URL` | `http://localhost:11434` | **不帶 `/v1`** |
 | `CGU_OLLAMA_MODEL` | `qwen2.5:3b` | 僅 execute 模式 |
 | `CGU_EMBED_MODEL` | `nomic-embed-text` | |
@@ -231,7 +236,7 @@ Frame 元素種類：`goal`、`assumption`（`core`｜`belt`）、`concept`、`m
 3. **repository 測試**（tmp sqlite）：migration、cascade 刪除、export／delete 無殘留、多 session 隔離。
 4. **工具契約測試**（SDK 2 in-process client）：每個工具回傳 `ToolResult`；`provenance` 必填；掃描輸出，**任何浮點必須位於 `Measurement` 之內**（計數與 ID 除外）；`passthrough` 下以假 httpx 斷言**零網路、零 LLM 呼叫**（`material.search` 除外且需 `CGU_NETWORK=on`）；注入文字經 `cgu_material(add)` 後被隔離並剝除。
 5. **非阻塞測試**：以心跳量測，LLM／embedding／檢索期間事件迴圈停頓 < 0.1 s（可用假的慢 adapter）。
-6. **stdio 子行程煙霧測試**：以 `uv run cgu-server` 啟動並列出 10 個工具、呼叫 `cgu_status`。
+6. **stdio 子行程煙霧測試**：以 `uv run cgu-server` 啟動並列出 11 個工具、呼叫 `cgu_status`。
 7. `ruff check`、`ruff format --check`、`mypy src` 全綠。
 
 ## 10. 舊→新對照（皆不相容）

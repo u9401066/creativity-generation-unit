@@ -1,21 +1,23 @@
-"""`cgu doctor` and `cgu serve`."""
+"""`cgu doctor`, `cgu serve` and `cgu inquiry`. Heavy modules are imported inside the commands,
+so `cgu inquiry hook` never pays for the MCP SDK.
+"""
 
 from __future__ import annotations
 
 import argparse
-import asyncio
 import json
 import sys
 from collections.abc import Sequence
 from typing import Any
 
-import httpx
-
 from cgu import __version__
-from cgu.application.ports import EmbeddingUnavailableError
 from cgu.infrastructure.config import Settings
-from cgu.interfaces.mcp.server import main as serve_main
-from cgu.interfaces.mcp.server import make_embedding
+
+
+def serve_main() -> None:
+    from cgu.interfaces.mcp.server import main as run
+
+    run()
 
 
 def _data_dir_status(settings: Settings) -> dict[str, Any]:
@@ -30,15 +32,24 @@ def _data_dir_status(settings: Settings) -> dict[str, Any]:
 
 
 async def _probe(settings: Settings) -> dict[str, Any]:
+    import httpx
+
+    from cgu.application.ports import EmbeddingUnavailableError
+    from cgu.infrastructure.embedding import make_embedding
+
     async with httpx.AsyncClient(timeout=3.0) as client:
-        ollama: dict[str, Any] = {"url": settings.ollama_url}
-        try:
-            response = await client.get(f"{settings.ollama_url}/api/tags")
-            response.raise_for_status()
-            models = [m.get("name") for m in response.json().get("models", [])]
-            ollama.update(reachable=True, models=models)
-        except (httpx.HTTPError, ValueError) as error:
-            ollama.update(reachable=False, error=str(error))
+        requested = settings.provider == "ollama" or settings.embedding != "ngram"
+        ollama: dict[str, Any] = {"url": settings.ollama_url, "requested": requested}
+        if requested:
+            try:
+                response = await client.get(f"{settings.ollama_url}/api/tags")
+                response.raise_for_status()
+                models = [m.get("name") for m in response.json().get("models", [])]
+                ollama.update(reachable=True, models=models)
+            except (httpx.HTTPError, ValueError) as error:
+                ollama.update(reachable=False, error=str(error))
+        else:
+            ollama.update(reachable=None, reason="not requested; reasoning is handled by the agent")
         embedding = make_embedding(settings, client)
         try:
             info = await embedding.describe()
@@ -49,6 +60,8 @@ async def _probe(settings: Settings) -> dict[str, Any]:
 
 
 def doctor(settings: Settings, as_json: bool = False) -> int:
+    import asyncio
+
     report: dict[str, Any] = {
         "version": __version__,
         "provider": settings.provider,
@@ -67,7 +80,13 @@ def doctor(settings: Settings, as_json: bool = False) -> int:
         print(
             f"embedding:        {embedding['backend']} (semantic={str(embedding['semantic']).lower()})"
         )
-        reachable = "reachable" if ollama["reachable"] else f"NOT reachable ({ollama['error']})"
+        reachable = (
+            "not requested (agent handles reasoning)"
+            if not ollama["requested"]
+            else "reachable"
+            if ollama["reachable"]
+            else f"NOT reachable ({ollama['error']})"
+        )
         print(f"ollama:           {ollama['url']} {reachable}")
         print(f"network (search): {'on' if report['network'] else 'off'}")
         status = "writable" if report["data_dir"]["writable"] else "NOT writable"
@@ -80,12 +99,22 @@ def doctor(settings: Settings, as_json: bool = False) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    args_list = list(sys.argv[1:] if argv is None else argv)
+    if args_list and args_list[0] == "inquiry":
+        from cgu.interfaces.inquiry_cli import main as inquiry_main
+
+        return inquiry_main(args_list[1:])
     parser = argparse.ArgumentParser(prog="cgu", description="Creativity Generation Unit")
     sub = parser.add_subparsers(dest="command")
     doctor_parser = sub.add_parser("doctor", help="print provider, embedding, data dir and Ollama")
     doctor_parser.add_argument("--json", action="store_true", help="machine-readable output")
     sub.add_parser("serve", help="run the MCP server on stdio")
-    args = parser.parse_args(argv)
+    sub.add_parser(
+        "inquiry",
+        help="local, opt-in memory of your own questions (cgu inquiry --help)",
+        add_help=False,
+    )
+    args = parser.parse_args(args_list)
     if args.command is None:
         parser.print_help()
         return 2

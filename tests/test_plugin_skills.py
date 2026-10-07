@@ -91,7 +91,7 @@ def _skill(name: str) -> tuple[dict, str, str]:
 # --- skills ---------------------------------------------------------------------------
 
 
-def test_exactly_the_four_skills_exist() -> None:
+def test_exactly_the_five_skills_exist() -> None:
     assert sorted(p.name for p in SKILLS_DIR.iterdir()) == sorted(SKILL_NAMES)
 
 

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import math
-import re
-import unicodedata
 from collections.abc import Sequence
 from functools import lru_cache
 
@@ -13,6 +11,9 @@ import numpy as np
 from pydantic import BaseModel
 
 from cgu.domain.common import Measurement
+from cgu.domain.lexical import jaccard as jaccard
+from cgu.domain.lexical import normalize as normalize
+from cgu.domain.lexical import shingles as shingles
 
 JACCARD_DUPLICATE_THRESHOLD = 0.8
 COSINE_DUPLICATE_THRESHOLD = 0.92
@@ -29,29 +30,6 @@ class NoveltyAgainst(BaseModel):
     mean_similarity: Measurement
     nearest_id: str
     reference_size: int
-
-
-_NON_ALNUM = re.compile(r"[\W_]+")
-
-
-def normalize(text: str) -> str:
-    return _NON_ALNUM.sub("", unicodedata.normalize("NFKC", text).casefold())
-
-
-@lru_cache(maxsize=4096)
-def shingles(text: str, n: int = 3) -> frozenset[str]:
-    norm = normalize(text)
-    if not norm:
-        return frozenset()
-    if len(norm) <= n:
-        return frozenset({norm})
-    return frozenset(norm[i : i + n] for i in range(len(norm) - n + 1))
-
-
-def jaccard(a: frozenset[str], b: frozenset[str]) -> float:
-    if not a or not b:
-        return 0.0
-    return len(a & b) / len(a | b)
 
 
 def _hash64(token: str) -> int:

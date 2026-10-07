@@ -1,6 +1,10 @@
-# Progress (Updated: 2026-10-03)
+# Progress (Updated: 2026-10-07)
 
 ## Done
+
+- 2026-10-07：v0.9.0 發布準備完成。文件、MCP 範例、plugin 與 hook fallback 固定版本同步；sdist 明確選取 CGU 檔案並排除本機快取與原始 runs。**579 passed**；ruff／mypy（63 source files）、locked sync、build 通過；獨立 Python 3.11.9／MCP 2.3.0 的已安裝 wheel 測得 11 tools、doctor 零模型探測、素材跨程序持久化與來源刪除連動。
+
+- 2026-10-07：接續 Copilot 的 inquiry memory，完成模型分工與創意素材整理。預設 `passthrough`＋`ngram`，MCP／doctor 不探測 Ollama；hook 累積、agent 用自己的模型執行 `organize`，`distill` 保存來源 ID／SHA-256 的 caller 素材，`materials` 跨 session 回用。Migration 3、門檻、分批／部分已讀、冪等重送、刪除連動、舊庫升級與競態回歸已驗證。`CGU_REQUIRE_LIVE_CONTRACT=1` 下 **577 passed**；ruff check／format、mypy（63 source files）、`uv build` 通過。未安裝使用者 hook、未發版。
 
 - 2026-10-03（第五輪續）：三輪效果實驗與迭代。exp1（v1）→ 依評審理由改 v2（限制清單）→ exp2（held-out）證偽「限制違反是主因」→ 讀評審理由後改 v3（白話輸出、決策值不得寫「待估」）→ exp3（新 held-out）持平。伺服器小修：`default_target`、unknown session 提示列出真實 id。Codex CLI 0.160.0 驗證安裝與 MCP 註冊。
 - 2026-10-03（第五輪，**v0.8.0 不相容重寫**）：依使用者指示「MCP 直接改 SDK 2.0+、不相容、設計較佳架構」完成並推送 `master`。
@@ -19,7 +23,7 @@
 
 ## Doing
 
-- 無進行中的長任務。三輪效果實驗已完成並寫入 `evals/reports/`（SUMMARY.md 為人工摘要）。
+- 無進行中的長任務。Hook 累積與 agent 整理流程已完成；真實使用的採用效果尚待累積資料驗證。
 
 ## 計畫狀態（鍵：工作包編號；定義見 `docs/program-plan.md` §6）
 
@@ -55,5 +59,4 @@
 1. 看實驗報告，據實更新 README「證據」；若 skill 自動觸發率低，改 skill 描述並用**未見過的題目**重驗。
 2. 人類校準協議（2–3 位評分者、約 100 個點子，D-10）。
 3. VS Code 與 Codex 的實際安裝驗證。
-4. 建 git tag 讓 plugin 固定版本；之後評估 PyPI 與 MCP Registry（D-19）。
-5. 未經使用者同意不建立 Release。
+4. 推送本次 v0.9.0 並確認 GitHub CI，建立已授權的 tag／Release；之後評估 PyPI 與 MCP Registry（D-19）。

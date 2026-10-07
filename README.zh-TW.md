@@ -10,6 +10,8 @@
 
 > **v0.8.0 是不相容的重寫。** 舊的 24 個工具（`generate_ideas`、`spark_collision`、`deep_think` …）已移除，沒有別名。請見 [從 0.6 遷移](#從-06-遷移)。
 
+**v0.9.0** 新增提問記憶與由 agent 模型整理的創意素材。安裝來源固定為 `v0.9.0`；[發布紀錄與套件](https://github.com/u9401066/creativity-generation-unit/releases/tag/v0.9.0)。
+
 ## 為什麼
 
 LLM 本來就會腦力激盪。它單靠自己做不到的，是腦力激盪「周邊」的那些事：
@@ -25,6 +27,10 @@ LLM 本來就會腦力激盪。它單靠自己做不到的，是腦力激盪「�
 | 誠實說出沒做到的事 | **每個結果都帶 provenance**：引擎、降級旗標、警告、seed、版本 |
 
 CGU **不假裝自己有創意**。預設（`CGU_PROVIDER=passthrough`）它**完全不呼叫 LLM**：只回傳「工單」給你正在使用的模型，再對回來的內容做驗證、保存、測量與隔離。數字只由程式產生，每個浮點數都放在會註明方法的 `Measurement` 裡。
+
+**不需要另外安裝 local LLM。** 預設 `CGU_EMBEDDING=ngram`，連 embedding 也不探測 Ollama。思考、語意整理、命名與創意判斷由呼叫 MCP 的 agent 模型負責；agent 本身可使用本地或雲端模型。選用語意 embedding 只改善比對，不替 MCP 提供思考能力。
+
+提問記憶啟用後，hook 可主動累積使用者提問；`cgu_status` 顯示待整理筆數，預設每累積 20 筆提示 agent 執行 `cgu_inquiry(organize)`，再以 `distill` 留下可追溯的創意素材。之後用 `materials` 取回限制、假設、類比、觀察與點子供發想。資料預設在 `~/.cgu`，跨客戶端與 session 共用；hook 安裝方式與管理見 [設計契約](docs/inquiry-memory-design.md)。沒有 agent 執行時只累積，不會自行整理。
 
 ## 安裝
 
@@ -59,7 +65,7 @@ codex mcp list    # 應看到 cgu server
     "cgu": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/u9401066/creativity-generation-unit@master", "cgu-server"],
+      "args": ["--from", "git+https://github.com/u9401066/creativity-generation-unit@v0.9.0", "cgu-server"],
       "env": { "CGU_PROVIDER": "passthrough" }
     }
   }
@@ -76,10 +82,11 @@ codex mcp list    # 應看到 cgu server
 | `frame-audit` | 「我們問對問題了嗎？」：隱性假設、概念邊界、準則系譜、提問品質閘門 |
 | `maieutic-session` | 「不要直接給答案，引導我」：人產出，AI 只提問 |
 | `idea-triage` | 「幫我比較這幾個點子」：測量＋盲評成對比較＋點子卡 |
+| `inquiry-mining` | 「我最近都在問什麼」：提問主題、框架習慣、橋接與可重用創意素材 |
 
-Copilot 另有四個薄包裝 agent（`creative-facilitator`、`frame-auditor`、`independent-ideator`、`adversarial-critic`）。**刻意不附 hooks**（不可攜，且會執行本機程式碼）。
+Copilot 另有四個薄包裝 agent（`creative-facilitator`、`frame-auditor`、`independent-ideator`、`adversarial-critic`）。Plugin 不自動安裝 hook；選用 Copilot 收集器由使用者另行安裝。
 
-## 10 個工具
+## 11 個工具
 
 | 工具 | actions | 用途 |
 |---|---|---|
@@ -93,6 +100,7 @@ Copilot 另有四個薄包裝 agent（`creative-facilitator`、`frame-auditor`�
 | `cgu_evolve` | map, next, submit, resolve | 利基地圖與突變工單，含 A/B 順序控制 |
 | `cgu_feedback` | record, summary, export, delete | 人類實際拿這些點子做了什麼 |
 | `cgu_question_gate` | check, record | 花力氣之前先過問題品質閘門 |
+| `cgu_inquiry` | settings, capture, list, themes, label, mine, related, organize, distill, materials, export, delete | 跨 session 提問與創意素材記憶；語意整理由 agent 執行 |
 
 每個工具都回傳 `ToolResult{ok, data, work_order, work_orders, provenance, error}`；領域錯誤是 `ok=false`，不丟例外。另提供 5 個 resources（`cgu://methods/*`、`cgu://operators`、評分準則、觸發問句）與 4 個 prompts，給不支援 skills 的客戶端。完整契約：[docs/architecture.md](docs/architecture.md)。
 
@@ -102,13 +110,36 @@ Copilot 另有四個薄包裝 agent（`creative-facilitator`、`frame-auditor`�
 
 裝了 plugin，中階模型會先開 session，寫出 8 個典型答案，抽出共同的隱性假設（居家量測 → 警示 → 有人處置），再用算子改寫其中三個，例如把「警示就是產品」否定成「產品是『誰在 SLA 下承接警示』」。接著把每個改寫獨立展開成點子卡：付費者與使用者、法規等級（標明為推測，須向主管機關確認）、所需驗證、最便宜的 MVP，並附推導路徑（典型答案 → 假設 → 算子 → 框架 ID）。
 
+## 提問記憶與選用 hook
+
+記錄預設關閉。可攜的管道是由 agent 用 `capture` 轉送選定的提問；要持續收集 Copilot CLI 的使用者提問，可安裝固定版本 CLI、查看 hook 內容，再啟用：
+
+```shell
+uv tool install git+https://github.com/u9401066/creativity-generation-unit@v0.9.0
+cgu inquiry install-hook --print
+cgu inquiry settings --enable --yes
+cgu inquiry install-hook
+```
+
+安裝後重新開啟 Copilot CLI。Hook 記錄提問文字、時間、管道與專案資料夾最後一段名稱；現有 payload 不包含助理回覆或完整對話。先安裝 CLI 可讓 hook 使用本機命令。Copilot CLI 的 payload 與安裝路徑已測試；Codex／VS Code hook 尚未驗證。
+
+請 agent 整理已累積的素材。`cgu_status.inquiry.maintenance` 回報待整理筆數與 `due`；預設累積 20 筆，可透過 `cgu_inquiry(action=settings, organize_after=...)` 修改。Agent 用 `organize` 取得一批提問，使用自己背後的模型整理，再以 `distill` 回交素材、來源 ID 與儲存文字 SHA-256。用 `materials` 取回問題、限制、假設、類比、觀察或點子，並將 `fragments_payload` 加入發想 session。沒有 agent 執行時只累積，等待下次整理。
+
+管理命令：`cgu inquiry settings --disable` 停用、`cgu inquiry settings --exclude PROJECT` 排除專案、`cgu inquiry export` 匯出、`cgu inquiry delete --all --yes` 刪除、`cgu inquiry install-hook --remove` 移除 hook。移除 hook 不刪除既有記錄；刪除原始提問會連带刪除依賴素材。去識別是盡力而為；agent 的模型與資料政策由客戶端決定。完整[契約與限制](docs/inquiry-memory-design.md)。
+
+## 從 0.8 升級
+
+資料目錄改為 `~/.cgu`，不再使用 `PLUGIN_DATA`。若有 plugin 專屬資料庫，先停止 server 並備份，再將 `cgu.sqlite3` 移到 `~/.cgu`，或以 `CGU_DATA_DIR` 指向原目錄；不自動搬移或合併。搬動 WAL 資料庫前須確認所有連線已關閉。Schema migration 保留既有 session。
+
+Embedding 預設從 `auto` 改為 `ngram`：只做詞面相似比對（`semantic=false`），不連模型。需要選用語意 embedding 時明確設定 `CGU_EMBEDDING=auto` 或 `ollama`；embedding 只改善比對，思考仍由 agent 的模型負責。
+
 ## 設定
 
 | 變數 | 預設 | 說明 |
 |---|---|---|
 | `CGU_PROVIDER` | `passthrough` | `passthrough` 回傳工單；`ollama` 啟用 `cgu_diverge` 的選用執行模式 |
-| `CGU_DATA_DIR` | `$PLUGIN_DATA`，否則 `~/.cgu` | SQLite 位置（`cgu.sqlite3`，WAL） |
-| `CGU_EMBEDDING` | `auto` | `auto`／`ollama`／`ngram`。沒有 Ollama 時新穎度只是**詞面**相似（`semantic=false`） |
+| `CGU_DATA_DIR` | `~/.cgu` | SQLite 位置（`cgu.sqlite3`，WAL）；不使用 `PLUGIN_DATA` |
+| `CGU_EMBEDDING` | `ngram` | 預設無模型連線，量測是**詞面**相似（`semantic=false`）；明確設 `auto`／`ollama` 才使用選用 embedding |
 | `CGU_OLLAMA_URL` | `http://localhost:11434` | 不要加 `/v1` |
 | `CGU_OLLAMA_MODEL` | `qwen2.5:3b` | 僅執行模式 |
 | `CGU_EMBED_MODEL` | `nomic-embed-text` | |
@@ -166,7 +197,8 @@ Windows 上若有編輯器啟動的 `cgu-server.exe` 在執行，會鎖住 `.ven
 
 | 文件 | 內容 |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | v0.8.0 契約：工具、型別、持久化、SDK 2 備註 |
+| [docs/architecture.md](docs/architecture.md) | v0.9.0 契約：11 個工具、型別、持久化、SDK 2 備註 |
+| [docs/inquiry-memory-design.md](docs/inquiry-memory-design.md) | Hook 累積、agent 整理、創意素材、證據與管理 |
 | [docs/critical-review-and-improvement-plan.md](docs/critical-review-and-improvement-plan.md) | 0.6 的 40 個缺陷與改進計畫 |
 | [docs/philosophical-inquiry-and-creativity.md](docs/philosophical-inquiry-and-creativity.md) | 哲學作為後設審查：框架、算子、懷疑的經濟學 |
 | [docs/program-plan.md](docs/program-plan.md) | 階段、工作包、關卡、決策 |

@@ -2,6 +2,8 @@
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
+| 2026-10-07 | 使用者要求更新文件並發布：固定 git tag `v0.9.0`，GitHub Release 附 wheel、sdist 與 SHA256SUMS；PyPI／公共 Registry 按 D-19 留待後續 | 本版將已驗證的 inquiry memory 與 caller 素材整理一起交付，不另外升版。產物稽核發現原本 sdist 混入本機快取，改明確打包範圍並排除 evals/runs，加入實際建置回歸 |
+| 2026-10-07 | 預設 `passthrough`＋`ngram`，不呼叫或探測 local LLM；hook 累積，agent 用自己的模型整理，再由 MCP 保存可追溯創意素材。使用者層級 `~/.cgu` 跨客戶端共用 | 使用者指出 MCP 被動且沒有思考能力；未來 local LLM 是 agent 的模型，不應要求第二個推理模型。整理門檻預設 20 筆，在下一次 agent 使用時處理一批，無背景排程。素材來源以提問 ID＋儲存文字 SHA-256 固定，原子寫入並同步刪除失去來源的素材 |
 | 2025-12-15 | 採用憲法-子法層級架構 | 類似 speckit 的規則層級，可擴展且清晰 |
 | 2026-08-17 | MCP SDK 2-only 並建立 protocol/wheel smoke hard gate | 避免只改依賴宣告；每次發布都驗證 direct、stdio 與已安裝 wheel 的實際協定行為 |
 | 2026-08-17 | live LLM 測試改為 opt-in integration marker | 預設 CI 必須可重現且不依賴本機 Ollama；真實後端仍可透過明確環境變數執行 |

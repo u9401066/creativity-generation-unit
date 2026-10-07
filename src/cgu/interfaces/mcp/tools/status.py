@@ -14,7 +14,9 @@ from cgu.interfaces.mcp.tools._common import TOOL_MATURITY, Ctx, deps_of
 
 DESCRIPTION = (
     "[stable] 回報版本、provider（passthrough｜ollama）、embedding 後端與是否具語意（semantic）、"
-    "檢索是否啟用、資料目錄，以及各工具成熟度。開工前先呼叫：semantic=false 時，"
+    "檢索是否啟用、資料目錄、各工具成熟度，以及提問記憶是否啟用（inquiry.enabled：null 表示從未詢問）與筆數。"
+    "開工前先呼叫：inquiry.maintenance.due=true 時用 cgu_inquiry(organize) 取得整理工單，"
+    "由你的模型整理並用 distill 回交創意素材；semantic=false 時，"
     "cgu_ideas(measure) 的新穎度只是字元 n-gram 的詞面重疊，不代表語意不同。"
     "量測：能力與設定；不量測任何創意品質。"
 )
@@ -55,5 +57,6 @@ def register(server: MCPServer[Deps]) -> None:
                 "retrieval": {"enabled": deps.settings.network},
                 "data_dir": str(deps.settings.data_dir),
                 "maturity": dict(TOOL_MATURITY),
+                "inquiry": await deps.services.inquiry.status(),
             },
         )

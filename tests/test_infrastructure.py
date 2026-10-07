@@ -49,7 +49,8 @@ def embed_ok(request: httpx.Request) -> httpx.Response:
 def test_settings_defaults() -> None:
     settings = Settings.from_env({})
     assert settings.provider == "passthrough"
-    assert settings.embedding == "auto"
+    assert settings.embedding == "ngram"
+    assert Settings(data_dir=Path("/data")).embedding == "ngram"
     assert settings.network is True
     assert settings.ollama_url == "http://localhost:11434"
     assert settings.data_dir == Path.home() / ".cgu"
@@ -77,13 +78,23 @@ def test_settings_read_every_variable() -> None:
     assert settings.log_level == "DEBUG"
 
 
-def test_data_dir_prefers_cgu_over_plugin_data() -> None:
-    assert Settings.from_env({"PLUGIN_DATA": "/plugin"}).data_dir == Path("/plugin")
+def test_data_dir_is_cgu_data_dir_else_home_cgu_and_plugin_data_is_ignored() -> None:
+    assert Settings.from_env({"CGU_DATA_DIR": "/mine"}).data_dir == Path("/mine")
     both = {"PLUGIN_DATA": "/plugin", "CGU_DATA_DIR": "/mine"}
     assert Settings.from_env(both).data_dir == Path("/mine")
-    assert Settings.from_env({"PLUGIN_DATA": "/plugin", "CGU_DATA_DIR": ""}).data_dir == Path(
-        "/plugin"
-    )
+    only_plugin = Settings.from_env({"PLUGIN_DATA": "/plugin"}).data_dir
+    assert only_plugin == Path.home() / ".cgu"
+    empty = Settings.from_env({"PLUGIN_DATA": "/plugin", "CGU_DATA_DIR": ""}).data_dir
+    assert empty == Path.home() / ".cgu"
+    assert Settings.from_env({}).db_path == Path.home() / ".cgu" / "cgu.sqlite3"
+
+
+def test_copilot_home_prefers_the_env_var_then_dot_copilot() -> None:
+    from cgu.infrastructure.config import copilot_home
+
+    assert copilot_home({"COPILOT_HOME": "/cop"}) == Path("/cop")
+    assert copilot_home({}) == Path.home() / ".copilot"
+    assert copilot_home({"COPILOT_HOME": ""}) == Path.home() / ".copilot"
 
 
 @pytest.mark.parametrize("raw", ["http://h:11434/v1", "http://h:11434/v1/", "http://h:11434/"])
@@ -361,7 +372,7 @@ def doctor_env(monkeypatch: pytest.MonkeyPatch, data_dir: Path, **extra: str) ->
         "CGU_OLLAMA_URL": "http://127.0.0.1:9",
         **extra,
     }
-    for name in ("CGU_PROVIDER", "CGU_NETWORK", "PLUGIN_DATA"):
+    for name in ("CGU_PROVIDER", "CGU_NETWORK"):
         monkeypatch.delenv(name, raising=False)
     for name, value in env.items():
         monkeypatch.setenv(name, value)
@@ -388,7 +399,7 @@ def test_doctor_text_output_names_each_fact_and_warns_about_non_semantic_embeddi
     out = capsys.readouterr().out
     assert "provider:" in out and "passthrough" in out
     assert "ngram-hash (semantic=false)" in out
-    assert "NOT reachable" in out and "network (search): off" in out
+    assert "not requested (agent handles reasoning)" in out and "network (search): off" in out
     assert str(tmp_path / "data") in out and "writable" in out
     assert "note: semantic=false" in out
 

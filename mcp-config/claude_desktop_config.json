@@ -1,17 +1,15 @@
 {
   "mcpServers": {
     "cgu": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "--directory",
-        "C:\\workspace251215",
-        "run",
+        "--from",
+        "git+https://github.com/u9401066/creativity-generation-unit@v0.9.0",
         "cgu-server"
       ],
       "env": {
-        "CGU_USE_LLM": "true",
-        "OLLAMA_BASE_URL": "http://localhost:11434/v1",
-        "OLLAMA_MODEL": "qwen2.5:3b"
+        "CGU_PROVIDER": "passthrough",
+        "CGU_EMBEDDING": "ngram"
       }
     }
   }

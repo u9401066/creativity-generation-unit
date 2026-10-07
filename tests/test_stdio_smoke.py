@@ -30,6 +30,7 @@ TOOLS = {
     "cgu_evolve",
     "cgu_feedback",
     "cgu_question_gate",
+    "cgu_inquiry",
 }
 
 
@@ -67,7 +68,7 @@ async def test_module_entry_point_speaks_mcp_over_stdio(tmp_path: Path) -> None:
         sys.executable, ["-m", "cgu.interfaces.mcp.server"], tmp_path / "data", stderr_path
     ) as client:
         assert client.protocol_version == "2026-07-28"
-        assert client.server_info is not None and client.server_info.version == "0.8.0"
+        assert client.server_info is not None and client.server_info.version == "0.9.0"
         assert client.instructions is None or "cgu_session" in client.instructions
         listed = await client.list_tools()
         assert {tool.name for tool in listed.tools} == TOOLS
@@ -122,7 +123,7 @@ async def test_sessions_persist_across_server_processes(tmp_path: Path) -> None:
 
 def test_pyproject_declares_the_console_scripts() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert pyproject["project"]["version"] == "0.8.0"
+    assert pyproject["project"]["version"] == "0.9.0"
     assert pyproject["project"]["scripts"] == {
         "cgu-server": "cgu.interfaces.mcp.server:main",
         "cgu": "cgu.interfaces.cli:main",

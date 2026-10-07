@@ -1,6 +1,6 @@
 # CGU plugin（Agent Plugins 1.0）
 
-CGU 創意生成單元的可安裝套件：**4 個 skills ＋ 1 個 MCP server ＋（Copilot 專屬）4 個薄包裝 agents**。目標是讓中階模型（Claude Sonnet、GPT luna 這一級）在創意協作時，表現得像嚴謹、有哲學素養的協作者：先審查問題框架、再反典型發散、所有新穎度都附參照集與方法、最後交付含風險與最小驗證步驟的點子卡。
+CGU v0.9.0 的可安裝套件：**5 個 skills ＋ 1 個 MCP server ＋（Copilot 專屬）4 個薄包裝 agents**。目標是讓中階模型在創意協作時先審查問題框架、再反典型發散、測量有明確參照的新穎度，並將自己的提問整理成可重用、可追溯的素材。MCP 不需另設 local LLM；思考由呼叫端 agent 的模型完成。
 
 | Skill | 用途 | 觸發例 |
 |---|---|---|
@@ -8,8 +8,9 @@ CGU 創意生成單元的可安裝套件：**4 個 skills ＋ 1 個 MCP server �
 | `frame-audit` | 對問題框架做哲學式檢查（隱性假設、概念、準則系譜、提問品質閘門） | 「這問題問對了嗎？」 |
 | `maieutic-session` | 產婆模式：人產出、AI 只提問 | 「不要直接給答案，引導我」 |
 | `idea-triage` | 測量＋成對評審＋點子卡 | 「幫我比較這幾個點子」 |
+| `inquiry-mining` | 提問主題、框架習慣、橋接與創意素材整理 | 「我最近都在問什麼」「從我的提問找靈感」 |
 
-MCP server `cgu` 提供 10 個工具：`cgu_status`、`cgu_session`、`cgu_frame`、`cgu_material`、`cgu_diverge`、`cgu_ideas`、`cgu_judge`、`cgu_evolve`、`cgu_feedback`、`cgu_question_gate`（規格見 repo 的 `docs/architecture.md`）。預設 `CGU_PROVIDER=passthrough`：CGU **不替你生成**，只回傳工單、保存狀態、做測量；生成與判斷由你正在用的模型執行。
+MCP server `cgu` 提供 11 個工具：`cgu_status`、`cgu_session`、`cgu_frame`、`cgu_material`、`cgu_diverge`、`cgu_ideas`、`cgu_judge`、`cgu_evolve`、`cgu_feedback`、`cgu_question_gate`、`cgu_inquiry`（見 repo 的 `docs/architecture.md`）。預設 `CGU_PROVIDER=passthrough`＋`CGU_EMBEDDING=ngram`：只回傳工單、保存狀態與量測，不探測模型。
 
 ## 安裝
 
@@ -51,11 +52,20 @@ enabled = true
 | 呈現資訊 | `plugin.json` 的 `extensions.com.openai.interface` | 忽略 | OpenAI 客戶端用於顯示 |
 | Marketplace | `.github/plugin/marketplace.json`／`.agents/plugins/marketplace.json` | Copilot 讀前者 | Codex 讀後者 |
 
-本 plugin **刻意不附 hooks**（hooks 會執行本機程式碼，且兩家不可攜；設計決策 D-20）。
+Plugin 不自動安裝 hooks。選用 Copilot 收集器請先安裝固定版本 CLI，查看內容後再自行啟用：
+
+```shell
+uv tool install git+https://github.com/u9401066/creativity-generation-unit@v0.9.0
+cgu inquiry install-hook --print
+cgu inquiry settings --enable --yes
+cgu inquiry install-hook
+```
+
+重新開啟 Copilot CLI 後生效。Hook 主動累積使用者提問；agent 讀 `cgu_status.inquiry.maintenance`，待辦達門檻（預設 20 筆）時用 `cgu_inquiry(action=organize)` 取得一批提問，以自己的模型整理並用 `cgu_inquiry(action=distill)` 回交，再以 `cgu_inquiry(action=materials)` 取回。現有 hook 不含助理回覆，無 agent 時不自行整理；Codex／VS Code hook 尚未驗證。管理與移除方式見 [主 README](../../README.zh-TW.md#提問記憶與選用-hook)。
 
 ## 隱私
 
-- 所有 session、框架、點子、判決、回饋都存在**本機 SQLite**（`CGU_DATA_DIR`，預設 `${PLUGIN_DATA}/cgu`）。CGU **不上傳**任何資料，也沒有遙測。
+- 所有 session、框架、點子、判決、回饋與整理後的創意素材都存在**本機 SQLite**（`CGU_DATA_DIR`，預設 `~/.cgu`，不使用 `PLUGIN_DATA`）。CGU 預設不呼叫或探測本地模型，也沒有遙測。明確選用 embedding 時，送至設定的後端；呼叫端 agent 的模型與資料政策由客戶端決定。
 - 但請注意兩件事：①你的對話與工單內容會被**你使用的客戶端模型**（Copilot、Codex 背後的服務）看到，這是客戶端本身的行為，不是 CGU 的；②`cgu_material(action=search)` 會把**查詢字串**送到 Wikipedia。設定 `CGU_NETWORK=off` 可關閉；關閉後該動作會回報 `degraded`。
 - 刪除：`cgu_session(action=delete, session_id=…, confirm=true)` 清除該 session 全部資料；`cgu_session(action=export, session_id=…)` 可匯出。
 
@@ -72,7 +82,7 @@ enabled = true
 - Agent Plugins 1.0 於 2026-08 才發布，各客戶端的載入細節可能變動；Copilot 的 agent 工具白名單使用 `cgu/*` 形式，若客戶端對 plugin MCP server 使用不同命名，名稱不符的工具會被忽略。
 - Codex 的公開 plugin 目錄目前要求遠端 HTTPS MCP；本 plugin 的 MCP 是本機 stdio，因此以 repo marketplace 方式安裝，而不是公開上架。
 - MCP 設定指向 `master` 分支（持續更新）；需要穩定版本時請改為固定 git tag。
-- 尚未發布到 PyPI；過渡方案為 `uvx --from git+https://github.com/u9401066/creativity-generation-unit@master cgu-server`。
+- 發布使用固定 git tag：`uvx --from git+https://github.com/u9401066/creativity-generation-unit@v0.9.0 cgu-server`。PyPI／MCP Registry 是後續發布階段（D-19）。
 
 ## 授權
 

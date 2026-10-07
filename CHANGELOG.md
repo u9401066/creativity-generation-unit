@@ -7,6 +7,27 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-07
+
+### Added
+- `cgu_inquiry`（第 11 個工具）與 `inquiry-mining`（第 5 個 skill）：提問記錄、復現歸族、主題群聚、來源挖掘、相關歷史、管理開關、專案排除、匯出與刪除。
+- 本機 CLI 的 `cgu inquiry`：設定、檔案匯入、主題、挖掘、匯出、刪除與選用 Copilot `userPromptSubmitted` hook；hook 延遲載入、錯誤只寫 stderr，不阻擋提問。只收集 payload 中可取得的使用者提問。
+- Hook 累積後由呼叫端 agent 執行的創意素材整理：`cgu_inquiry(organize/distill/materials)`；待整理門檻與 `cgu_status` 提示；素材保留提問 ID、儲存文字 SHA-256、日期、來源與 caller 歸屬。刪除證據連帶刪除依賴素材。
+- 合成調參語料、H13 評估程式與真實 agent probe 工具；本版未宣稱完成 held-out 效果驗證或提升創意品質。
+
+### Changed
+- `CGU_EMBEDDING` 預設改為 `ngram`；預設 MCP 與 `cgu doctor` 不探測 Ollama。需要思考的工作由 agent 背後的模型處理，既有 Ollama adapters 僅供明確選用。
+- 個人記憶資料目錄為 `CGU_DATA_DIR` 或 `~/.cgu`，不再依賴 plugin 的安裝生命週期。
+- SQLite schema 由 v1 升級到 v3，保留既有 session；加入提問、向量、主題、來源、審閱紀錄與創意素材。
+- Plugin、hook fallback 與 MCP 設定範例固定到 `v0.9.0`；設定範例使用現行 `CGU_PROVIDER`／`CGU_EMBEDDING`。
+
+### Fixed
+- 限制 sdist 的打包範圍，排除本機資料、模型快取、擴充套件安裝檔與 scratch 輸出；wheel 僅包含 CGU runtime。
+
+### Migration
+- 既有資料目錄若位於 `PLUGIN_DATA`，請先停止相關 server、備份，再將既有 `cgu.sqlite3` 移到 `~/.cgu`，或用 `CGU_DATA_DIR` 指向原目錄；本版不自動搬移或合併資料。若存在 WAL／SHM，請先確保資料庫連線已關閉。
+- `CGU_EMBEDDING` 的預設 `auto` 改為 `ngram`，比對結果標示 `semantic=false`。需要語意 embedding 時明確設 `auto` 或 `ollama`；命名、整理、創意推理仍由呼叫端 agent 模型負責。
+
 ## [0.8.0] - 2026-10-03
 
 > **BREAKING.** Full rewrite on MCP Python SDK 2. No aliases, no compatibility layer. Rationale and defect list: `docs/critical-review-and-improvement-plan.md`; contract: `docs/architecture.md`.

@@ -136,4 +136,7 @@ async def test_every_tool_name_and_action_mentioned_anywhere_exists(
         "judge",
         "question_gate",
         "evolve",
+        "inquiry_label",
+        "inquiry_organize",
+        "inquiry_explicate",
     }

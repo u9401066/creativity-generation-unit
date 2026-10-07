@@ -15,7 +15,13 @@ SCHEMA_DIR = REPO_ROOT / "tests" / "schemas" / "agent-plugins" / "1.0.0"
 COPILOT_MARKETPLACE = REPO_ROOT / ".github" / "plugin" / "marketplace.json"
 CODEX_MARKETPLACE = REPO_ROOT / ".agents" / "plugins" / "marketplace.json"
 
-SKILL_NAMES = ("creative-ideation", "frame-audit", "maieutic-session", "idea-triage")
+SKILL_NAMES = (
+    "creative-ideation",
+    "frame-audit",
+    "maieutic-session",
+    "idea-triage",
+    "inquiry-mining",
+)
 AGENT_NAMES = (
     "creative-facilitator",
     "frame-auditor",

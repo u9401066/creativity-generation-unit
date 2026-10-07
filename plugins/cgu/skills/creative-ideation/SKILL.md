@@ -7,6 +7,10 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 
 主流程：**開 session → 框架 → 典型答案 → 溯因假設 → 懷疑的經濟學 → 框架算子 → 素材 → 反典型發散 → 測量 → 成對評審 → 可行性閘門 → 點子卡 → 回饋**。你的角色是嚴謹、有哲學素養的創意協作者：CGU 負責狀態、測量與隔離，你負責生成與判斷。
 
+CGU 不需要另一個 local LLM；整理與推理由你背後的模型完成（本地或雲端皆可）。Hook 可持續累積提問；能力檢查若 `inquiry.maintenance.due=true`，先用 `cgu_inquiry(action=organize, limit=20)` 取得一批整理工單，照工單提煉創意素材並用 `distill` 回交。每次最多一批，未讀完的不要標記已整理；沒有可用素材可回交 `materials=[]`。在流程步驟 9 用 `cgu_inquiry(action=materials, query=<問題的關鍵詞>, limit=5)` 取回相關素材，再用 `fragments_payload` 呼叫 `cgu_material(action=add)`；query 只是詞面篩選，你負責語意挑選。
+
+使用者給出可重用的限制、觀察、類比或未完成的點子時，在已啟用的記憶中用 `capture(source=agent)` 記下簡短素材與 session；整理時連回提問 ID 與原始文字雜湊。保留有用素材，不將助理自己的猜測冒充使用者原話。
+
 ## 何時使用（When to use）
 - 使用者要新點子、新研究方向、新產品概念、新流程方案，或說「卡住了」「答案都很普通」。
 - 不要用：純執行（改檔、寫程式）、只要查資料；使用者只想排序現成點子 → `idea-triage`；只想檢查問題問對沒 → `frame-audit`；使用者想自己想 → `maieutic-session`。
@@ -22,9 +26,9 @@ description: "Orchestrates a full creative-ideation run with the CGU MCP server:
 
 ## 流程（Procedure；照順序、不可跳步）
 1. **開 session**：`cgu_session(action=open, topic=<一句話>, domain=<例：醫療商品開發>, language=zh-TW)` → 記下 `session_id`。延續舊案：`cgu_session(action=list)`，再 `cgu_session(action=get, session_id=…)`。
-2. **能力檢查**：`cgu_status()` → 記下 `provider`、`embedding.semantic`、`retrieval.enabled`。`semantic=false` → 之後新穎度一律稱「詞面相似度」。
+2. **能力檢查**：`cgu_status()` → 記下 `provider`、`embedding.semantic`、`retrieval.enabled`、`inquiry.enabled`。`semantic=false` → 之後新穎度一律稱「詞面相似度」。**提問記憶（僅 `inquiry.enabled=true` 時；`false` 或 `null` 一律略過，不在創意流程中途詢問）**：`cgu_inquiry(action=related, query=<使用者這次的問題>)` → 有相似的舊提問就白話告訴使用者「你在 <日期> 問過類似的」；把 `ideas_payload`（你過去採用或放棄過的點子）留到步驟 4 一起登錄；再用 `cgu_inquiry(action=capture, text=<使用者的問題；含病人或第三方識別資訊時先改寫成不含識別的版本>, session_id=<步驟 1 的 session>)` 記下這次提問。結尾若從未啟用過，只加一句「想讓我記住你的提問、之後幫你找模式，可以說『啟用提問記憶』」。
 3. **建框架**：`cgu_frame(action=create, session_id, problem=…, goal=…, stakeholders=[…], criteria=[…], constraints=[…], hinges=[…])`。`hinges` ＝ 這一輪**不質疑**的前提，至少 1 條。→ 記下 `frame_id`。
-4. **人先發想**（只問一次，不強迫）：「你已經有的點子先寫 1–3 個，我會當作『你的』參照，不改寫。」→ `cgu_ideas(action=add, session_id, ideas=[{text, kind=human}])`。
+4. **人先發想**（只問一次，不強迫）：「你已經有的點子先寫 1–3 個，我會當作『你的』參照，不改寫。」→ `cgu_ideas(action=add, session_id, ideas=[{text, kind=human}])`；步驟 2 取得的 `ideas_payload` 一併登錄（它們是使用者過去自己採用或放棄的點子，不是新點子）。
 5. **典型答案（先不看任何素材）**：`cgu_diverge(action=typical_set, session_id, frame_id, k=8)` → 在**不查資料、不看使用者點子**的狀態下寫 8 個最直覺答案 → `cgu_ideas(action=add, session_id, ideas=[{text, kind=typical, frame_id}])`。
 6. **溯因隱性假設**：`cgu_frame(action=operate, session_id, frame_id, operator=explicate)` → 依工單回答「什麼假設必須成立，這 8 個答案才合理？」。必做自問：**「列出所有典型答案共有的 3 條假設；對每條問：若它是假的，方案哪裡會變？」** 答「什麼都不變」→ 該假設不承重，丟掉。其餘標 `core`（改了就是另一個專案）或 `belt`（可調整）→ `cgu_frame(action=commit, session_id, frame_id, operator=explicate, child=<FrameDraft>)` → 記下 `child_frame_id`（以下稱 **F1**）與各假設 ID。**FrameDraft 的 id 規則**：新增的元素**不要填 `id`**（由伺服器配發，commit 回傳後才引用）；只有沿用或改寫 parent 既有元素時才帶它原本的 `id`。
 7. **懷疑的經濟學**：`cgu_frame(action=doubt, session_id, frame_id=F1, signals={stalled_rounds, anomalies, conflicts, high_stakes, user_requested}, estimates={<假設ID>: {load_bearing, uncertainty, decision_impact, irreversibility}}, budget={max_questions: 3})`。`estimates` 是你以 0–1 給的估計，**不是測量**，報告時標「模型估計，未校準」。`signals` 要誠實填（見〈決策規則〉）。讀 `escalate`、`ranked`、`stop_reasons`、`untested_load_bearing`。

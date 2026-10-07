@@ -16,7 +16,7 @@ EmbeddingMode = Literal["auto", "ollama", "ngram"]
 class Settings:
     data_dir: Path
     provider: Provider = "passthrough"
-    embedding: EmbeddingMode = "auto"
+    embedding: EmbeddingMode = "ngram"
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:3b"
     embed_model: str = "nomic-embed-text"
@@ -33,15 +33,13 @@ class Settings:
         provider = source.get("CGU_PROVIDER", "passthrough").strip().lower()
         if provider not in ("passthrough", "ollama"):
             raise ValueError(f"CGU_PROVIDER must be passthrough or ollama, got {provider!r}")
-        embedding = source.get("CGU_EMBEDDING", "auto").strip().lower()
+        embedding = source.get("CGU_EMBEDDING", "ngram").strip().lower()
         if embedding not in ("auto", "ollama", "ngram"):
             raise ValueError(f"CGU_EMBEDDING must be auto, ollama or ngram, got {embedding!r}")
         network = source.get("CGU_NETWORK", "on").strip().lower()
         if network not in ("on", "off"):
             raise ValueError(f"CGU_NETWORK must be on or off, got {network!r}")
-        data_dir = (
-            source.get("CGU_DATA_DIR") or source.get("PLUGIN_DATA") or str(Path.home() / ".cgu")
-        )
+        data_dir = data_dir_from_env(source)
         url = source.get("CGU_OLLAMA_URL", "http://localhost:11434").strip().rstrip("/")
         url = url.removesuffix("/v1")
         return cls(
@@ -54,3 +52,15 @@ class Settings:
             network=network == "on",
             log_level=source.get("CGU_LOG_LEVEL", "INFO").strip().upper(),
         )
+
+
+def data_dir_from_env(env: Mapping[str, str] | None = None) -> Path:
+    """CGU_DATA_DIR, else ~/.cgu. (PLUGIN_DATA is not used: the memory outlives any one plugin.)"""
+    source = os.environ if env is None else env
+    return Path(source.get("CGU_DATA_DIR") or str(Path.home() / ".cgu")).expanduser()
+
+
+def copilot_home(env: Mapping[str, str] | None = None) -> Path:
+    """Where Copilot CLI keeps its configuration: COPILOT_HOME, else ~/.copilot."""
+    source = os.environ if env is None else env
+    return Path(source.get("COPILOT_HOME") or str(Path.home() / ".copilot")).expanduser()

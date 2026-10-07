@@ -10,8 +10,9 @@ from collections.abc import Sequence
 import httpx
 import numpy as np
 
-from cgu.application.ports import Embedded, EmbeddingInfo, EmbeddingUnavailableError
+from cgu.application.ports import Embedded, EmbeddingInfo, EmbeddingPort, EmbeddingUnavailableError
 from cgu.domain.measure import normalize
+from cgu.infrastructure.config import Settings
 
 NGRAM_BACKEND = "ngram-hash"
 NGRAM_DIM = 512
@@ -157,3 +158,12 @@ class AutoEmbedding:
 
     async def aclose(self) -> None:
         await self._ollama.aclose()
+
+
+def make_embedding(settings: Settings, client: httpx.AsyncClient) -> EmbeddingPort:
+    if settings.embedding == "ngram":
+        return NgramHashEmbedding()
+    ollama = OllamaEmbedding(settings.ollama_url, settings.embed_model, client=client)
+    if settings.embedding == "ollama":
+        return ollama
+    return AutoEmbedding(ollama, NgramHashEmbedding())

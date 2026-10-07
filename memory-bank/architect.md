@@ -121,6 +121,7 @@ src/cgu/infrastructure   SQLite（WAL）、embedding（n-gram／Ollama）、檢�
 
 - **依賴規則**：domain 不 import 其他層，也不用 `httpx`／`sqlite3`；由 `tests/test_architecture_rules.py` 強制。
 - **passthrough 工單模式**：預設不呼叫 LLM；CGU 回傳 `WorkOrder`，呼叫端模型生成，CGU 負責驗證、保存、測量、隔離。
+- **2026-10-07 inquiry 素材整理**：embedding 預設 `ngram`，連線與本地模型不再是預設前置。Hook 主動累積提問，`cgu_status.inquiry.maintenance` 回報待整理筆數與門檻；`organize` 發工單，agent 用自己的模型整理，`distill` 保存 caller 素材及原始 ID／SHA-256，`materials` 跨 session 取回。三個新表（reviews／materials／links）由 migration 3 建立；整批交易驗證、source-delete trigger 與外鍵維持來源一致。沒有 agent 時只累積。
 - **誠實不變式**：所有浮點只存在 `Measurement{value, method, reference, calibrated, n}`；未量測為 `null`；每個結果帶 `Provenance`（engine、degraded、warnings、seed、version）；領域錯誤回 `ok=false`，不丟例外。
 - **ADR-004（2026-10-03）**：以不相容重寫取代逐項修補。原因：審查證實多數舊機制是模板＋亂數＋常數，缺陷之間相互依賴，修補只會保留誤導性的介面。
 - **ADR-005（2026-10-03）**：以 Agent Plugins 1.0 交付；可攜核心（skills＋`mcp.json`）與 Copilot 專屬（`com.github.copilot/agents`）分離；不附 hooks。

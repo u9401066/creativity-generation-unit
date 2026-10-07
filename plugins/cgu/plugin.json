@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "cgu",
-  "version": "0.8.0",
-  "description": "CGU 創意生成單元：以哲學式框架審查、反典型發散、可量測的新穎度與點子卡，讓中階模型成為嚴謹的創意協作者。Philosophically literate creative-ideation harness (frame audit, anti-typical divergence, measured novelty, idea cards).",
+  "version": "0.9.0",
+  "description": "CGU 創意生成單元：以哲學式框架審查、反典型發散、可量測的新穎度與點子卡，讓中階模型成為嚴謹的創意協作者；可選的本機提問記憶能從你自己的提問歷史找出創意來源。Philosophically literate creative-ideation harness (frame audit, anti-typical divergence, measured novelty, idea cards, opt-in local inquiry memory).",
   "author": {
     "name": "u9401066",
     "email": "u9401066@gap.kmu.edu.tw"

@@ -22,6 +22,20 @@ ACTIONS: dict[str, list[str] | None] = {
     "cgu_evolve": ["map", "next", "submit", "resolve"],
     "cgu_feedback": ["record", "summary", "export", "delete"],
     "cgu_question_gate": ["check", "record"],
+    "cgu_inquiry": [
+        "settings",
+        "capture",
+        "list",
+        "themes",
+        "label",
+        "mine",
+        "related",
+        "organize",
+        "distill",
+        "materials",
+        "export",
+        "delete",
+    ],
 }
 RESULT_KEYS = {"ok", "data", "work_order", "work_orders", "provenance", "error"}
 WORK_ORDER_KEYS = {
@@ -58,7 +72,7 @@ def check_result(out: dict[str, Any]) -> None:
     assert set(out) == RESULT_KEYS, set(out) ^ RESULT_KEYS
     assert isinstance(out["ok"], bool)
     prov = out["provenance"]
-    assert prov["version"] == "0.8.0"
+    assert prov["version"] == "0.9.0"
     assert prov["engine"] in {"passthrough", "ollama", "heuristic", "retrieval", "archive"}
     assert isinstance(prov["warnings"], list)
     if out["ok"]:
@@ -296,18 +310,87 @@ async def run_everything(h: Harness) -> tuple[list[dict[str, Any]], set[tuple[st
     await call("cgu_material", action="list", session_id=sid)
     await call("cgu_material", action="search", session_id=sid, query="delirium")
     await call("cgu_session", action="export", session_id=sid)
+    await run_inquiry(call, sid)
     await call("cgu_feedback", action="delete", session_id=sid, confirm=True)
     await call("cgu_session", action="delete", session_id=sid, confirm=True)
     return results, covered
 
 
-async def test_exactly_ten_tools_with_the_contracted_actions_and_annotations(
+INQUIRY_QUESTIONS = [
+    "delirium screening on the surgical ward, which tool works best for older patients",
+    "delirium screening tool choice for older surgical patients on the ward",
+    "which delirium screening tool should the surgical ward use for older patients",
+    "how to price a wearable blood pressure cuff for home care customers",
+    "wearable blood pressure cuff pricing for home care customers",
+    "what price should a wearable blood pressure cuff for home care customers have",
+    "medical record copy request counter queue at the hospital front desk",
+    "queue at the hospital front desk for medical record copy requests",
+    "how to shorten the medical record copy request queue at the hospital front desk",
+]
+
+
+async def run_inquiry(call: Callable[..., Any], sid: str) -> None:
+    """Every cgu_inquiry action, from the never-asked state to delete."""
+    await call("cgu_inquiry", action="settings")
+    await call(
+        "cgu_inquiry",
+        action="settings",
+        enable=True,
+        consent={"granted": True, "note": "yes, keep my questions on this machine"},
+    )
+    await call("cgu_inquiry", action="settings", excluded_projects=["scratch"])
+    await call(
+        "cgu_inquiry", action="capture", text=INQUIRY_QUESTIONS[0], project="demo", session_id=sid
+    )
+    await call(
+        "cgu_inquiry",
+        action="capture",
+        items=[
+            {
+                "text": text,
+                "project": "demo",
+                "occurred_at": f"2026-07-{day + 1:02d}T09:00:00+00:00",
+            }
+            for day, text in enumerate(INQUIRY_QUESTIONS[1:])
+        ],
+    )
+    await call("cgu_inquiry", action="list", limit=5)
+    themes = await call("cgu_inquiry", action="themes")
+    stored = themes["data"]["themes"]
+    if stored:
+        await call(
+            "cgu_inquiry",
+            action="label",
+            labels=[{"theme_id": stored[0]["theme_id"], "label": "a theme label"}],
+        )
+    await call("cgu_inquiry", action="mine")
+    await call("cgu_inquiry", action="related", query="delirium screening for older patients")
+    organize = await call("cgu_inquiry", action="organize", limit=2)
+    reviewed = organize["work_order"]["submit_with"]["args_template"]["reviewed"]
+    await call(
+        "cgu_inquiry",
+        action="distill",
+        reviewed=reviewed,
+        materials=[
+            {
+                "kind": "question",
+                "text": "What can delirium screening change?",
+                "inquiry_ids": [reviewed[0]["inquiry_id"]],
+            }
+        ],
+    )
+    await call("cgu_inquiry", action="materials")
+    await call("cgu_inquiry", action="export")
+    await call("cgu_inquiry", action="delete", all=True, confirm=True)
+
+
+async def test_exactly_eleven_tools_with_the_contracted_actions_and_annotations(
     open_cgu: Callable[..., Any],
 ) -> None:
     async with open_cgu() as h:
         listed = await h.client.list_tools()
     tools = {t.name: t for t in listed.tools}
-    assert set(tools) == set(ACTIONS) and len(tools) == 10
+    assert set(tools) == set(ACTIONS) and len(tools) == 11
     for name, tool in tools.items():
         marker = TOOL_MATURITY[name]
         assert tool.description.startswith(f"[{marker}]"), name
@@ -316,7 +399,7 @@ async def test_exactly_ten_tools_with_the_contracted_actions_and_annotations(
         assert "ctx" not in properties and "consent_decision" not in properties
         if ACTIONS[name]:
             assert properties["action"]["enum"] == ACTIONS[name], name
-            if name != "cgu_session":
+            if name not in ("cgu_session", "cgu_inquiry"):
                 assert "session_id" in tool.input_schema["required"], name
         assert tool.annotations is not None
         assert tool.annotations.title
@@ -327,6 +410,9 @@ async def test_exactly_ten_tools_with_the_contracted_actions_and_annotations(
     assert tools["cgu_status"].annotations.read_only_hint is True
     assert tools["cgu_session"].annotations.destructive_hint is True
     assert tools["cgu_feedback"].annotations.destructive_hint is True
+    assert tools["cgu_inquiry"].annotations.destructive_hint is True
+    assert TOOL_MATURITY["cgu_inquiry"] == "heuristic"
+    assert tools["cgu_inquiry"].input_schema["required"] == ["action"]
     for name in ("cgu_frame", "cgu_ideas", "cgu_judge", "cgu_diverge"):
         assert tools[name].annotations.destructive_hint is False
 

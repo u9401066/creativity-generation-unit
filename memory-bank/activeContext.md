@@ -2,6 +2,10 @@
 
 ## 當前焦點
 
+- **2026-10-07 v0.9.0 發布準備**：使用者已明確要求「更新文件跟發布」。README（EN／zh-TW）、架構、CHANGELOG、ROADMAP、設定範例與 plugin 已同步；安裝及 hook fallback 固定 `v0.9.0`。依 D-19，先發布 git tag／GitHub Release（wheel、sdist、SHA256SUMS），PyPI／MCP Registry 留待後續。排除本機快取、擴充套件資料與 evals/runs 的 sdist 打包修正已有回歸；579 tests、ruff／mypy 通過，獨立 Python 3.11＋MCP 2.3.0 的 wheel stdio／doctor／素材生命週期通過。下一步：提交、推送、GitHub CI 與 release。
+
+- **2026-10-07 接續 Copilot，已完成**：使用者確認 MCP 被動提供工具，推理由呼叫端 agent 的模型負責。Hook 主動累積使用者提問，agent 定期整理成可追溯的創意素材；資料採 `~/.cgu`。未來 local LLM 可作為 agent，CGU 不另要求一個本地推理模型。管理機制保留但不是功能核心。預設 embedding 改 `ngram`，doctor 亦不探測模型；新增 `organize`／`distill`／`materials` 與 migration 3。門檻預設 20 筆，在 agent 下次使用時處理一批；無 agent 時只累積，不啟動排程。全套 577 passed、ruff／mypy／build 通過；未實際安裝 hook 或發布。
+
 - **2026-10-03：v0.8.0（MCP SDK 2 不相容重寫）已完成並推送 `master`**；進行中的是效果實驗的產出與報告（`evals/reports/`），以及把實驗結論據實回寫 README「證據」。
 - 專案作者與聯絡人：**u9401066 ＜u9401066@gap.kmu.edu.tw＞**（先前文件中的誤植已更正）。
 - 使用者指示（本輪）：MCP 直接改 SDK 2.0+、不相容、設計較佳架構；完整修正後更新文件＋Memory Bank＋分段 git＋push；**實際安裝 plugin 測試效果**，預設用 Sonnet／luna 等級模型（SOTA 模型不需要這些輔助）；創意討論不需倫理審查（以研究創意、醫療商品開發、行政流程轉變為例）；可整合其他工具。
@@ -9,9 +13,9 @@
 ## 架構摘要（詳見 `docs/architecture.md`）
 
 - `src/cgu/{domain,application,infrastructure,interfaces}`；依賴規則由測試強制。
-- 10 個工具：`cgu_status`、`cgu_session`、`cgu_frame`、`cgu_material`、`cgu_diverge`、`cgu_ideas`、`cgu_judge`、`cgu_evolve`、`cgu_feedback`、`cgu_question_gate`；另有 5 resources、4 prompts。
+- 11 個工具：`cgu_status`、`cgu_session`、`cgu_frame`、`cgu_material`、`cgu_diverge`、`cgu_ideas`、`cgu_judge`、`cgu_evolve`、`cgu_feedback`、`cgu_question_gate`、`cgu_inquiry`；另有 5 resources、4 prompts。
 - 預設 passthrough：CGU 不呼叫 LLM，回傳工單；數值只存在 `Measurement`；未量測為 `null`；每個結果帶 `Provenance`。
-- Plugin：`plugins/cgu`（Agent Plugins 1.0）——4 skills、4 Copilot agents、`mcp.json`；marketplace 在 `.github/plugin/` 與 `.agents/plugins/`。
+- Plugin：`plugins/cgu`（Agent Plugins 1.0）——5 skills（含 inquiry-mining）、4 Copilot agents、`mcp.json`；marketplace 在 `.github/plugin/` 與 `.agents/plugins/`。
 
 ## 本輪實測得到的事實
 
@@ -37,14 +41,14 @@
 - [ ] VS Code 的實際安裝驗證；Codex 的實際對話驗證（需登入）。
 - [ ] 加 `agent` 條件與消融實驗；評估 skill 是否該在任務型題自動退讓。
 - [ ] 重測 `cgu_judge` 自編 session 名稱的錯誤（提示已改為列出真實 id，尚未重測）。
-- [ ] 建 git tag 供 plugin 固定版本；PyPI／MCP Registry 順序依 D-19；未經同意不建立 Release。
+- [ ] 發布 v0.9.0 tag／GitHub Release（使用者於 2026-10-07 已授權）；PyPI／MCP Registry 順序依 D-19。
 - [ ] 在 med-paper-assistant 的 integration lock 中固定正式發布版本（0.8.0 為不相容變更，須通知上層）。
-- [ ] 語意 embedding 成為預設路徑（目前無 Ollama 時新穎度只是詞面相似）。
+- [ ] 語意 embedding 的選用評估；2026-10-07 使用者要求 agent 模型負責思考，因此保留 `ngram` 為無模型預設，語意 embedding 需明確設定。
 - 未追蹤、**非 CGU 本體**的檔案：`.asset-aware-mcp/`、`.cline/`、`.clinerules/`、`.codex/`、`.github/agents/`、`AGENTS.md`、`.claude/skills/pdf-asset-extractor/` 與 `.vscode/mcp.json` 的修改，來自 Asset-Aware MCP 擴充套件安裝；不要提交、不要覆寫。
 
 ## 相關檔案
 
-- `docs/architecture.md` - v0.8.0 契約與 as-built 備註
+- `docs/architecture.md` - v0.9.0 契約與 as-built 備註
 - `docs/program-plan.md` - 階段、工作包、決策（D-05／D-06 已被取代）
 - `docs/critical-review-and-improvement-plan.md`、`docs/philosophical-inquiry-and-creativity.md` - 重寫的依據
 - `plugins/cgu/` - 對外交付的 plugin
@@ -58,4 +62,4 @@
 
 ## 更新時間
 
-2026-10-03 01:40
+2026-10-07
