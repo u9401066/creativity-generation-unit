@@ -2,9 +2,9 @@
 
 ## 當前焦點
 
-- **2026-10-07 v0.9.0 發布準備**：使用者已明確要求「更新文件跟發布」。README（EN／zh-TW）、架構、CHANGELOG、ROADMAP、設定範例與 plugin 已同步；安裝及 hook fallback 固定 `v0.9.0`。依 D-19，先發布 git tag／GitHub Release（wheel、sdist、SHA256SUMS），PyPI／MCP Registry 留待後續。排除本機快取、擴充套件資料與 evals/runs 的 sdist 打包修正已有回歸；579 tests、ruff／mypy 通過，獨立 Python 3.11＋MCP 2.3.0 的 wheel stdio／doctor／素材生命週期通過。下一步：提交、推送、GitHub CI 與 release。
+- **2026-10-07 v0.9.0 已發布**：README（EN／zh-TW）、架構、CHANGELOG、ROADMAP、設定範例與 plugin 已同步；安裝及 hook fallback 固定 `v0.9.0`。Release commit `bb32a8f42123223a1cc54a41f7baed93b0c90d50` 已推送 `master`，annotated tag `v0.9.0` 指向同一提交；[GitHub Release](https://github.com/u9401066/creativity-generation-unit/releases/tag/v0.9.0) 含 wheel、sdist、SHA256SUMS。579 tests、ruff／mypy 通過；[GitHub CI](https://github.com/u9401066/creativity-generation-unit/actions/runs/37620612551) 的 Python 3.11／3.12 全綠。獨立 Python 3.11＋MCP 2.3.0 wheel stdio／doctor／素材生命週期，以及遠端 tag 的 `uvx ... cgu doctor --json` 通過。sdist 限定 CGU 檔案並排除本機快取、擴充套件資料與 evals/runs。依 D-19，PyPI／MCP Registry 留待後續。
 
-- **2026-10-07 接續 Copilot，已完成**：使用者確認 MCP 被動提供工具，推理由呼叫端 agent 的模型負責。Hook 主動累積使用者提問，agent 定期整理成可追溯的創意素材；資料採 `~/.cgu`。未來 local LLM 可作為 agent，CGU 不另要求一個本地推理模型。管理機制保留但不是功能核心。預設 embedding 改 `ngram`，doctor 亦不探測模型；新增 `organize`／`distill`／`materials` 與 migration 3。門檻預設 20 筆，在 agent 下次使用時處理一批；無 agent 時只累積，不啟動排程。全套 577 passed、ruff／mypy／build 通過；未實際安裝 hook 或發布。
+- **2026-10-07 接續 Copilot，已完成**：MCP 被動提供工具，推理由呼叫端 agent 的模型負責。Hook 主動累積使用者提問，agent 整理成可追溯的創意素材；資料採 `~/.cgu`。本地或雲端模型皆可作為 agent，CGU 不另要求推理模型。預設 embedding 改 `ngram`，doctor 亦不探測模型；新增 `organize`／`distill`／`materials` 與 migration 3。門檻預設 20 筆，在 agent 下次使用時處理一批；無 agent 時只累積。管理機制保留；本輪未在使用者個人設定安裝或啟用 hook。
 
 - **2026-10-03：v0.8.0（MCP SDK 2 不相容重寫）已完成並推送 `master`**；進行中的是效果實驗的產出與報告（`evals/reports/`），以及把實驗結論據實回寫 README「證據」。
 - 專案作者與聯絡人：**u9401066 ＜u9401066@gap.kmu.edu.tw＞**（先前文件中的誤植已更正）。
@@ -41,7 +41,7 @@
 - [ ] VS Code 的實際安裝驗證；Codex 的實際對話驗證（需登入）。
 - [ ] 加 `agent` 條件與消融實驗；評估 skill 是否該在任務型題自動退讓。
 - [ ] 重測 `cgu_judge` 自編 session 名稱的錯誤（提示已改為列出真實 id，尚未重測）。
-- [ ] 發布 v0.9.0 tag／GitHub Release（使用者於 2026-10-07 已授權）；PyPI／MCP Registry 順序依 D-19。
+- [ ] 評估後續 PyPI／MCP Registry 發布（D-19）；v0.9.0 tag／GitHub Release 已完成。
 - [ ] 在 med-paper-assistant 的 integration lock 中固定正式發布版本（0.8.0 為不相容變更，須通知上層）。
 - [ ] 語意 embedding 的選用評估；2026-10-07 使用者要求 agent 模型負責思考，因此保留 `ngram` 為無模型預設，語意 embedding 需明確設定。
 - 未追蹤、**非 CGU 本體**的檔案：`.asset-aware-mcp/`、`.cline/`、`.clinerules/`、`.codex/`、`.github/agents/`、`AGENTS.md`、`.claude/skills/pdf-asset-extractor/` 與 `.vscode/mcp.json` 的修改，來自 Asset-Aware MCP 擴充套件安裝；不要提交、不要覆寫。

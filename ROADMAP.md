@@ -15,6 +15,7 @@ CGU (Creativity Generation Unit) 的路線圖。詳細的工作包、關卡與�
 - [x] 跨客戶端 `~/.cgu` 提問記憶；選用 Copilot hook、skill 轉送與檔案匯入
 - [x] `organize`／`distill`／`materials`：agent 整理可用創意素材，保留來源 ID／SHA-256；預設 20 筆待辦，無 agent 時只累積
 - [x] 安裝來源固定 `v0.9.0`；資料庫遷移、原子回交、來源刪除連動與套件打包範圍有回歸測試
+- [x] [v0.9.0 GitHub Release](https://github.com/u9401066/creativity-generation-unit/releases/tag/v0.9.0) 與 annotated tag；附件 wheel／sdist／SHA256SUMS，Python 3.11／3.12 CI 通過
 - [x] 在隔離的 Copilot CLI 實際安裝（marketplace 流程）並以 Sonnet／GPT luna 等級模型測試；Codex CLI 驗證安裝與 MCP 註冊
 - [x] 效果實驗框架 `evals/`（baseline vs plugin vs plugin_explicit，盲評成對比較）與三輪實驗（[摘要](evals/reports/SUMMARY.md)）：**未證明整體勝過直接提問**，但穩定提升新穎度與問題重構；v3 與 baseline 持平
 

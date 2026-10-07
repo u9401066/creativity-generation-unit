@@ -2,9 +2,11 @@
 
 ## Done
 
+- 2026-10-07：**v0.9.0 正式發布**。[GitHub Release](https://github.com/u9401066/creativity-generation-unit/releases/tag/v0.9.0)、annotated tag 與 commit `bb32a8f` 已在遠端；wheel／sdist／SHA256SUMS 上傳完成。CI run `37620612551` 的 Python 3.11／3.12 均成功；遠端固定 tag 的 uvx 安裝與 doctor 通過。附件從乾淨 release commit 重建，sdist 306 個檔案均屬追蹤檔案或建置 metadata，沒有本機資料、快取與原始 runs。
+
 - 2026-10-07：v0.9.0 發布準備完成。文件、MCP 範例、plugin 與 hook fallback 固定版本同步；sdist 明確選取 CGU 檔案並排除本機快取與原始 runs。**579 passed**；ruff／mypy（63 source files）、locked sync、build 通過；獨立 Python 3.11.9／MCP 2.3.0 的已安裝 wheel 測得 11 tools、doctor 零模型探測、素材跨程序持久化與來源刪除連動。
 
-- 2026-10-07：接續 Copilot 的 inquiry memory，完成模型分工與創意素材整理。預設 `passthrough`＋`ngram`，MCP／doctor 不探測 Ollama；hook 累積、agent 用自己的模型執行 `organize`，`distill` 保存來源 ID／SHA-256 的 caller 素材，`materials` 跨 session 回用。Migration 3、門檻、分批／部分已讀、冪等重送、刪除連動、舊庫升級與競態回歸已驗證。`CGU_REQUIRE_LIVE_CONTRACT=1` 下 **577 passed**；ruff check／format、mypy（63 source files）、`uv build` 通過。未安裝使用者 hook、未發版。
+- 2026-10-07：接續 Copilot 的 inquiry memory，完成模型分工與創意素材整理。預設 `passthrough`＋`ngram`，MCP／doctor 不探測 Ollama；hook 累積、agent 用自己的模型執行 `organize`，`distill` 保存來源 ID／SHA-256 的 caller 素材，`materials` 跨 session 回用。Migration 3、門檻、分批／部分已讀、冪等重送、刪除連動、舊庫升級與競態回歸已驗證。功能階段 **577 passed**；加入發布檢查後 **579 passed**。未安裝或啟用使用者個人 hook。
 
 - 2026-10-03（第五輪續）：三輪效果實驗與迭代。exp1（v1）→ 依評審理由改 v2（限制清單）→ exp2（held-out）證偽「限制違反是主因」→ 讀評審理由後改 v3（白話輸出、決策值不得寫「待估」）→ exp3（新 held-out）持平。伺服器小修：`default_target`、unknown session 提示列出真實 id。Codex CLI 0.160.0 驗證安裝與 MCP 註冊。
 - 2026-10-03（第五輪，**v0.8.0 不相容重寫**）：依使用者指示「MCP 直接改 SDK 2.0+、不相容、設計較佳架構」完成並推送 `master`。
@@ -52,11 +54,11 @@
 | | P3.7 實驗 H7、H8 | 待辦 | |
 | P4 創意機制 | P4.1–P4.6 | 基礎版已含於重寫 | 反典型、fan-out、素材（Wikipedia）、niche map；**皆未經實驗驗證**；G4 停損關卡待過 |
 | P5 人機回饋 | P5.1–P5.5 | 部分 | `cgu_feedback` 資料模型已有；對人類原創性的量測待辦 |
-| P6 驗證與 1.0 | P6.1–P6.4 | 待辦 | |
+| P6 驗證與 1.0 | P6.1–P6.4 | 部分 | v0.9.0 tag／GitHub Release 完成；1.0 宣稱審計、PyPI／Registry 與其他工作包待辦 |
 
 ## Next
 
 1. 看實驗報告，據實更新 README「證據」；若 skill 自動觸發率低，改 skill 描述並用**未見過的題目**重驗。
 2. 人類校準協議（2–3 位評分者、約 100 個點子，D-10）。
 3. VS Code 與 Codex 的實際安裝驗證。
-4. 推送本次 v0.9.0 並確認 GitHub CI，建立已授權的 tag／Release；之後評估 PyPI 與 MCP Registry（D-19）。
+4. 評估後續 PyPI 與 MCP Registry（D-19）；v0.9.0 git tag／GitHub Release 已完成。
